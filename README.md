@@ -5,3 +5,8 @@ FastAPIを素振りする
 ```bash
 docker-compose run api bash
 ```
+
+
+```bash
+uvicorn main:app --reload
+```
