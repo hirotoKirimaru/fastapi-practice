@@ -15,3 +15,9 @@ docker-compose up -d
 ```bash
 uvicorn main:app --reload
 ```
+
+# Swagger
+
+```bash
+http://127.0.0.1/docs
+```
