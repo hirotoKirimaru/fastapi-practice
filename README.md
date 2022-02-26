@@ -6,7 +6,12 @@ FastAPIを素振りする
 docker-compose run api bash
 ```
 
+# 起動
+```bash
+docker-compose up -d
+```
 
+# 起動しない？
 ```bash
 uvicorn main:app --reload
 ```
