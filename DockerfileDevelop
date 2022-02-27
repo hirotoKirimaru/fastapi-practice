@@ -4,4 +4,4 @@ RUN pip install pytest
 RUN pip install starlette
 RUN pip install requests
 
-COPY ./app /app
+# COPY ./app /usr/local/app
