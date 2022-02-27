@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3"
 
 services:
   api: 
@@ -10,3 +10,4 @@ services:
       - "80:80"
     volumes:
       - ./app:/app
+      - ./test:/app/test
