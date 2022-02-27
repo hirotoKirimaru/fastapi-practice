@@ -10,3 +10,4 @@ services:
       - "80:80"
     volumes:
       - ./app:/app
+      - ./test:/app/test
