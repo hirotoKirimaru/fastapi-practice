@@ -54,3 +54,8 @@ docker-compose exec demo-app poetry add -D pytest-asyncio aiosqlite httpx
 
 docker-compose exec demo-app poetry run python -m api.migrate_db
 ```
+
+# テスト
+```bash
+docker-compose run --entrypoint "poetry run pytest" demo-app
+```
