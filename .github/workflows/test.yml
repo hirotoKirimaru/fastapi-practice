@@ -9,5 +9,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - name: build
+        run: docker-compose build
       - name: test
         run: docker-compose run --entrypoint "poetry run pytest --asyncio-mode=strict" api
