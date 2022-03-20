@@ -3,9 +3,9 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import api.cruds.task as task_crud
-import api.schemas.task as task_schema
-from api.db import get_db
+import src.cruds.task as task_crud
+import src.schemas.task as task_schema
+from src.db import get_db
 
 router = APIRouter()
 

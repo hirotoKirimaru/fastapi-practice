@@ -4,8 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import api.models.task as task_model
-import api.schemas.task as task_schema
+import src.models.task as task_model
+import src.schemas.task as task_schema
 
 
 async def create_task(
