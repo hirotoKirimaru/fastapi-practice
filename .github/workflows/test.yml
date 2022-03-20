@@ -8,5 +8,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v1
       - name: test
         run: docker-compose run --entrypoint "poetry run pytest --asyncio-mode=strict" api
