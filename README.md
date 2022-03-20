@@ -43,6 +43,12 @@ docker-compose run --entrypoint "poetry install" demo-app
 docker-compose build --no-cache
 ```
 
+
+```bash
+# poetryで開発者モードでインストール
+docker-compose exec demo-app poetry add -D pytest-asyncio aiosqlite httpx
+```
+
 # DBマイグレーション
 ```bash
 
