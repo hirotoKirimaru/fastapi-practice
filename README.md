@@ -63,4 +63,5 @@ docker-compose run --entrypoint "poetry run pytest --asyncio-mode=strict" api
 ログインした場合のコマンド。
 ```bash
 poetry run pytest --asyncio-mode=strict
+poetry run pytest --asyncio-mode=strict --pdb
 ```

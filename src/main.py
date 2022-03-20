@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 
-from src.routers import task, done
+from src.routers.router import api_router
+
 
 app = FastAPI()
-app.include_router(task.router)
-app.include_router(done.router)
+# app.include_router(api_router, prefix="/v1")
+app.include_router(api_router)
