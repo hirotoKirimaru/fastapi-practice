@@ -25,3 +25,20 @@ http://127.0.0.1/docs
 # 参考元
 
 https://zenn.dev/sh0nk/books/537bb028709ab9
+
+
+```bash
+docker-compose run \
+  --entrypoint "poetry init \
+    --name demo-app \
+    --dependency fastapi \
+    --dependency uvicorn[standard]" \
+  demo-app
+```
+```bash
+docker-compose run --entrypoint "poetry install" demo-app
+```
+
+```bash
+docker-compose build --no-cache
+```
