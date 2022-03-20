@@ -42,3 +42,9 @@ docker-compose run --entrypoint "poetry install" demo-app
 ```bash
 docker-compose build --no-cache
 ```
+
+# DBマイグレーション
+```bash
+
+docker-compose exec demo-app poetry run python -m api.migrate_db
+```
