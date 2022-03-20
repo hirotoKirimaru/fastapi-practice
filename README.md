@@ -57,5 +57,10 @@ docker-compose exec demo-app poetry run python -m api.migrate_db
 
 # テスト
 ```bash
-docker-compose run --entrypoint "poetry run pytest" api
+docker-compose run --entrypoint "poetry run pytest --asyncio-mode=strict" api
+```
+
+ログインした場合のコマンド。
+```bash
+poetry run pytest --asyncio-mode=strict
 ```
