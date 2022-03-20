@@ -21,3 +21,7 @@ uvicorn main:app --reload
 ```bash
 http://127.0.0.1/docs
 ```
+
+# 参考元
+
+https://zenn.dev/sh0nk/books/537bb028709ab9
