@@ -1,7 +1,0 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
-
-RUN pip install pytest
-RUN pip install starlette
-RUN pip install requests
-
-# COPY ./app /usr/local/app
