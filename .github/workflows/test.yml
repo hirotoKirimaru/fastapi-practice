@@ -1,0 +1,12 @@
+name: Python Test CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: test
+        run: docker-compose run --entrypoint "poetry run pytest --asyncio-mode=strict" api
