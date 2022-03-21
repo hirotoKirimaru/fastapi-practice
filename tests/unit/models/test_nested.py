@@ -1,10 +1,4 @@
-import pprint
-
 import pytest
-from sqlalchemy.ext.asyncio import async_session, create_async_engine
-
-import src.cruds.task
-from src.models.task import Task, Done
 
 
 class TestNested:
