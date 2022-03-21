@@ -32,3 +32,21 @@ async def async_client() -> AsyncClient:
     # テスト用に非同期HTTPクライアントを返却
     async with AsyncClient(app=app, base_url="http://test") as client:
         yield client
+
+
+@pytest_asyncio.fixture
+async def db() -> AsyncClient:
+    # Async用のengineとsessionを作成
+    async_engine = create_async_engine(ASYNC_DB_URL, echo=True)
+    async_session = sessionmaker(
+        autocommit=False, autoflush=False, bind=async_engine, class_=AsyncSession
+    )
+
+    # テスト用にオンメモリのSQLiteテーブルを初期化（関数ごとにリセット）
+    async with async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+        # DIを使ってFastAPIのDBの向き先をテスト用DBに変更
+
+    async with async_session() as session:
+        return session
