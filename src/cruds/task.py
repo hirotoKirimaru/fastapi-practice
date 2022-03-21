@@ -31,14 +31,14 @@ async def get_tasks_with_done(db: AsyncSession) -> List[Tuple[int, str, bool]]:
     return result.all()
 
 
-async def get_tasks_with_done_2(db: AsyncSession) -> List[Tuple[int, str, bool]]:
+async def get_tasks_with_done_inner_join(db: AsyncSession) -> List[Tuple[int, str, bool]]:
     result: Result = await (
         db.execute(
             select(
                 task_model.Task.id,
                 task_model.Task.title,
                 task_model.Done.id.isnot(None).label("done"),
-            ).outerjoin(task_model.Done)
+            ).join(task_model.Task, task_model.Done.task)
         )
     )
     return result.all()
