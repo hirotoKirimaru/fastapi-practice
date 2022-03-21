@@ -49,4 +49,5 @@ async def db() -> AsyncClient:
         # DIを使ってFastAPIのDBの向き先をテスト用DBに変更
 
     async with async_session() as session:
-        return session
+        yield session
+        await session.close()
