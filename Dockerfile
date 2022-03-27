@@ -1,5 +1,4 @@
-# python3.9のイメージをダウンロード
-FROM python:3.9-buster
+FROM python:3.10.4
 ENV PYTHONUNBUFFERED=1
 
 COPY ./src /src
