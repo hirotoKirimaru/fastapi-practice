@@ -12,6 +12,9 @@ jobs:
       - name: build
         run: docker-compose build
       - name: compose up -d
-        run: docker-compose up -d
+        # Mysqlの起動待ちで20秒
+        run: |
+          docker-compose up -d
+          sleep 20
       - name: test
         run: docker-compose run --entrypoint "poetry run pytest --asyncio-mode=strict" api
