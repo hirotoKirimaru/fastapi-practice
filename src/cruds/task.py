@@ -43,6 +43,7 @@ async def get_tasks_with_done_inner_join(db: AsyncSession) -> List[Tuple[int, st
     )
     return result.all()
 
+
 async def get_task(db: AsyncSession, task_id: int) -> Optional[task_model.Task]:
     result: Result = await db.execute(
         select(task_model.Task).filter(task_model.Task.id == task_id)
