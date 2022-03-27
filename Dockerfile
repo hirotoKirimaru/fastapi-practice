@@ -1,10 +1,11 @@
-FROM python:3.10.4
+FROM python:3.9
+# NOTE: 3.10.4 にアップグレードすると色々と動かない
+#FROM python:3.10.4
 ENV PYTHONUNBUFFERED=1
 
 COPY ./src /src
 WORKDIR /src
 
-# pipを使ってpoetryをインストール
 RUN pip install poetry
 
 # poetryの定義ファイルをコピー (存在する場合)
