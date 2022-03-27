@@ -10,12 +10,12 @@ from src.db import get_db
 router = APIRouter()
 
 
-@router.get("/", response_model=List[task_schema.Task])
+@router.get("", response_model=List[task_schema.Task])
 async def list_tasks(db: AsyncSession = Depends(get_db)):
     return await task_crud.get_tasks_with_done(db)
 
 
-@router.post("/", response_model=task_schema.TaskCreateResponse)
+@router.post("", response_model=task_schema.TaskCreateResponse)
 async def create_task(
     task_body: task_schema.TaskCreate, db: AsyncSession = Depends(get_db)
 ):
