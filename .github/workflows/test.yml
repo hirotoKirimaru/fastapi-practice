@@ -16,5 +16,5 @@ jobs:
         run: |
           docker-compose up -d
 #          sleep 20
-      - name: test
-        run: docker-compose exec -T api "poetry run pytest --asyncio-mode=strict"
+#      - name: test
+#        run: docker-compose run --entrypoint "poetry run pytest --asyncio-mode=strict" api
