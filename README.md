@@ -36,7 +36,7 @@ docker-compose run \
   demo-app
 ```
 ```bash
-docker-compose run --entrypoint "poetry install" demo-app
+docker-compose run --entrypoint "poetry install" api
 ```
 
 ```bash
@@ -58,6 +58,10 @@ docker-compose exec demo-app poetry run python -m api.migrate_db
 # テスト
 ```bash
 docker-compose run --entrypoint "poetry run pytest --asyncio-mode=strict" api
+```
+
+```bash
+docker-compose run --rm api poetry run pytest --asyncio-mode=strict
 ```
 
 ログインした場合のコマンド。
