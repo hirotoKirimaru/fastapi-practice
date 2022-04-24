@@ -73,3 +73,5 @@ class CustomAssert:
         Primitive-obsessionの確認？
         """
         return isinstance(object, (str, int, date, bool))
+        # Python 3.10以降だとUnion TypesもOK
+        # return isinstance(object, str | int | date | bool)
