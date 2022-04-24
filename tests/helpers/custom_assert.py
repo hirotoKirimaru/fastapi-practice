@@ -1,3 +1,6 @@
+from datetime import date
+
+
 class CustomAssert:
     @staticmethod
     def shallow_equal(
@@ -13,7 +16,7 @@ class CustomAssert:
         """
         for key, value in actual.__dict__.items():
             # 自作型は無視するようにする
-            if is_primitive(value):
+            if not is_primitive(value):
                 continue
             # いい感じに無視したい
             if ignore_column_list.__contains__(key):
@@ -64,9 +67,9 @@ class CustomAssert:
             {expected.__dict__}
             """
 
-
-def is_primitive(object) -> bool:
-    """
-    Primitive-obsessionの確認？
-    """
-    return "." in str(type(object))
+    @staticmethod
+    def is_primitive(object) -> bool:
+        """
+        Primitive-obsessionの確認？
+        """
+        return isinstance(object, (str, int, date, bool))

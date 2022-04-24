@@ -49,6 +49,11 @@ docker-compose build --no-cache
 docker-compose exec demo-app poetry add -D pytest-asyncio aiosqlite httpx
 ```
 
+```bash
+# ログイン
+docker-compose run api bash
+```
+
 # DBマイグレーション
 ```bash
 
