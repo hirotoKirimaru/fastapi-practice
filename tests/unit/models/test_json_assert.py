@@ -1,6 +1,10 @@
 import pytest
 import json
 
+"""
+json比較する際には、一度辞書型にしてから比較する。
+"""
+
 
 def test_01():
     actual = """
@@ -22,8 +26,8 @@ def test_01():
     expected = """
     {
       "parent": {
-        "id": 100,
         "name": "kirimaru",
+        "id": 100,
         "children":  [
           {
             "id": 101
@@ -37,3 +41,4 @@ def test_01():
     """
 
     assert json.loads(actual) == json.loads(expected)
+    # assert actual == expected
