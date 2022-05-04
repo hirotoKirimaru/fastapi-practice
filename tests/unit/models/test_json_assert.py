@@ -7,6 +7,7 @@ def test_01():
     {
       "parent": {
         "id": 100,
+        "name": "kirimaru",
         "children":  [
           {
             "id": 101
@@ -22,6 +23,7 @@ def test_01():
     {
       "parent": {
         "id": 100,
+        "name": "kirimaru",
         "children":  [
           {
             "id": 101
