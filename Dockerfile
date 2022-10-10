@@ -4,6 +4,8 @@ FROM python:3.9
 ENV PYTHONUNBUFFERED=1
 
 COPY ./src /src
+# poetryのデフォルトパスになる
+ENV PYTHONPATH=/src 
 WORKDIR /src
 
 RUN pip install poetry
@@ -13,9 +15,7 @@ COPY pyproject.toml* poetry.lock* ./
 
 # poetryでライブラリをインストール (pyproject.tomlが既にある場合)
 RUN poetry config virtualenvs.in-project true
-# インストール
 RUN if [ -f pyproject.toml ]; then poetry install ; fi
-# RUN poetry install
 
 # uvicornのサーバーを立ち上げる
 #ENTRYPOINT ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
