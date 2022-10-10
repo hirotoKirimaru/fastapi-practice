@@ -56,6 +56,27 @@ docker-compose exec api poetry add pandas
 docker-compose run api bash
 ```
 
+# ライブラリを追加する
+
+```bash
+# 次のコマンドが動かないので。
+poerty add pandas
+
+# Response
+# failed to create /root/.cache/pypoetry/cache/repositories/PyPI/_http/9/7/d/d/9/ec3f3c34427c-68eba740.67-179095377644821737
+```
+
+1. poetry.lockファイルを削除する
+1. pyproject.tomlファイルに自分で追記する
+1. Dockerのビルド時、または起動時にpoetryのインストールを行う
+1. 動く！
+
+```bash
+# 起動時じゃないとつかえない？
+docker-compose run --entrypoint "poetry install" api
+```
+
+
 # DBマイグレーション
 ```bash
 
