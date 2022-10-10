@@ -2,7 +2,8 @@ from typing import List
 
 import src.cruds.task as task_crud
 import src.schemas.task as task_schema
-from fastapi import APIRouter, Depends, HTTPException, StreamingResponse
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_db
 
@@ -43,4 +44,7 @@ async def delete_task(task_id: int, db: AsyncSession = Depends(get_db)):
 
 @router.get("/download")
 async def download_task(db: AsyncSession = Depends(get_db)):
-    return StreamingResponse(task_crud.create_csv())
+    return StreamingResponse(
+        task_crud.create_csv(),
+        headers={"Content-Disposition": 'attachment; filename="file.txt"'},
+    )

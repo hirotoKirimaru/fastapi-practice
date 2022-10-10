@@ -46,7 +46,9 @@ docker-compose build --no-cache
 
 ```bash
 # poetryで開発者モードでインストール
-docker-compose exec demo-app poetry add -D pytest-asyncio aiosqlite httpx
+docker-compose exec api poetry add -D pytest-asyncio aiosqlite httpx
+# やりたいけど動かない
+docker-compose exec api poetry add pandas
 ```
 
 ```bash
