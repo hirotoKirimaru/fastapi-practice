@@ -1,11 +1,11 @@
-from typing import List, Tuple, Optional
-
-from sqlalchemy import select
-from sqlalchemy.engine import Result
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import AsyncGenerator, List, Optional, Tuple
 
 import src.models.task as task_model
 import src.schemas.task as task_schema
+from sqlalchemy import select
+from sqlalchemy.engine import Result
+from sqlalchemy.ext.asyncio import AsyncSession
+from src.models.csvs import Csvs
 
 
 async def create_task(
@@ -31,7 +31,9 @@ async def get_tasks_with_done(db: AsyncSession) -> List[Tuple[int, str, bool]]:
     return result.all()
 
 
-async def get_tasks_with_done_inner_join(db: AsyncSession) -> List[Tuple[int, str, bool]]:
+async def get_tasks_with_done_inner_join(
+    db: AsyncSession,
+) -> List[Tuple[int, str, bool]]:
     result: Result = await (
         db.execute(
             select(
@@ -65,3 +67,8 @@ async def update_task(
 async def delete_task(db: AsyncSession, original: task_model.Task) -> None:
     await db.delete(original)
     await db.commit()
+
+
+async def create_csv() -> AsyncGenerator[bytes, None]:
+    for i in range(100):
+        yield Csvs.create_row_data(data=[i], first=i == 0)

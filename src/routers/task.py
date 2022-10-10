@@ -1,10 +1,9 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-
 import src.cruds.task as task_crud
 import src.schemas.task as task_schema
+from fastapi import APIRouter, Depends, HTTPException, StreamingResponse
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_db
 
 router = APIRouter()
@@ -24,8 +23,7 @@ async def create_task(
 
 @router.put("/{task_id}", response_model=task_schema.TaskCreateResponse)
 async def update_task(
-    task_id: int, task_body: task_schema.TaskCreate,
-    db: AsyncSession = Depends(get_db)
+    task_id: int, task_body: task_schema.TaskCreate, db: AsyncSession = Depends(get_db)
 ):
     task = await task_crud.get_task(db, task_id=task_id)
     if task is None:
@@ -41,3 +39,8 @@ async def delete_task(task_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Task not found")
 
     return await task_crud.delete_task(db, original=task)
+
+
+@router.get("/download")
+async def download_task(db: AsyncSession = Depends(get_db)):
+    return StreamingResponse(task_crud.create_csv())
