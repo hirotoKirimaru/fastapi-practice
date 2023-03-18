@@ -2,7 +2,7 @@ from typing import AsyncGenerator, List, Optional, Tuple
 
 import src.models.task as task_model
 import src.schemas.task as task_schema
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.csvs import Csvs
@@ -46,7 +46,8 @@ async def get_tasks_with_done_inner_join(
     return result.all()
 
 
-async def get_task(db: AsyncSession, task_id: int) -> Optional[task_model.Task]:
+# async def get_task(db: AsyncSession, task_id: int, criteria: and_ | None = None) -> Optional[task_model.Task]:
+async def get_task(db: AsyncSession, task_id: int, criteria: Optional[and_ ] = None) -> Optional[task_model.Task]:
     result: Result = await db.execute(
         select(task_model.Task).filter(task_model.Task.id == task_id)
     )
