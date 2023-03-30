@@ -47,6 +47,7 @@ async def get_tasks_with_done_inner_join(
 
 
 # async def get_task(db: AsyncSession, task_id: int, criteria: and_ | None = None) -> Optional[task_model.Task]:
+# async def get_task(db: AsyncSession, task_id: int, criteria: Optional[and_ ] = None) -> Optional[task_model.Task]:
 async def get_task(db: AsyncSession, task_id: int, criteria: Optional[and_ ] = None) -> Optional[task_model.Task]:
     result: Result = await db.execute(
         select(task_model.Task).filter(task_model.Task.id == task_id)
