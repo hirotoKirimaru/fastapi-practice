@@ -65,10 +65,11 @@ async def test_03(db: AsyncSession) -> None:
     query: select = select(User)
 
     # 最後の条件で上書き
-    condition = and_(User.id == 1)
-    condition = and_(User.organization == "開発部", *condition)
+    criteria = []
+    criteria.append(and_(User.id == 1))
+    criteria.append(and_(User.organization == "開発部"))
 
-    query = query.where(condition)
+    query = query.where(*criteria)
     actual = (await db.execute(query)).scalars().all()
 
     # assert user1.id == actual[0].id
