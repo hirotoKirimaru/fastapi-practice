@@ -64,7 +64,7 @@ async def test_03(db: AsyncSession) -> None:
 
     query: select = select(User)
 
-    # 最後の条件で上書き
+    # 条件をまとめる
     criteria = []
     criteria.append(and_(User.id == 1))
     criteria.append(and_(User.organization == "開発部"))
