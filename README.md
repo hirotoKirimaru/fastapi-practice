@@ -105,3 +105,9 @@ poetry run pytest --asyncio-mode=strict --pdb
 # black
 pip install black
 ```
+
+
+```bash
+# 単体ファイル
+docker-compose run --entrypoint "poetry run pytest -s tests/unit/models/test_search.py --asyncio-mode=strict" api
+```
