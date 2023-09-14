@@ -89,7 +89,7 @@ def test_04():
         start = time.perf_counter()
 
         a = [User(user_id=str(x)) for x in range(max)]
-        b: Dict[int, int] = {x.id: x for x in a}
+        b: Dict[str, User] = {x.id: x for x in a}
 
         for x in range(search_times):
             b.get(random.randrange(max))
