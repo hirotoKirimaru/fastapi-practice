@@ -5,7 +5,7 @@ import time
 import random
 
 
-skip: bool = True
+skip: bool = False
 
 # 10回やった平均を取る
 
@@ -53,7 +53,7 @@ import datetime
 
 class User:
     def __init__(self, user_id, email = None, name = None, birthday=None):
-        self.id = id
+        self.user_id = user_id
         self.email = email
         self.name = name
         self.birthday = birthday
@@ -73,7 +73,7 @@ def test_03():
         a = [User(user_id=str(x)) for x in range(max)]
 
         for x in range(search_times):
-            [x for x in a if x.id == random.randrange(max)]
+            [x for x in a if x.user_id == str(random.randrange(max))]
 
         end = time.perf_counter()
         processingTime += end - start
@@ -89,10 +89,10 @@ def test_04():
         start = time.perf_counter()
 
         a = [User(user_id=str(x)) for x in range(max)]
-        b: Dict[str, User] = {x.id: x for x in a}
+        b: Dict[str, User] = {x.user_id: x for x in a}
 
         for x in range(search_times):
-            b.get(random.randrange(max))
+            b.get(str(random.randrange(max)))
 
         end = time.perf_counter()
         processingTime += end - start
