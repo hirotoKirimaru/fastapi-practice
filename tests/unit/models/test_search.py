@@ -92,7 +92,7 @@ def test_04():
         b: Dict[str, User] = {x.user_id: x for x in a}
 
         for x in range(search_times):
-            b.get(str(random.randrange(max)))
+            b.get(str(random.randrange(max)), User(user_id='XXXX'))
 
         end = time.perf_counter()
         processingTime += end - start
