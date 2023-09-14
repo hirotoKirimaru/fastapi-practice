@@ -5,7 +5,7 @@ import time
 import random
 
 
-skip: bool = False
+skip: bool = True
 
 # 10回やった平均を取る
 
