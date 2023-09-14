@@ -9,18 +9,21 @@ skip: bool = True
 
 # 10回やった平均を取る
 
+number_of_trials = 10
+max = 100000
+search_times = 100
 
 @pytest.mark.skipif(skip, reason="ちょっと重いからスキップさせる")
 def test_01():
     print("1111111111111111111111")
     processingTime: float = 0
-    for y in range(10):
+    for y in range(number_of_trials):
         start = time.perf_counter()
 
-        a = [x for x in range(100000)]
+        a = [x for x in range(max)]
 
-        for x in range(100):
-            [x for x in a if x == random.randrange(100000)]
+        for x in range(search_times):
+            [x for x in a if x == random.randrange(max)]
 
         end = time.perf_counter()
         processingTime += end - start
@@ -32,14 +35,14 @@ def test_01():
 def test_02():
     print("22222222222222222222222")
     processingTime: float = 0
-    for y in range(10):
+    for y in range(number_of_trials):
         start = time.perf_counter()
 
-        a = [x for x in range(100000)]
+        a = [x for x in range(max)]
         b: Dict[int, int] = {x: x for x in a}
 
-        for x in range(100):
-            b.get(random.randrange(100000))
+        for x in range(search_times):
+            b.get(random.randrange(max))
 
         end = time.perf_counter()
         processingTime += end - start
@@ -60,38 +63,38 @@ class User:
     name: str
     birthday: datetime
 
-@pytest.mark.skipif(False, reason="ちょっと重いからスキップさせる")
+@pytest.mark.skipif(skip, reason="ちょっと重いからスキップさせる")
 def test_03():
     print("333333333")
     processingTime: float = 0
-    for y in range(10):
+    for y in range(number_of_trials):
         start = time.perf_counter()
 
-        a = [User(user_id=str(x)) for x in range(100000)]
+        a = [User(user_id=str(x)) for x in range(max)]
 
-        for x in range(100):
-            [x for x in a if x.id == random.randrange(100000)]
+        for x in range(search_times):
+            [x for x in a if x.id == random.randrange(max)]
 
         end = time.perf_counter()
         processingTime += end - start
 
-    print(processingTime / 10)
+    print(processingTime / number_of_trials)
 
 
-@pytest.mark.skipif(False, reason="ちょっと重いからスキップさせる")
+@pytest.mark.skipif(skip, reason="ちょっと重いからスキップさせる")
 def test_04():
     print("4444444444")
     processingTime: float = 0
-    for y in range(10):
+    for y in range(number_of_trials):
         start = time.perf_counter()
 
-        a = [User(user_id=str(x)) for x in range(100000)]
+        a = [User(user_id=str(x)) for x in range(max)]
         b: Dict[int, int] = {x.id: x for x in a}
 
-        for x in range(100):
-            b.get(random.randrange(100000))
+        for x in range(search_times):
+            b.get(random.randrange(max))
 
         end = time.perf_counter()
         processingTime += end - start
 
-    print(processingTime / 10)
+    print(processingTime / number_of_trials)
