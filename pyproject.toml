@@ -2,7 +2,10 @@
 name = "fastapi-practice"
 version = "0.1.0"
 description = "Add your description here"
-dependencies = []
+dependencies = [
+    "fastapi>=0.104.1",
+    "pandas>=2.0.3",
+]
 readme = "README.md"
 requires-python = ">= 3.8"
 
