@@ -25,6 +25,14 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
 #    rye sync --no-dev --no-lock
 #RUN rye sync
 
+# venvのactivate?
+RUN . .venv/bin/activate
+
+# こうしないとダメ？
+#RUN rye install pytest ruff uvicorn
+RUN #rye install fastapi
+RUN rye install uvicorn
+
 
 #RUN pip install poetry
 
@@ -39,3 +47,4 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
 #ENTRYPOINT ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 #CMD ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
+# uvicorn src.main:app
