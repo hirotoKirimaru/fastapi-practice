@@ -38,4 +38,4 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
 # uvicornのサーバーを立ち上げる
 #ENTRYPOINT ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 #CMD ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
-CMD ["python", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
