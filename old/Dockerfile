@@ -3,7 +3,7 @@ FROM python:3.9
 #FROM python:3.10.4
 ENV PYTHONUNBUFFERED=1
 
-COPY ./src /src
+COPY src /src
 # poetryのデフォルトパスになる
 ENV PYTHONPATH=/src 
 WORKDIR /src

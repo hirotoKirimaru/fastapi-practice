@@ -1,7 +1,7 @@
 version: '3'
 services:
   api:
-    build: .
+    build: ..
     read_only: true
     volumes:
       - .dockervenv:/src/.venv
