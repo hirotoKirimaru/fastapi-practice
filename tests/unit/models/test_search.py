@@ -4,6 +4,7 @@ import time
 
 import random
 
+import datetime
 
 skip: bool = True
 
@@ -49,7 +50,6 @@ def test_02():
 
     print(processingTime / 10)
 
-import datetime
 
 class User:
     def __init__(self, user_id, email = None, name = None, birthday=None):

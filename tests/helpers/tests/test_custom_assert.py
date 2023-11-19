@@ -1,4 +1,3 @@
-from sqlite3 import Date
 import pytest
 from tests.helpers.custom_assert import CustomAssert
 from datetime import date

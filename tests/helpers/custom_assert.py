@@ -16,7 +16,7 @@ class CustomAssert:
         """
         for key, value in actual.__dict__.items():
             # 自作型は無視するようにする
-            if not is_primitive(value):
+            if not actual.is_primitive(value):
                 continue
             # いい感じに無視したい
             if ignore_column_list.__contains__(key):

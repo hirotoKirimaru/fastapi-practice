@@ -11,6 +11,12 @@ rye sync
 # Windows 等々で行う必要あり
 ```
 
+# 自動フォーマット
+
+```
+ruff . --fix
+```
+
 # OpenAPIの定義ファイル
 ```bash
 http://localhost:8000/docs

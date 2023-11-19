@@ -1,6 +1,7 @@
 from typing import Tuple, Optional
 
-from sqlalchemy import select
+import sqlalchemy
+from sqlalchemy import select, and_
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,7 +9,7 @@ import src.models.task as task_model
 
 
 async def get_done(db: AsyncSession, task_id: int) -> Optional[task_model.Done]:
-    criteria = self.base_query(task_id)
+    criteria = base_query(task_id)
     result: Result = await db.execute(
         select(task_model.Done).where(criteria)
     )
