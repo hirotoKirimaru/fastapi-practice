@@ -1,9 +1,8 @@
 import pprint
 
 import pytest
-from sqlalchemy.ext.asyncio import async_session, create_async_engine
 
-import cruds.task
+import src.cruds
 from src.models.task import Task, Done
 
 
