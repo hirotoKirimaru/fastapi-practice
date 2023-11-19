@@ -4,7 +4,7 @@ services:
     build: .
     read_only: true
     volumes:
-      - .dockervenv:/src/.venv
+#      - .dockervenv:/src/.venv
       - .:/src
       - /tmp
     ports:
