@@ -11,8 +11,9 @@ rye sync
 # Windows 等々で行う必要あり
 ```
 
+# OpenAPIの定義ファイル
 ```bash
-
+http://localhost:8000/docs
 ```
 
 # fastapi-practice

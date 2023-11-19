@@ -1,6 +1,6 @@
 from typing import List
 
-import cruds.task as task_crud
+import src.cruds.task as task_crud
 import src.schemas.task as task_schema
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
