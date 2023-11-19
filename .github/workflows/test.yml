@@ -6,15 +6,24 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
 
     steps:
-      - uses: actions/checkout@v1
-      - name: build
-        run: docker-compose build
-      - name: compose up -d
-        # Mysqlの起動待ちで20秒
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
         run: |
-          docker-compose up -d
-#          sleep 20
-#      - name: test
-#        run: docker-compose run --entrypoint "poetry run pytest --asyncio-mode=strict" api
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock -r requirements-dev.lock
+      - name: Lint with Ruff
+        run: |
+#          ruff --output-format=github .
+          ruff .
+        continue-on-error: true
+      - name: Test
+        run: pytest
