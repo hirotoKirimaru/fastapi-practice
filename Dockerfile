@@ -4,7 +4,11 @@ FROM ${PYTHON_BASE_IMAGE}:3.11 AS rye
 #FROM python:3.11
 # NOTE: 3.10.4 にアップグレードすると色々と動かない
 #FROM python:3.10.4
+
+ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH="/src:$PYTHONPATH"
+
 
 COPY src /src
 # poetryのデフォルトパスになる
@@ -30,7 +34,7 @@ RUN . .venv/bin/activate
 
 # こうしないとダメ？
 #RUN rye install pytest ruff uvicorn
-RUN #rye install fastapi
+# RUN rye install fastapi
 RUN rye install uvicorn
 
 
@@ -47,4 +51,4 @@ RUN rye install uvicorn
 #ENTRYPOINT ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 #CMD ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
-# uvicorn src.main:app
+# uvicorn src.main:app --host 0.0.0.0 --reload
