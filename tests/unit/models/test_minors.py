@@ -31,3 +31,7 @@ class TestIterator:
         actual = [x for x in target]
         assert len(actual) == 3, "18歳以下は3人"
         assert set(actual) == {user_1, user_2, user_3}
+
+        # target.valueと同じ
+        actual_2 = [x for x in target.value]
+        assert set(actual) == set(actual_2)
