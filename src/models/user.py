@@ -1,6 +1,8 @@
 import datetime
 
 from sqlalchemy import Column, Integer, String, Date
+
+from src.helper.datetime_resolver import DatetimeResolver
 from src.db import Base
 
 
@@ -13,9 +15,11 @@ class User(Base):
     organization = Column(String(1024))
     birth_day = Column(Date)
 
-    def age(self, now: datetime.date) -> int:
+    @property
+    def age(self) -> int:
         """
         年齢を計算する.
         """
+        now = DatetimeResolver.today()
         return now.year - self.birth_day.year - ((now.month, now.day) < (self.birth_day.month, self.birth_day.day))
 

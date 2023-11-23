@@ -1,8 +1,9 @@
 import pytest
+import pytest_mock
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import date
 
-import src.models.user
+from src.models.user import User
 
 
 class TestUser:
@@ -24,5 +25,6 @@ class TestAge:
         (date(2022, 11, 19), 1),
         (date(1992, 2, 4), 31)
     ])
-    def test_one(self, input_birth_day: date, expected_age: int):
-        assert src.models.user.User(birth_day=input_birth_day).age(now=self.NOW) == expected_age
+    def test_one(self, input_birth_day: date, expected_age: int, mocker: pytest_mock.mocker):
+        mocker.patch('src.helper.datetime_resolver.DatetimeResolver.today' , return_value=self.NOW)
+        assert User(birth_day=input_birth_day).age == expected_age

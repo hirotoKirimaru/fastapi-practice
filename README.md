@@ -25,3 +25,13 @@ http://localhost:8000/docs
 # fastapi-practice
 
 Describe your project here.
+
+# Ryeの使い方
+
+```
+rye sync
+
+rye add pytest
+rye add --dev pytest
+
+```
