@@ -18,6 +18,8 @@ class Minors:
         return iter(self.value)
         # NOTE: こうしていい感じに返却したいんだが…nextも実装しないと
         # yield self.value
+        # NOTE: この挙動も確認
+        # yield from self.__dict__.items()
 
     # def __iter__(self):
     #     """
