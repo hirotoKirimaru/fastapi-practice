@@ -16,6 +16,8 @@ class Minors:
     def __iter__(self) -> Iterable[User]:
         # イテレータプロトコルを実装する
         return iter(self.value)
+        # NOTE: こうしていい感じに返却したいんだが…nextも実装しないと
+        # yield self.value
 
     # def __iter__(self):
     #     """
