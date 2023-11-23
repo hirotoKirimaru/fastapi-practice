@@ -15,7 +15,9 @@ class Minors:
 
     def __iter__(self) -> Iterable[User]:
         # イテレータプロトコルを実装する
-        return iter(self.value)
+        # return iter(self.value)
+        # こっちでも返却できる
+        yield from self.value
         # NOTE: こうしていい感じに返却したいんだが…nextも実装しないと
         # yield self.value
         # NOTE: この挙動も確認
