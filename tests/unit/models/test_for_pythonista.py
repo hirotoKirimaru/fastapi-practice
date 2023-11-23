@@ -7,6 +7,7 @@ class TestForPythonista:
     FORよりもリスト内包表記(List Compression)の方が早いことを示すだけのテスト
 
     """
+
     # NUM: Final[int] = 100_000_000
     NUM: Final[int] = 1
 

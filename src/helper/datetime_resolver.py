@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytz
 
+
 class DatetimeResolver:
     @staticmethod
     def now(timezone: str = "JST") -> datetime:

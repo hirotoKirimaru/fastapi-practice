@@ -14,6 +14,7 @@ number_of_trials = 10
 max = 100000
 search_times = 100
 
+
 @pytest.mark.skipif(skip, reason="ちょっと重いからスキップさせる")
 def test_01():
     print("1111111111111111111111")
@@ -52,7 +53,7 @@ def test_02():
 
 
 class User:
-    def __init__(self, user_id, email = None, name = None, birthday=None):
+    def __init__(self, user_id, email=None, name=None, birthday=None):
         self.user_id = user_id
         self.email = email
         self.name = name
@@ -62,6 +63,7 @@ class User:
     email: str
     name: str
     birthday: datetime
+
 
 @pytest.mark.skipif(skip, reason="ちょっと重いからスキップさせる")
 def test_03():
@@ -92,7 +94,7 @@ def test_04():
         b: Dict[str, User] = {x.user_id: x for x in a}
 
         for x in range(search_times):
-            b.get(str(random.randrange(max)), User(user_id='XXXX'))
+            b.get(str(random.randrange(max)), User(user_id="XXXX"))
 
         end = time.perf_counter()
         processingTime += end - start

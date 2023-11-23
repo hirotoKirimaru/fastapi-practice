@@ -19,14 +19,12 @@ async def create_task(
 
 
 async def get_tasks_with_done(db: AsyncSession) -> List[Tuple[int, str, bool]]:
-    result: Result = await (
-        db.execute(
-            select(
-                task_model.Task.id,
-                task_model.Task.title,
-                task_model.Done.id.isnot(None).label("done"),
-            ).outerjoin(task_model.Done)
-        )
+    result: Result = await db.execute(
+        select(
+            task_model.Task.id,
+            task_model.Task.title,
+            task_model.Done.id.isnot(None).label("done"),
+        ).outerjoin(task_model.Done)
     )
     return result.all()
 
@@ -34,21 +32,21 @@ async def get_tasks_with_done(db: AsyncSession) -> List[Tuple[int, str, bool]]:
 async def get_tasks_with_done_inner_join(
     db: AsyncSession,
 ) -> List[Tuple[int, str, bool]]:
-    result: Result = await (
-        db.execute(
-            select(
-                task_model.Task.id,
-                task_model.Task.title,
-                task_model.Done.id.isnot(None).label("done"),
-            ).join(task_model.Task, task_model.Done.task)
-        )
+    result: Result = await db.execute(
+        select(
+            task_model.Task.id,
+            task_model.Task.title,
+            task_model.Done.id.isnot(None).label("done"),
+        ).join(task_model.Task, task_model.Done.task)
     )
     return result.all()
 
 
 # async def get_task(db: AsyncSession, task_id: int, criteria: and_ | None = None) -> Optional[task_model.Task]:
 # async def get_task(db: AsyncSession, task_id: int, criteria: Optional[and_ ] = None) -> Optional[task_model.Task]:
-async def get_task(db: AsyncSession, task_id: int, criteria: Optional[and_ ] = None) -> Optional[task_model.Task]:
+async def get_task(
+    db: AsyncSession, task_id: int, criteria: Optional[and_] = None
+) -> Optional[task_model.Task]:
     result: Result = await db.execute(
         select(task_model.Task).filter(task_model.Task.id == task_id)
     )

@@ -1,5 +1,3 @@
-import datetime
-
 from sqlalchemy import Column, Integer, String, Date
 
 from src.helper.datetime_resolver import DatetimeResolver
@@ -21,5 +19,12 @@ class User(Base):
         年齢を計算する.
         """
         now = DatetimeResolver.today()
-        return now.year - self.birth_day.year - ((now.month, now.day) < (self.birth_day.month, self.birth_day.day))
+        return (
+            now.year
+            - self.birth_day.year
+            - ((now.month, now.day) < (self.birth_day.month, self.birth_day.day))
+        )
 
+    @property
+    def minor(self) -> bool:
+        return self.age < 18

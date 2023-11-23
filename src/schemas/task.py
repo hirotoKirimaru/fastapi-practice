@@ -25,5 +25,3 @@ class TaskCreateResponse(TaskCreate):
 
     class Config:
         orm_mode = True
-
-

@@ -11,10 +11,14 @@ rye sync
 # Windows 等々で行う必要あり
 ```
 
-# 自動フォーマット
+# 自動Linter
 
-```
+違う意図があるので別々に入れておく
+
+
+```bash
 ruff . --fix
+black .
 ```
 
 # OpenAPIの定義ファイル

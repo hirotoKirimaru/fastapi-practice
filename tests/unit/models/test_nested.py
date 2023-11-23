@@ -6,6 +6,7 @@ class TestNested:
     PytestでNestedしたテストクラスを書きたいときのやり方
 
     """
+
     class TestMethodA:
         def test_1(self):
             assert 1 == 1

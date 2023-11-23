@@ -1,20 +1,33 @@
 from datetime import date
 
+import pytest_mock
+
 from src.models.user import User
 from src.models.minors import Minors
 
+
 class TestIterator:
     NOW: date = date(2023, 11, 20)
-    def test_one(self, mocker):
-        mocker.patch('src.helper.datetime_resolver.DatetimeResolver.today' , return_value=self.NOW)
+
+    def test_one(self, mocker: pytest_mock.mocker):
+        mocker.patch(
+            "src.helper.datetime_resolver.DatetimeResolver.today", return_value=self.NOW
+        )
+
+        user_1 = User(birth_day=date(2006, 11, 19))
+        user_2 = User(birth_day=date(2006, 11, 20))
+        user_3 = User(birth_day=date(2005, 11, 21))
         base = [
-            User(birth_day=date(2003, 11, 20)),
-            User(birth_day=date(2003, 11, 20)),
-            User(birth_day=date(2003, 11, 20)),
-            User(birth_day=date(2003, 11, 20))
-                    ]
+            user_1,
+            user_2,
+            user_3,
+            User(birth_day=date(2005, 11, 20)),
+            User(birth_day=date(2005, 11, 19)),
+            User(birth_day=date(2000, 1, 1)),
+        ]
 
         target = Minors(base)
 
         actual = [x for x in target]
-        assert len(base) == len(actual)
+        assert len(actual) == 3, "18歳以下は3人"
+        assert set(actual) == {user_1, user_2, user_3}

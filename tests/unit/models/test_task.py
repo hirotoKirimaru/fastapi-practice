@@ -1,4 +1,3 @@
-
 import pytest
 
 import src.cruds
@@ -7,7 +6,6 @@ from src.models.task import Task, Done
 
 class TestTask:
     class TestGetTasksWithDone:
-
         @pytest.mark.asyncio
         async def test_get_single(self, db):
             # Given
@@ -44,7 +42,6 @@ class TestTask:
             assert actual == [(1, "ダミー1", False), (2, "ダミー2", False)]
 
     class TestGetTasksWithDoneInnerJoin:
-
         @pytest.mark.asyncio
         async def test_get_single(self, db):
             # Given
