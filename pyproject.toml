@@ -10,7 +10,7 @@ dependencies = [
     "aiomysql>=0.2.0",
 ]
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = ">= 3.11"
 
 [build-system]
 requires = ["hatchling"]
@@ -25,6 +25,7 @@ dev-dependencies = [
     "httpx>=0.25.1",
     "pytest-mock>=3.12.0",
     "black>=23.11.0",
+    "pytest-check>=2.2.2",
 ]
 
 [tool.hatch.metadata]
