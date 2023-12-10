@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 
 from src.helper.datetime_resolver import DatetimeResolver
 from src.db import Base
@@ -10,7 +10,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(1024))
     email = Column(String(1024))
-    organization = Column(String(1024))
+    organization_id = Column(String(1024))
     birth_day = Column(Date)
 
     @property
@@ -28,3 +28,10 @@ class User(Base):
     @property
     def minor(self) -> bool:
         return self.age < 18
+
+
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
