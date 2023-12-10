@@ -39,4 +39,6 @@ rye add pytest
 rye add --dev pytest
 
 rye run pytest .
+
+rye lock --update-all
 ```
