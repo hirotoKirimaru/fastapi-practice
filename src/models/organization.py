@@ -1,6 +1,5 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer
 
-from src.helper.datetime_resolver import DatetimeResolver
 from src.db import Base
 
 
