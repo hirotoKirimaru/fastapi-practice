@@ -1,8 +1,8 @@
 import pytest
 import starlette.status
 
+pytestmark = pytest.mark.anyio
 
-@pytest.mark.asyncio
 async def test_create_and_read(async_client):
     response = await async_client.post("/tasks", json={"title": "テストタスク"})
     assert response.status_code == starlette.status.HTTP_200_OK
@@ -17,7 +17,6 @@ async def test_create_and_read(async_client):
     assert response_obj[0]["done"] is False
 
 
-@pytest.mark.asyncio
 async def test_done_flag(async_client):
     response = await async_client.post("/tasks", json={"title": "テストタスク2"})
     assert response.status_code == starlette.status.HTTP_200_OK

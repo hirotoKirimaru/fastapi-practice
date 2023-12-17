@@ -1,3 +1,4 @@
+import pytest
 import pytest_asyncio
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -51,3 +52,8 @@ async def db() -> AsyncSession:
     async with async_session() as session:
         yield session
         await session.close()
+
+# anyio で asyncio だけでテストする
+@pytest.fixture
+def anyio_backend():
+    return 'asyncio'
