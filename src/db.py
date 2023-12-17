@@ -3,7 +3,9 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 # ASYNC_DB_URL = "mysql+aiomysql://root@db:3306/demo?charset=utf8"
 
-ASYNC_DB_URL = "mysql+pymysql://root@localhost:33306/demo?charset=utf8"
+# 非同期のテストのために、aiomysqlを使用する
+ASYNC_DB_URL = "mysql+aiomysql://root@localhost:33306/demo?charset=utf8"
+# ASYNC_DB_URL = "mysql+pymysql://root@localhost:33306/demo?charset=utf8"
 # ASYNC_DB_URL = "mysql+pymysql://root@db:3306/demo?charset=utf8"
 
 async_engine = create_async_engine(ASYNC_DB_URL, echo=True)
