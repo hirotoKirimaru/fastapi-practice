@@ -41,4 +41,7 @@ rye add --dev pytest
 rye run pytest .
 
 rye lock --update-all
+
+
+rye pin 3.11
 ```
