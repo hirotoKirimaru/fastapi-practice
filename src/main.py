@@ -23,5 +23,5 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
         status_code=400,
-        content={"detail": f"SystemError"},
+        content={"detail": f"BadRequestException"},
     )

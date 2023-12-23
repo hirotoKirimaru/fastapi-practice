@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Body
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,5 +13,5 @@ router = APIRouter()
 class ExceptionInput(BaseModel):
     age: int = Field(ge=18)
 @router.put("/exception")
-async def exception(input_: ExceptionInput) -> Any:
+async def exception(input_: ExceptionInput =  Body(...)) -> Any:
     raise Exception()
