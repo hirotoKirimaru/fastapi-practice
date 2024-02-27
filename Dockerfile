@@ -1,6 +1,6 @@
 ARG PYTHON_BASE_IMAGE='python'
 
-FROM ${PYTHON_BASE_IMAGE}:3.12 AS rye
+FROM ${PYTHON_BASE_IMAGE}:3.12.2 AS rye
 #FROM python:3.11
 # NOTE: 3.10.4 にアップグレードすると色々と動かない
 #FROM python:3.10.4
