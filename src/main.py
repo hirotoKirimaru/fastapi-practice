@@ -11,17 +11,17 @@ app = FastAPI()
 app.include_router(api_router)
 
 
-
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=500,
-        content={"detail": f"SystemError"},
+        content={"detail": "SystemError"},
     )
+
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
         status_code=400,
-        content={"detail": f"BadRequestException"},
+        content={"detail": "BadRequestException"},
     )
