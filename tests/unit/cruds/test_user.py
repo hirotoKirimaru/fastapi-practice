@@ -1,6 +1,5 @@
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
-import pytest
 
 # import logging
 from src.models.user import User
@@ -42,7 +41,7 @@ async def test_02(db: AsyncSession) -> None:
 
     # 最後の条件で上書き
     condition = and_(User.id == 1)
-    condition = and_(User.organization_id == 2)
+    condition = and_(User.organization_id == 1)
 
     query = query.where(condition)
     actual = (await db.execute(query)).scalars().all()
@@ -65,7 +64,7 @@ async def test_03(db: AsyncSession) -> None:
     # 条件をまとめる
     criteria = []
     criteria.append(and_(User.id == 1))
-    criteria.append(and_(User.organization_id == 2))
+    criteria.append(and_(User.organization_id == 1))
 
     query = query.where(*criteria)
     actual = (await db.execute(query)).scalars().all()
