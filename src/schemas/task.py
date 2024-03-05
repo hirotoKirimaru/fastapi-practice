@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class TaskBase(BaseModel):
@@ -12,8 +12,7 @@ class Task(TaskBase):
     title: Optional[str] = Field(None, examples=["クリーニングを取りに行く"])
     done: bool = Field(False, description="完了フラグ")
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TaskCreate(TaskBase):
@@ -23,5 +22,4 @@ class TaskCreate(TaskBase):
 class TaskCreateResponse(TaskCreate):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

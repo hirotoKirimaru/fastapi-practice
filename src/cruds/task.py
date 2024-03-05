@@ -1,11 +1,13 @@
-from typing import AsyncGenerator, List, Optional, Tuple
+from typing import AsyncGenerator, Optional, Tuple, Sequence
 
 import src.models.task as task_model
 import src.schemas.task as task_schema
-from sqlalchemy import select, and_
+from sqlalchemy import select
 from sqlalchemy.engine import Result
+from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.csvs import Csvs
+from sqlalchemy.sql.elements import ColumnElement
 
 
 async def create_task(
@@ -18,7 +20,7 @@ async def create_task(
     return task
 
 
-async def get_tasks_with_done(db: AsyncSession) -> List[Tuple[int, str, bool]]:
+async def get_tasks_with_done(db: AsyncSession) -> Sequence[Row[Tuple[int, str, bool]]]:
     result: Result = await db.execute(
         select(
             task_model.Task.id,
@@ -31,7 +33,7 @@ async def get_tasks_with_done(db: AsyncSession) -> List[Tuple[int, str, bool]]:
 
 async def get_tasks_with_done_inner_join(
     db: AsyncSession,
-) -> List[Tuple[int, str, bool]]:
+) -> Sequence[Row[Tuple[int, str, bool]]]:
     result: Result = await db.execute(
         select(
             task_model.Task.id,
@@ -45,12 +47,12 @@ async def get_tasks_with_done_inner_join(
 # async def get_task(db: AsyncSession, task_id: int, criteria: and_ | None = None) -> Optional[task_model.Task]:
 # async def get_task(db: AsyncSession, task_id: int, criteria: Optional[and_ ] = None) -> Optional[task_model.Task]:
 async def get_task(
-    db: AsyncSession, task_id: int, criteria: Optional[and_] = None
+    db: AsyncSession, task_id: int, criteria: Optional[ColumnElement] = None
 ) -> Optional[task_model.Task]:
     result: Result = await db.execute(
         select(task_model.Task).filter(task_model.Task.id == task_id)
     )
-    task: Optional[Tuple[task_model.Task]] = result.first()
+    task: Optional[Row[Tuple[task_model.Task]]] = result.first()
     return (
         task[0] if task is not None else None
     )  # 要素が一つであってもtupleで返却されるので１つ目の要素を取り出す
@@ -59,7 +61,7 @@ async def get_task(
 async def update_task(
     db: AsyncSession, task_create: task_schema.TaskCreate, original: task_model.Task
 ) -> task_model.Task:
-    original.title = task_create.title
+    original.title = task_create.title  # type: ignore
     db.add(original)
     await db.commit()
     await db.refresh(original)
