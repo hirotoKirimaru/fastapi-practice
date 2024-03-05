@@ -1,4 +1,5 @@
 from sqlalchemy import select, and_
+from sqlalchemy.sql import Select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # import logging
@@ -59,7 +60,7 @@ async def test_03(db: AsyncSession) -> None:
     db.add(user3)
     await db.commit()
 
-    query: select = select(User)
+    query: Select = select(User)
 
     # 条件をまとめる
     criteria = []

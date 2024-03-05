@@ -4,12 +4,12 @@ from pydantic import BaseModel, Field
 
 
 class TaskBase(BaseModel):
-    title: Optional[str] = Field(None, example="クリーニングを取りに行く")
+    title: Optional[str] = Field(None, examples=["クリーニングを取りに行く"])
 
 
 class Task(TaskBase):
     id: int
-    title: Optional[str] = Field(None, example="クリーニングを取りに行く")
+    title: Optional[str] = Field(None, examples=["クリーニングを取りに行く"])
     done: bool = Field(False, description="完了フラグ")
 
     class Config:

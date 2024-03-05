@@ -11,7 +11,7 @@ dependencies = [
     "pyjwt>=2.8.0",
 ]
 readme = "README.md"
-requires-python = ">= 3.11"
+requires-python = ">= 3.12"
 
 [build-system]
 requires = ["hatchling"]
@@ -27,6 +27,9 @@ dev-dependencies = [
     "pytest-mock>=3.12.0",
     "black>=23.11.0",
     "pytest-check>=2.2.2",
+    "mypy>=1.8.0",
+    "pandas-stubs>=2.2.0.240218",
+    "types-pytz>=2024.1.0.20240203",
 ]
 
 [tool.hatch.metadata]
@@ -36,6 +39,7 @@ allow-direct-references = true
 packages = ["src"]
 
 [tool.rye.scripts]
-lint = { chain = ["lint:black", "lint:ruff" ] }
+lint = { chain = ["lint:black", "lint:ruff", "lint:mypy" ] }
 "lint:black" = "black ."
-"lint:ruff" = "ruff . --fix"
+"lint:ruff" = "ruff check . --fix"
+"lint:mypy" = "mypy ./src" # testディレクトリは無視

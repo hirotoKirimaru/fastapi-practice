@@ -1,5 +1,5 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.orm import declarative_base
 
 # ASYNC_DB_URL = "mysql+aiomysql://root@db:3306/demo?charset=utf8"
 
@@ -9,13 +9,26 @@ ASYNC_DB_URL = "mysql+aiomysql://root@localhost:33306/demo?charset=utf8"
 # ASYNC_DB_URL = "mysql+pymysql://root@db:3306/demo?charset=utf8"
 
 async_engine = create_async_engine(ASYNC_DB_URL, echo=True)
-async_session = sessionmaker(
-    autocommit=False, autoflush=False, bind=async_engine, class_=AsyncSession
+# async_session = sessionmaker(
+#     autocommit=False, autoflush=False, bind=async_engine, class_=AsyncSession
+# )
+# async_session = sessionmaker(bind=async_engine, class_=AsyncSession)
+# async_session = sessionmaker(class_=AsyncSession)
+# async_session = async_sessionmaker(
+#     autoflush=False, expire_on_commit=False, bind=async_engine, class_=AsyncSession
+# )
+async_session = async_sessionmaker(
+    async_engine, autoflush=False, expire_on_commit=False
 )
 
 Base = declarative_base()
 
 
 async def get_db():
+    # async with async_session(autocommit=False, autoflush=False) as session:
+    #     session.bind = async_engine
+    # async with async_session(
+    #     bind=async_engine, autocommit=False, autoflush=False
+    # ) as session:
     async with async_session() as session:
         yield session
