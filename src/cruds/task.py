@@ -51,7 +51,9 @@ async def get_task(
         select(task_model.Task).filter(task_model.Task.id == task_id)
     )
     task: Optional[Tuple[task_model.Task]] = result.first()
-    return task[0] if task is not None else None  # 要素が一つであってもtupleで返却されるので１つ目の要素を取り出す
+    return (
+        task[0] if task is not None else None
+    )  # 要素が一つであってもtupleで返却されるので１つ目の要素を取り出す
 
 
 async def update_task(

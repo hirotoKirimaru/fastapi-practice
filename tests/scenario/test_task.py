@@ -3,6 +3,7 @@ import starlette.status
 
 pytestmark = pytest.mark.anyio
 
+
 async def test_create_and_read(async_client):
     response = await async_client.post("/tasks", json={"title": "テストタスク"})
     assert response.status_code == starlette.status.HTTP_200_OK

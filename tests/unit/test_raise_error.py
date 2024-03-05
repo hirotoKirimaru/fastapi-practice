@@ -1,17 +1,16 @@
-import json
-import logging
 import traceback
+
 
 class TestRaiseError:
     async def test_01(self):
         try:
             try:
                 1 / 0
-            except ZeroDivisionError as e:
+            except ZeroDivisionError:
                 raise ValueError("ERROR")
                 # raise ValueError("ERROR") from e
                 # raise ValueError("ERROR") from None
-        except Exception as e:
+        except Exception:
             print(traceback.format_exc())
 
         try:
@@ -21,17 +20,15 @@ class TestRaiseError:
                 # raise ValueError("ERROR")
                 raise ValueError("ERROR") from e
                 # raise ValueError("ERROR") from None
-        except Exception as e:
+        except Exception:
             print(traceback.format_exc())
 
         try:
             try:
                 1 / 0
-            except ZeroDivisionError as e:
+            except ZeroDivisionError:
                 # raise ValueError("ERROR")
                 # raise ValueError("ERROR") from e
                 raise ValueError("ERROR") from None
-        except Exception as e:
+        except Exception:
             print(traceback.format_exc())
-
-

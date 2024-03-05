@@ -53,7 +53,8 @@ async def db() -> AsyncSession:
         yield session
         await session.close()
 
+
 # anyio で asyncio だけでテストする
 @pytest.fixture
 def anyio_backend():
-    return 'asyncio'
+    return "asyncio"

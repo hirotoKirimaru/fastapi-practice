@@ -22,7 +22,9 @@ class TestForPythonista:
         total_processing_time = end - start
         average_processing_time = total_processing_time / self.NUM
         print("for")
-        print(f"処理ナノ時間:{total_processing_time}, 平均処理ナノ時間:{average_processing_time}")
+        print(
+            f"処理ナノ時間:{total_processing_time}, 平均処理ナノ時間:{average_processing_time}"
+        )
 
     def test_list_compression(self):
         start = time.perf_counter_ns()
@@ -33,4 +35,6 @@ class TestForPythonista:
         total_processing_time = end - start
         average_processing_time = total_processing_time / self.NUM
         print("list compression")
-        print(f"処理ナノ時間:{total_processing_time}, 平均処理ナノ時間:{average_processing_time}")
+        print(
+            f"処理ナノ時間:{total_processing_time}, 平均処理ナノ時間:{average_processing_time}"
+        )
