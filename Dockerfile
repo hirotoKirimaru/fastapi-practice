@@ -20,7 +20,9 @@ ENV RYE_HOME="/opt/rye"
 ENV PATH="$RYE_HOME/shims:$PATH"
 RUN curl -sSf https://rye-up.com/get | RYE_NO_AUTO_INSTALL=1 RYE_INSTALL_OPTION="--yes" bash
 
-RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+# README.MDもマウントさせる必要あり
+RUN --mount=type=bind,source=README.md,target=README.md \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
    --mount=type=bind,source=requirements.lock,target=requirements.lock \
    --mount=type=bind,source=requirements-dev.lock,target=requirements-dev.lock \
    rye sync --no-lock # lockファイルを作成しようとすると権限エラー
