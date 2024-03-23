@@ -1,13 +1,12 @@
 from datetime import datetime
-
-import pytz
+from zoneinfo import ZoneInfo
 
 
 class DatetimeResolver:
     @staticmethod
-    def now(timezone: str = "JST") -> datetime:
-        return datetime.now(pytz.timezone(timezone))
+    def now(timezone: ZoneInfo = ZoneInfo("Asia/Tokyo")) -> datetime:
+        return datetime.now(tz=timezone)
 
     @staticmethod
-    def today(timezone: str = "JST") -> datetime:
-        return datetime.now().astimezone(pytz.timezone(timezone))
+    def today(timezone: ZoneInfo = ZoneInfo("Asia/Tokyo")) -> datetime:
+        return datetime.now().astimezone(tz=timezone)

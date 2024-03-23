@@ -12,7 +12,7 @@ class JwtToken(BaseModel):
 async def test_expected_same_token():
     KEY = "SECRET"
     ALGORITHM = "HS256"
-    json_token = {"id": 1, "exp": 1710152710, "iss": "kirimaru"}
+    json_token = {"id": 1, "exp": 9999999999, "iss": "kirimaru"}
 
     pydantic_token = JwtToken(**json_token).model_dump()
 

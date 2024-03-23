@@ -1,7 +1,7 @@
 from io import StringIO
 from typing import Any
 
-import pandas as pd
+import polars
 
 
 class Csvs:
@@ -11,7 +11,7 @@ class Csvs:
         if first:
             encoding = "utf_8_sig"
 
-        df = pd.DataFrame(data)
+        df = polars.DataFrame(data)
         stream = StringIO()
         _ = df.to_csv(stream, index=False, header=False, encoding=encoding)
 
