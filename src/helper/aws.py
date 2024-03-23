@@ -1,4 +1,5 @@
 from typing import Any
+import os
 
 import boto3  # type: ignore
 
@@ -11,7 +12,7 @@ class Aws:
             # if os.getenv("ENV") == "local":
             return boto3.client(
                 "s3",
-                endpoint_url="http://localhost:9000",
+                endpoint_url=f"http://{os.getenv("S3_URL", "localhost:9000")}",
                 aws_access_key_id="minio",
                 aws_secret_access_key="minio1234",
                 # aws_access_key_id=os.getenv("AWS_S3_ACCESS_KEY"),
