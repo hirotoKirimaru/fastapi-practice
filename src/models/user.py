@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Date, ForeignKey, Integer, String
 
-from src.helper.datetime_resolver import DatetimeResolver
 from src.db import Base
+from src.helper.datetime_resolver import DatetimeResolver
 
 
 class User(Base):

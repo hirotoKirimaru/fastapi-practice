@@ -8,11 +8,11 @@ class Csvs:
     @classmethod
     def create_row_data(cls, *, data: list[Any], first: bool = False) -> bytes:
         encoding = "utf_8"
-        if first:
-            encoding = "utf_8_sig"
+        # if first:
+        #     encoding = "utf_8_sig"
 
         df = polars.DataFrame(data)
         stream = StringIO()
-        _ = df.to_csv(stream, index=False, header=False, encoding=encoding)
+        _ = df.write_csv(file=stream, include_bom=True, include_header=False)
 
         return stream.getvalue().encode(encoding)

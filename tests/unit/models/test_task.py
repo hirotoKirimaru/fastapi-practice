@@ -1,7 +1,7 @@
 import pytest
 
 import src.cruds
-from src.models.task import Task, Done
+from src.models.task import Done, Task
 
 
 class TestTask:

@@ -2,8 +2,8 @@ from datetime import date
 
 import pytest_mock
 
-from src.models.user import User
 from src.models.minors import Minors
+from src.models.user import User
 
 
 class TestIterator:

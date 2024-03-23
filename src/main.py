@@ -1,10 +1,9 @@
-from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from fastapi import FastAPI
 from src.routers.router import api_router
-
 
 app = FastAPI()
 # app.include_router(api_router, prefix="/v1")

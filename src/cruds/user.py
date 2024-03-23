@@ -1,11 +1,12 @@
 from typing import Optional
 
-import src.models.task as task_model
-from sqlalchemy import select, and_
+from sqlalchemy import and_, select
 from sqlalchemy.engine import Result
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine.row import Row
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
+
+import src.models.task as task_model
 
 
 async def base_query(task_id: int) -> ColumnElement:

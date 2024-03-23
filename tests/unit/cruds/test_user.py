@@ -1,6 +1,6 @@
-from sqlalchemy import select, and_
-from sqlalchemy.sql import Select
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import Select
 
 # import logging
 from src.models.user import User

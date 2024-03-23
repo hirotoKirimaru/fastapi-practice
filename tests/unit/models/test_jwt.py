@@ -1,6 +1,7 @@
-from pydantic import BaseModel
-import jwt
 from datetime import datetime
+
+import jwt
+from pydantic import BaseModel
 
 
 class JwtToken(BaseModel):

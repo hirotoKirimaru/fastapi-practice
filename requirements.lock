@@ -15,6 +15,7 @@ fastapi==0.110.0
 greenlet==3.0.3
 h11==0.14.0
 idna==3.6
+isort==5.13.2
 polars==0.20.16
 pydantic==2.6.4
 pydantic-core==2.16.3

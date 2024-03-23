@@ -1,5 +1,6 @@
-import pytest
 import json
+
+import pytest
 
 """
 json比較する際には、一度辞書型にしてから比較する。

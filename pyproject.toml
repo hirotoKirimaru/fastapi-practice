@@ -9,6 +9,7 @@ dependencies = [
     "aiomysql>=0.2.0",
     "pyjwt>=2.8.0",
     "polars>=0.20.16",
+    "isort>=5.13.2",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
@@ -38,7 +39,11 @@ allow-direct-references = true
 packages = ["src"]
 
 [tool.rye.scripts]
-lint = { chain = ["lint:black", "lint:ruff", "lint:mypy" ] }
+lint = { chain = ["lint:black", "lint:ruff", "lint:mypy", "lint:isort" ] }
 "lint:black" = "black ."
 "lint:ruff" = "ruff check . --fix"
 "lint:mypy" = "mypy ./src" # testディレクトリは無視
+"lint:isort" = "isort ."
+
+[tool.pytest.ini_options]
+addopts = ["-p no:warnings", "-p no:logging", "--last-failed", "-s"]

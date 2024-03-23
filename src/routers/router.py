@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from src.routers import task, done, healthcheck, exception
 from fastapi import APIRouter
+from src.routers import done, exception, healthcheck, task
 
 api_router = APIRouter()
 

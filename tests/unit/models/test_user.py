@@ -1,7 +1,8 @@
+from datetime import date
+
 import pytest
 import pytest_mock
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import date
 
 from src.models.user import User
 

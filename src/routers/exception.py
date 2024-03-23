@@ -1,8 +1,8 @@
 from typing import Any
 
-from fastapi import APIRouter, Body
 from pydantic import BaseModel, Field
 
+from fastapi import APIRouter, Body
 
 router = APIRouter()
 

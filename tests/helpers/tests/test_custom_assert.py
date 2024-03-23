@@ -1,6 +1,8 @@
-import pytest
-from tests.helpers.custom_assert import CustomAssert
 from datetime import date
+
+import pytest
+
+from tests.helpers.custom_assert import CustomAssert
 
 
 @pytest.mark.parametrize(

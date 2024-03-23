@@ -1,5 +1,5 @@
-from typing import Final
 import time
+from typing import Final
 
 
 class TestForPythonista:
