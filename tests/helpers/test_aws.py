@@ -4,25 +4,25 @@ from datetime import datetime
 from io import StringIO
 
 import polars
-
 from testcontainers.minio import MinioContainer
-from .test_storage import create_minio_container
+
 from src.helper.aws import Aws
 
 
 class TestAws:
     async def test_01(self):
+        # https://github.com/testcontainers/testcontainers-python/blob/c9c6f92348299a2cc04988af8d69a53a23a7c7d5/modules/minio/testcontainers/minio/__init__.py#L45
+        #         image: str = "minio/minio:RELEASE.2022-12-02T19-19-22Z",
+        # なぜか、変に古いバージョンで固定されている
         config = MinioContainer(
-            access_key="minio"
-            , secret_key="minio1234",
-            port=9000
+            access_key="minio", secret_key="minio1234", image="minio/minio"
         )
         # for _ in create_minio_container():
-        with (config as minio):
+        with config as minio:
             minio_client = minio.get_client()
             minio_client.make_bucket("tmp.local")
             # 接続情報の上書き
-            os.environ['S3_URL'] = minio.get_config()['endpoint']
+            os.environ["S3_URL"] = minio.get_config()["endpoint"]
 
             csv_data = """
             氏名,メールアドレス
@@ -32,8 +32,7 @@ class TestAws:
             # bucket = os.getenv("S3_BUCKET")
             bucket = "tmp.local"
             key = datetime.now().strftime("%Y%m%d%H%M%S")
-            await TestAwsHelper.upload_s3(csv_data=csv_data, bucket=bucket,
-                                          key=key)
+            await TestAwsHelper.upload_s3(csv_data=csv_data, bucket=bucket, key=key)
 
             minio_data = minio_client.get_object(bucket, key).data
 
