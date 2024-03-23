@@ -1,5 +1,5 @@
 
-version: '3'
+version: '3.8'
 services:
   api:
     build: .
@@ -10,6 +10,8 @@ services:
       - /tmp
     ports:
       - 8000:8000
+    networks:
+      - development_network
   db:
     image: mysql:8.0
     platform: linux/x86_64  # M1 Macの場合必要
@@ -22,16 +24,25 @@ services:
     command: --default-authentication-plugin=mysql_native_password  # MySQL8.0ではデフォルトが"caching_sha2_password"で、ドライバが非対応のため変更
     ports:
       - 33306:3306  # ホストマシンのポート33306を、docker内のポート3306に接続する
+    networks:
+      - development_network
   storage:
     image: minio/minio
+    entrypoint: sh
+    command: -c "mkdir -p /data/data-exchange.local /data/tmp.local && /usr/bin/minio server --address :9000 --console-address :9001 /data"
+    ports:
+      - "9000:9000" # APIとして
+      - "9001:9001" # consoleとして
     volumes:
       - minio_data:/data
+#    tmpfs: /data # CI等で高速化する場合
     environment:
       MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
-    command: server /data
-    ports:
-      - 9000:9000
+      MINIO_SECRET_KEY: minio1234
+    networks:
+      - development_network
 volumes:
   mysql_data:
   minio_data:
+networks:
+  development_network:
