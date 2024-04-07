@@ -60,5 +60,6 @@ RUN . .venv/bin/activate
 # uvicornのサーバーを立ち上げる
 #ENTRYPOINT ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 #CMD ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
-CMD ["/src/.venv/bin/uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
+# CMD ["/src/.venv/bin/uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 # uvicorn src.main:app --host 0.0.0.0 --reload
+CMD ["rye", "run", "uvicorn", "src.main:app", "--reload"]
