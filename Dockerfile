@@ -62,5 +62,5 @@ RUN . .venv/bin/activate
 #ENTRYPOINT ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 #CMD ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 # CMD ["/src/.venv/bin/uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
-# uvicorn src.main:app --host 0.0.0.0 --reload
+# rye run uvicorn src.main:app --host 0.0.0.0 --reload
 CMD ["rye", "run", "uvicorn", "src.main:app", "--reload"]
