@@ -46,7 +46,6 @@ docker==7.0.0
     # via testcontainers
 fastapi==0.110.1
     # via fastapi-practice
-    # via sentry-sdk
 greenlet==3.0.3
     # via sqlalchemy
 h11==0.14.0

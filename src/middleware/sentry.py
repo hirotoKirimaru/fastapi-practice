@@ -1,0 +1,16 @@
+import sentry_sdk
+
+
+class Sentry:
+    @classmethod
+    def init_sentry(cls):
+        _ = sentry_sdk.init(
+            dsn="https://41f9f871815cd788ed98b20b44f5b383@o4507057023811584.ingest.us.sentry.io/4507057026498560",
+            # Set traces_sample_rate to 1.0 to capture 100%
+            # of transactions for performance monitoring.
+            traces_sample_rate=1.0,
+            # Set profiles_sample_rate to 1.0 to profile 100%
+            # of sampled transactions.
+            # We recommend adjusting this value in production.
+            profiles_sample_rate=1.0,
+        )
