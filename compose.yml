@@ -50,8 +50,15 @@ services:
       MINIO_SECRET_KEY: *aws_s3_secret_key
     networks:
       - development_network
+  kvs:
+    image: 'redis:latest'
+    volumes:
+      - kvs_data:/data
+    networks:
+      - development_network
 volumes:
   mysql_data:
   minio_data:
+  kvs_data:
 networks:
   development_network:
