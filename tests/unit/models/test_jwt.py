@@ -1,6 +1,8 @@
 from datetime import datetime
 
 import jwt
+from jwt.exceptions import DecodeError
+import pytest
 from pydantic import BaseModel
 
 
@@ -34,3 +36,11 @@ async def test_expected_same_token():
     pydantic_decode = jwt.decode(pydantic_encode, KEY, algorithms=ALGORITHM)
 
     assert json_decode == pydantic_decode
+
+async def test_not_enough_segments():
+    KEY = "SECRET"
+    ALGORITHM = "HS256"
+
+    with pytest.raises(DecodeError) as e:
+        jwt.decode("AAAA", KEY, algorithms=ALGORITHM)
+    assert str(e.value) == "Not enough segments"
