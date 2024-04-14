@@ -30,6 +30,8 @@ fastapi==0.110.1
     # via fastapi-practice
 greenlet==3.0.3
     # via sqlalchemy
+gunicorn==21.2.0
+    # via fastapi-practice
 h11==0.14.0
     # via uvicorn
 hiredis==2.3.2
@@ -41,6 +43,8 @@ isort==5.13.2
 jmespath==1.0.1
     # via boto3
     # via botocore
+packaging==24.0
+    # via gunicorn
 polars==0.20.20
     # via fastapi-practice
 pydantic==2.7.0

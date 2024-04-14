@@ -1,6 +1,6 @@
 ARG PYTHON_BASE_IMAGE='python'
 
-FROM ${PYTHON_BASE_IMAGE}:3.12.2 AS rye
+FROM ${PYTHON_BASE_IMAGE}:3.12.2 AS builder
 #FROM python:3.11
 # NOTE: 3.10.4 にアップグレードすると色々と動かない
 #FROM python:3.10.4
@@ -11,14 +11,19 @@ ENV PYTHONPATH="/src:$PYTHONPATH"
 
 
 COPY src /src
-# poetryのデフォルトパスになる
+#COPY pyproject.toml pyproject.toml
+#poetryのデフォルトパスになる
 #ENV PYTHONPATH=/src
 
 WORKDIR /src
 
 ENV RYE_HOME="/opt/rye"
 ENV PATH="$RYE_HOME/shims:$PATH"
+ENV PYTHONUNBUFFERED True
 RUN curl -sSf https://rye-up.com/get | RYE_NO_AUTO_INSTALL=1 RYE_INSTALL_OPTION="--yes" bash
+
+RUN rye config --set-bool behavior.global-python=true && \
+   rye config --set-bool behavior.use-uv=true
 
 # README.MDもマウントさせる必要あり
 RUN --mount=type=bind,source=README.md,target=README.md \
@@ -64,3 +69,16 @@ RUN . .venv/bin/activate
 # CMD ["/src/.venv/bin/uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 # rye run uvicorn src.main:app --host 0.0.0.0 --reload
 CMD ["rye", "run", "uvicorn", "src.main:app", "--reload"]
+
+# TODO: マルチビルドステージがあるらしい
+#FROM ${PYTHON_BASE_IMAGE}:3.12.2 AS production
+#COPY --from=builder /opt/rye /opt/rye
+#
+#ENV RYE_HOME="/opt/rye"
+#ENV PATH="$RYE_HOME/shims:$PATH"
+#ENV PYTHONUNBUFFERED True
+#
+#RUN rye config --set-bool behavior.global-python=true && \
+# rye config --set-bool behavior.use-uv=true
+#
+#CMD ["rye", "run", "uvicorn", "src.main:app", "--reload"]
