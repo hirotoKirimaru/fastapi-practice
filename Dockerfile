@@ -8,6 +8,8 @@ FROM ${PYTHON_BASE_IMAGE}:3.12.2 AS builder
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH="/src:$PYTHONPATH"
+ENV RYE_HOME="/opt/rye"
+ENV PATH="$RYE_HOME/shims:$PATH"
 
 
 COPY src /src
@@ -17,9 +19,6 @@ COPY src /src
 
 WORKDIR /src
 
-ENV RYE_HOME="/opt/rye"
-ENV PATH="$RYE_HOME/shims:$PATH"
-ENV PYTHONUNBUFFERED True
 RUN curl -sSf https://rye-up.com/get | RYE_NO_AUTO_INSTALL=1 RYE_INSTALL_OPTION="--yes" bash
 
 RUN rye config --set-bool behavior.global-python=true && \
