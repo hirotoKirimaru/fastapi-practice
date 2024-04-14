@@ -3,3 +3,6 @@ server:
 
 production:
 	rye run gunicorn src.main:app --workers 4
+
+#worker:
+#	rye run
