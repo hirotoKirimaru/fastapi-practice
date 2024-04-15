@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DATETIME, VARCHAR, Column, ForeignKey, Integer, String
+from sqlalchemy import DATETIME, VARCHAR, INTEGER, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.db import Base
@@ -10,11 +10,11 @@ from src.helper.datetime_resolver import DatetimeResolver
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(1024))
-    email = Column(String(1024))
-    organization_id = Column(String(1024))
-    birth_day: Mapped[datetime] = mapped_column(DATETIME)
+    id: Mapped[int] = mapped_column(INTEGER, primary_key=True)
+    name: Mapped[str] = mapped_column(VARCHAR(1024))
+    email: Mapped[str] = mapped_column(VARCHAR(1024))
+    organization_id: Mapped[str] = mapped_column(VARCHAR(1024))
+    birth_day: Mapped[datetime | None] = mapped_column(DATETIME, nullable = True)
     salt: Mapped[str | None] = mapped_column(VARCHAR(255), nullable=True)
 
     @property
