@@ -1,4 +1,7 @@
-from sqlalchemy import Column, Date, ForeignKey, Integer, String
+from datetime import datetime
+
+from sqlalchemy import DATETIME, VARCHAR, Column, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 from src.db import Base
 from src.helper.datetime_resolver import DatetimeResolver
@@ -11,7 +14,8 @@ class User(Base):
     name = Column(String(1024))
     email = Column(String(1024))
     organization_id = Column(String(1024))
-    birth_day = Column(Date)
+    birth_day: Mapped[datetime] = mapped_column(DATETIME)
+    salt: Mapped[str | None] = mapped_column(VARCHAR(255), nullable=True)
 
     @property
     def age(self) -> int:
