@@ -52,5 +52,8 @@ lint = { chain = ["lint:black", "lint:ruff", "lint:mypy", "lint:isort" ] }
 "lint:mypy" = "mypy ./src" # testディレクトリは無視
 "lint:isort" = "isort ."
 
+start = "uvicorn src.main:app --host 0.0.0.0 --reload"
+production = "gunicorn src.main:app --workers 4"
+
 [tool.pytest.ini_options]
 addopts = ["-p no:warnings", "-p no:logging", "--last-failed", "-s"]
