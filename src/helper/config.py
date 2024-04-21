@@ -10,4 +10,4 @@ class Settings(BaseSettings):
     SECRET: str
 
 
-settings = Settings()
+settings = Settings()  # type: ignore
