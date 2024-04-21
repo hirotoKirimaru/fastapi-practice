@@ -32,3 +32,21 @@ async def get_db():
     # ) as session:
     async with async_session() as session:
         yield session
+
+async def get_writer_db():
+    # async with async_session(autocommit=False, autoflush=False) as session:
+    #     session.bind = async_engine
+    # async with async_session(
+    #     bind=async_engine, autocommit=False, autoflush=False
+    # ) as session:
+    async with async_session() as session:
+        yield session
+
+async def get_reader_db():
+    # async with async_session(autocommit=False, autoflush=False) as session:
+    #     session.bind = async_engine
+    # async with async_session(
+    #     bind=async_engine, autocommit=False, autoflush=False
+    # ) as session:
+    async with async_session() as session:
+        yield session
