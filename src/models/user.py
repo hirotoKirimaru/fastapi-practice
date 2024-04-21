@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DATETIME, VARCHAR, INTEGER, Column, ForeignKey, Integer, String
+from sqlalchemy import DATETIME, INTEGER, VARCHAR, Column, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.db import Base
@@ -14,7 +14,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(VARCHAR(1024))
     email: Mapped[str] = mapped_column(VARCHAR(1024))
     organization_id: Mapped[str] = mapped_column(VARCHAR(1024))
-    birth_day: Mapped[datetime | None] = mapped_column(DATETIME, nullable = True)
+    birth_day: Mapped[datetime | None] = mapped_column(DATETIME, nullable=True)
     salt: Mapped[str | None] = mapped_column(VARCHAR(255), nullable=True)
 
     @property
@@ -22,6 +22,8 @@ class User(Base):
         """
         年齢を計算する.
         """
+        if self.birth_day is None:
+            raise ValueError("ガード条件を満たしていません")
         now = DatetimeResolver.today()
         return (
             now.year

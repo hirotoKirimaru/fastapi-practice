@@ -1,5 +1,5 @@
-
 from src.usecase.usecase_totp import Totp
+
 
 class TestTotp:
     class TestCreateSalt:
