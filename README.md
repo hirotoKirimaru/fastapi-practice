@@ -45,3 +45,15 @@ rye lock --update-all
 
 rye pin 3.11
 ```
+
+# Dev
+```bash
+# 
+rye run alembic upgrade head
+
+# 
+rye run alembic revision -m "description of changes"
+```
+
+# 参考にする
+- [https://github.com/tiangolo/full-stack-fastapi-template/tree/master]

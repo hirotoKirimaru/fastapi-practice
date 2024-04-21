@@ -37,6 +37,7 @@ dev-dependencies = [
     "types-pytz>=2024.1.0.20240203",
     "testcontainers>=4.1.1",
     "minio>=7.2.5",
+    "alembic>=1.13.1",
 ]
 
 [tool.hatch.metadata]
