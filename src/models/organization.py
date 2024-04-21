@@ -1,7 +1,5 @@
 from sqlalchemy import Column, Integer
-
-from src.db import Base
-
+from src.models.base import Base
 
 class Organization(Base):
     __tablename__ = "organizations"

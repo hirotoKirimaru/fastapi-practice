@@ -2,8 +2,8 @@ from datetime import datetime
 
 from sqlalchemy import DATETIME, INTEGER, VARCHAR, Column, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column
+from src.models.base import Base
 
-from src.db import Base
 from src.helper.datetime_resolver import DatetimeResolver
 
 
@@ -36,7 +36,7 @@ class User(Base):
         return self.age < 18
 
 
-class UserProfile(Base):
+class UserProfile(DeclarativeBase):
     __tablename__ = "user_profiles"
 
     id = Column(Integer, primary_key=True)

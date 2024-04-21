@@ -4,7 +4,7 @@ from starlette.responses import JSONResponse
 
 from fastapi import FastAPI
 from src.middleware.sentry import Sentry
-from src.routers.router import api_router
+from src.api.main import api_router
 
 Sentry.init_sentry()
 
