@@ -36,7 +36,7 @@ class User(Base):
         return self.age < 18
 
 
-class UserProfile(DeclarativeBase):
+class UserProfile(Base):
     __tablename__ = "user_profiles"
 
     id = Column(Integer, primary_key=True)

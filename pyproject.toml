@@ -15,6 +15,7 @@ dependencies = [
     "sentry-sdk>=1.44.1",
     "pyotp>=2.9.0",
     "gunicorn>=21.2.0",
+    "pydantic-settings>=2.2.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"

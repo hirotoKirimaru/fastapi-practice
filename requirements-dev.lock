@@ -98,8 +98,11 @@ pycryptodome==3.20.0
     # via minio
 pydantic==2.7.0
     # via fastapi
+    # via pydantic-settings
 pydantic-core==2.18.1
     # via pydantic
+pydantic-settings==2.2.1
+    # via fastapi-practice
 pyjwt==2.8.0
     # via fastapi-practice
 pymysql==1.1.0
@@ -115,6 +118,8 @@ pytest-check==2.3.1
 pytest-mock==3.14.0
 python-dateutil==2.9.0.post0
     # via botocore
+python-dotenv==1.0.1
+    # via pydantic-settings
 redis==5.0.3
     # via arq
 requests==2.31.0

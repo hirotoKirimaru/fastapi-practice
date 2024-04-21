@@ -1,9 +1,8 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi import APIRouter, BackgroundTasks
 from src.helper.datetime_resolver import DatetimeResolver
 from src.schemas.notification import Notification as schema_notification
 from src.api.deps import SessionWriterDep, SessionReaderDep

@@ -4,7 +4,7 @@ from fastapi.responses import StreamingResponse
 
 import src.cruds.task as task_crud
 import src.schemas.task as task_schema
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from src.api.deps import SessionWriterDep
 
 router = APIRouter()
@@ -16,9 +16,7 @@ async def list_tasks(db: SessionWriterDep):
 
 
 @router.post("", response_model=task_schema.TaskCreateResponse)
-async def create_task(
-    task_body: task_schema.TaskCreate, db: SessionWriterDep
-):
+async def create_task(task_body: task_schema.TaskCreate, db: SessionWriterDep):
     return await task_crud.create_task(db, task_body)
 
 
