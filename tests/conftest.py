@@ -5,8 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from src.api.deps import get_writer_db
 from src.main import app
-from alembic.command import upgrade
-from alembic.config import Config
+from src.models.base import Base
 
 ASYNC_DB_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -20,9 +19,9 @@ async def async_client() -> AsyncClient:
     )
 
     # テスト用にオンメモリのSQLiteテーブルを初期化（関数ごとにリセット）
-    # async with async_engine.begin() as conn:
-    #     await conn.run_sync(Base.metadata.drop_all)
-    #     await conn.run_sync(Base.metadata.create_all)
+    async with async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
 
     # DIを使ってFastAPIのDBの向き先をテスト用DBに変更
     async def get_test_db():
@@ -35,6 +34,13 @@ async def async_client() -> AsyncClient:
     async with AsyncClient(app=app, base_url="http://test") as client:
         yield client
 
+# alembicがasync対応していないからできない
+# @pytest_asyncio.fixture(scope='session', autouse=True)
+# async def apply_migrations():
+#     alembic_cfg = Config("alembic.ini")
+#     alembic_cfg.set_main_option('sqlalchemy.url', ASYNC_DB_URL)
+#     await upgrade(alembic_cfg, "head")
+
 
 @pytest_asyncio.fixture
 async def db() -> AsyncSession:
@@ -46,10 +52,11 @@ async def db() -> AsyncSession:
 
     # テスト用にオンメモリのSQLiteテーブルを初期化（関数ごとにリセット）
     async with async_engine.begin() as conn:
-        alembic_cfg = Config("alembic.ini")
-        upgrade(alembic_cfg, "head")
-        # await conn.run_sync(Base.metadata.drop_all)
-        # await conn.run_sync(Base.metadata.create_all)
+    #     alembic_cfg = Config("alembic.ini")
+    #     alembic_cfg.set_main_option('sqlalchemy.url', str(async_engine.url))
+    #     await upgrade(alembic_cfg, "head")
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
     # DIを使ってFastAPIのDBの向き先をテスト用DBに変更
 
     async with async_session() as session:
