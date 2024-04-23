@@ -1,16 +1,40 @@
 from fastapi.exceptions import RequestValidationError
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
+from typing import Any, Awaitable, Callable
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from fastapi import FastAPI
 from src.middleware.sentry import Sentry
 from src.api.main import api_router
+
 
 Sentry.init_sentry()
 
 app = FastAPI()
 # app.include_router(api_router, prefix="/v1")
 app.include_router(api_router)
+
+app.add_middleware(SentryAsgiMiddleware)
+
+
+@app.middleware("http")
+async def add_request_id_middleware(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Any:
+    pass
+    # TODO: ログまで出したい
+    # TODO: fom sentry_sdk import Hub
+    #
+    # with Hub.current.push_scope() as scope:
+    #    for key, value in scope._scope.items():
+    #        logger.info('%s: %s', key, value)
+
+    # request_id = str(uuid.uuid4())
+    # request.state.request_id = request_id
+    #
+    # response = await call_next(request)
+    # response.headers["X-Request-ID"] = request_id
 
 
 @app.exception_handler(Exception)
