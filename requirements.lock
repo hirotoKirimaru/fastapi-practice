@@ -45,6 +45,8 @@ jmespath==1.0.1
     # via botocore
 packaging==24.0
     # via gunicorn
+passlib==1.7.4
+    # via fastapi-practice
 polars==0.20.21
     # via fastapi-practice
 pydantic==2.7.0

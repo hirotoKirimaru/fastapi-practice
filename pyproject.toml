@@ -16,6 +16,7 @@ dependencies = [
     "pyotp>=2.9.0",
     "gunicorn>=21.2.0",
     "pydantic-settings>=2.2.1",
+    "passlib>=1.7.4",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"

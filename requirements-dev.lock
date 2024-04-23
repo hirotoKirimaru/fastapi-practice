@@ -84,6 +84,8 @@ packaging==24.0
     # via docker
     # via gunicorn
     # via pytest
+passlib==1.7.4
+    # via fastapi-practice
 pathspec==0.12.1
     # via black
 platformdirs==4.2.0
