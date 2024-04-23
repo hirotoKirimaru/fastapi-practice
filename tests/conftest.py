@@ -5,6 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from src.api.deps import get_writer_db
 from src.main import app
+from alembic.command import upgrade
+from alembic.config import Config
 
 ASYNC_DB_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -43,14 +45,30 @@ async def db() -> AsyncSession:
     )
 
     # テスト用にオンメモリのSQLiteテーブルを初期化（関数ごとにリセット）
-    # async with async_engine.begin() as conn:
-    #     await conn.run_sync(Base.metadata.drop_all)
-    #     await conn.run_sync(Base.metadata.create_all)
-        # DIを使ってFastAPIのDBの向き先をテスト用DBに変更
+    async with async_engine.begin() as conn:
+        alembic_cfg = Config("alembic.ini")
+        upgrade(alembic_cfg, "head")
+        # await conn.run_sync(Base.metadata.drop_all)
+        # await conn.run_sync(Base.metadata.create_all)
+    # DIを使ってFastAPIのDBの向き先をテスト用DBに変更
 
     async with async_session() as session:
         yield session
         await session.close()
+
+
+# from alembic.config import Config
+# from alembic import command
+#
+#
+# def apply_migrations():
+#     alembic_cfg = Config("alembic.ini")
+#     command.upgrade(alembic_cfg, "head")
+#
+# def rollback_migrations():
+#     alembic_cfg = Config("alembic.ini")
+#     command.downgrade(alembic_cfg, "base")
+#
 
 
 # anyio で asyncio だけでテストする

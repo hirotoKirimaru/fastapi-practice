@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import declarative_base
 from fastapi import Depends
 
 # ASYNC_DB_URL = "mysql+aiomysql://root@db:3306/demo?charset=utf8"
