@@ -24,7 +24,7 @@ async_session = async_sessionmaker(
     async_engine, autoflush=False, expire_on_commit=False
 )
 
-Base = declarative_base()
+# Base = declarative_base()
 
 
 async def get_db():
