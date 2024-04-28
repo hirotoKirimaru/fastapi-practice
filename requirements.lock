@@ -40,9 +40,13 @@ idna==3.7
     # via anyio
 isort==5.13.2
     # via fastapi-practice
+jinja2==3.1.3
+    # via fastapi-practice
 jmespath==1.0.1
     # via boto3
     # via botocore
+markupsafe==2.1.5
+    # via jinja2
 packaging==24.0
     # via gunicorn
 passlib==1.7.4
