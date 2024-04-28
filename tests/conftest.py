@@ -34,6 +34,7 @@ async def async_client() -> AsyncClient:
     async with AsyncClient(app=app, base_url="http://test") as client:
         yield client
 
+
 # alembicがasync対応していないからできない
 # @pytest_asyncio.fixture(scope='session', autouse=True)
 # async def apply_migrations():
@@ -52,9 +53,9 @@ async def db() -> AsyncSession:
 
     # テスト用にオンメモリのSQLiteテーブルを初期化（関数ごとにリセット）
     async with async_engine.begin() as conn:
-    #     alembic_cfg = Config("alembic.ini")
-    #     alembic_cfg.set_main_option('sqlalchemy.url', str(async_engine.url))
-    #     await upgrade(alembic_cfg, "head")
+        #     alembic_cfg = Config("alembic.ini")
+        #     alembic_cfg.set_main_option('sqlalchemy.url', str(async_engine.url))
+        #     await upgrade(alembic_cfg, "head")
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     # DIを使ってFastAPIのDBの向き先をテスト用DBに変更
