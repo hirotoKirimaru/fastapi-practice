@@ -56,6 +56,15 @@ services:
       - kvs_data:/data
     networks:
       - development_network
+  mail:
+    image: mailhog/mailhog:latest
+    ports:
+      - 8025:8025
+      - 1025:1025
+    tmpfs:
+      - /tmp # 元からメモリ展開されるので不要
+    networks:
+      - development_network
 volumes:
   mysql_data:
   minio_data:
