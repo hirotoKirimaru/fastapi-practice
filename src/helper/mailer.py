@@ -10,7 +10,7 @@ class Mailer:
         port: Final[int] = 1025
 
         @classmethod
-        def send(cls):
+        def send(cls) -> None:
             sender = "no-reply@example.com"
             receiver = "1@example.com"
             subject = "Python SMTP Mail Subject"
