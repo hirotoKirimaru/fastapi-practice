@@ -16,11 +16,7 @@ class Sentry:
             # We recommend adjusting this value in production.
             profiles_sample_rate=1.0,
             integrations=[
-                StarletteIntegration(
-                    transaction_style="endpoint"
-                ),
-                FastApiIntegration(
-                    transaction_style="endpoint"
-                ),
+                StarletteIntegration(transaction_style="endpoint"),
+                FastApiIntegration(transaction_style="endpoint"),
             ],
         )
