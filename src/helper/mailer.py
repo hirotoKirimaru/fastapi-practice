@@ -1,9 +1,39 @@
-from typing import Final
+from typing import Final, NamedTuple
 from email.message import EmailMessage
 from smtplib import SMTP
+from enum import Enum
+
+from jinja2 import Template, Environment, FileSystemLoader
 
 
 class Mailer:
+
+    class Body(NamedTuple):
+        text: str
+        html: str
+
+    class Templates(NamedTuple):
+        text: Template
+        html: Template
+
+    class MailExtension(str, Enum):
+        TEXT = "txt"
+        HTML = "html"
+
+    @classmethod
+    def get_templates(cls, path: str) -> Templates:
+        file_loader = FileSystemLoader("src/resources/templates")
+        env = Environment(loader=file_loader)
+        template_text = env.get_template(f"{path}.{Mailer.MailExtension.TEXT.value}")
+        template_html = env.get_template(f"{path}.{Mailer.MailExtension.HTML.value}")
+
+        return template_text, template_html
+
+    @classmethod
+    def build_body(cls, path: str, params={}) -> Body:
+        text, html = cls.get_templates(path)
+        return text.render(**params), html.render(**params)
+
     class Local:
         # host: Final[str] = "mail"
         host: Final[str] = "localhost"
@@ -14,10 +44,13 @@ class Mailer:
             sender = "no-reply@example.com"
             receiver = "1@example.com"
             subject = "Python SMTP Mail Subject"
-            body_text = "Hello, this is a test email sent by Python smtplib."
-            body_html = (
-                "<html>Hello, this is a test email sent by Python smtplib.</html>"
-            )
+            # body_text ,body_html = Mailer.build_body("signin", name='NAME')
+            body_text, body_html = Mailer.build_body("signin", params={"name": "NAME"})
+
+            # body_text = "Hello, this is a test email sent by Python smtplib."
+            # body_html = (
+            #     "<html>Hello, this is a test email sent by Python smtplib.</html>"
+            # )
 
             msg = EmailMessage()
             msg.set_content(body_text)
