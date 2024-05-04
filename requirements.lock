@@ -84,6 +84,8 @@ sqlalchemy==2.0.29
     # via fastapi-practice
 starlette==0.37.2
     # via fastapi
+tenacity==8.2.3
+    # via fastapi-practice
 typing-extensions==4.11.0
     # via arq
     # via fastapi
