@@ -3,7 +3,7 @@ from email.message import EmailMessage
 from smtplib import SMTP
 from enum import Enum
 
-from jinja2 import Template, Environment, FileSystemLoader
+from jinja2 import Template, Environment, FileSystemLoader, StrictUndefined
 
 
 class Mailer:
@@ -23,7 +23,7 @@ class Mailer:
     @classmethod
     def get_templates(cls, path: str) -> Templates:
         file_loader = FileSystemLoader("src/resources/templates")
-        env = Environment(loader=file_loader)
+        env = Environment(loader=file_loader, undefined=StrictUndefined)
         template_text = env.get_template(f"{path}.{Mailer.MailExtension.TEXT.value}")
         template_html = env.get_template(f"{path}.{Mailer.MailExtension.HTML.value}")
 
