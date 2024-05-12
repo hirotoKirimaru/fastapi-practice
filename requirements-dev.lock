@@ -12,6 +12,9 @@ aiomysql==0.2.0
     # via fastapi-practice
 aiosqlite==0.20.0
 alembic==1.13.1
+allure-pytest==2.13.5
+allure-python-commons==2.13.5
+    # via allure-pytest
 annotated-types==0.6.0
     # via pydantic
 anyio==4.3.0
@@ -24,6 +27,8 @@ argon2-cffi-bindings==21.2.0
     # via argon2-cffi
 arq==0.26.0
     # via fastapi-practice
+attrs==23.2.0
+    # via allure-python-commons
 black==24.4.2
 boto3==1.34.103
     # via fastapi-practice
@@ -114,6 +119,7 @@ pathspec==0.12.1
 platformdirs==4.2.1
     # via black
 pluggy==1.5.0
+    # via allure-python-commons
     # via pytest
 polars==0.20.25
     # via fastapi-practice
@@ -137,6 +143,7 @@ pymysql==1.1.0
 pyotp==2.9.0
     # via fastapi-practice
 pytest==8.2.0
+    # via allure-pytest
     # via pytest-asyncio
     # via pytest-check
     # via pytest-mock
