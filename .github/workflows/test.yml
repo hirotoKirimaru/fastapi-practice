@@ -25,5 +25,7 @@ jobs:
         run: |
           ruff .
         continue-on-error: true
+      - name: compose up
+        run: docker compose up -d
       - name: Test
         run: pytest
