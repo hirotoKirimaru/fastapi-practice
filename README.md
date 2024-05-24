@@ -32,18 +32,21 @@ Describe your project here.
 
 # Ryeの使い方
 
-```
+```bash
 rye sync
-
+```
+```bash
 rye add pytest
 rye add --dev pytest
 
 rye run pytest .
-
+```
+```bash
 rye lock --update-all
+```
 
-
-rye pin 3.11
+```bash
+rye pin 3.12.3
 ```
 
 # Dev

@@ -24,9 +24,9 @@ arq==0.26.0
     # via fastapi-practice
 attrs==23.2.0
     # via aiohttp
-boto3==1.34.111
+boto3==1.34.112
     # via fastapi-practice
-botocore==1.34.111
+botocore==1.34.112
     # via boto3
     # via s3transfer
 browser-cookie3==0.19.1
@@ -110,7 +110,7 @@ packaging==24.0
     # via gunicorn
 passlib==1.7.4
     # via fastapi-practice
-polars==0.20.28
+polars==0.20.29
     # via fastapi-practice
 pycryptodomex==3.20.0
     # via browser-cookie3
@@ -149,7 +149,7 @@ rich==13.7.1
     # via typer
 s3transfer==0.10.1
     # via boto3
-sentry-sdk==2.2.1
+sentry-sdk==2.3.1
     # via fastapi-practice
 shellingham==1.5.4
     # via typer
@@ -166,7 +166,7 @@ tenacity==8.3.0
     # via fastapi-practice
 typer==0.12.3
     # via fastapi-cli
-typing-extensions==4.11.0
+typing-extensions==4.12.0
     # via fastapi
     # via pydantic
     # via pydantic-core
