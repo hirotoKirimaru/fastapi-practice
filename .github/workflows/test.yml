@@ -27,14 +27,14 @@ jobs:
         continue-on-error: true
       - name: compose up
         run: docker compose up -d
-      - name: docker ps
-        run: docker ps
-      - name: sleep
-        run: sleep 20
-      - name: docker ps
-        run: docker ps
       - name: db migration
-        run: alembic upgrade head
+        uses: nick-invision/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          # リトライ間隔(秒)
+          delay_seconds: 10
+          command: alembic upgrade head
       - name: Test
         run: pytest
       - name: Build test report
