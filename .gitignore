@@ -4,3 +4,4 @@ __pycache__
 .idea
 .dockervenv
 .mypy_cache
+allure-results
