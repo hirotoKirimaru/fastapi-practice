@@ -8,12 +8,8 @@
 #   with-sources: false
 
 -e file:.
-aiohttp==3.9.5
-    # via python-gemini-api
 aiomysql==0.2.0
     # via fastapi-practice
-aiosignal==1.3.1
-    # via aiohttp
 aiosqlite==0.20.0
 alembic==1.13.1
 allure-pytest==2.13.5
@@ -32,7 +28,6 @@ argon2-cffi-bindings==21.2.0
 arq==0.26.0
     # via fastapi-practice
 attrs==23.2.0
-    # via aiohttp
     # via allure-python-commons
 black==24.4.2
 boto3==1.34.112
@@ -40,8 +35,8 @@ boto3==1.34.112
 botocore==1.34.112
     # via boto3
     # via s3transfer
-browser-cookie3==0.19.1
-    # via python-gemini-api
+cachetools==5.3.3
+    # via google-auth
 certifi==2024.2.2
     # via httpcore
     # via httpx
@@ -67,53 +62,65 @@ fastapi==0.111.0
     # via fastapi-practice
 fastapi-cli==0.0.4
     # via fastapi
-frozenlist==1.4.1
-    # via aiohttp
-    # via aiosignal
+google-ai-generativelanguage==0.6.4
+    # via google-generativeai
+google-api-core==2.19.0
+    # via google-ai-generativelanguage
+    # via google-api-python-client
+    # via google-generativeai
+google-api-python-client==2.130.0
+    # via google-generativeai
+google-auth==2.29.0
+    # via google-ai-generativelanguage
+    # via google-api-core
+    # via google-api-python-client
+    # via google-auth-httplib2
+    # via google-generativeai
+google-auth-httplib2==0.2.0
+    # via google-api-python-client
+google-generativeai==0.5.4
+    # via fastapi-practice
+googleapis-common-protos==1.63.0
+    # via google-api-core
+    # via grpcio-status
 greenlet==3.0.3
     # via sqlalchemy
+grpcio==1.64.0
+    # via google-api-core
+    # via grpcio-status
+grpcio-status==1.62.2
+    # via google-api-core
 gunicorn==22.0.0
     # via fastapi-practice
 h11==0.14.0
     # via httpcore
     # via uvicorn
-h2==4.1.0
-    # via httpx
 hiredis==2.3.2
     # via redis
-hpack==4.0.0
-    # via h2
 httpcore==1.0.5
     # via httpx
+httplib2==0.22.0
+    # via google-api-python-client
+    # via google-auth-httplib2
 httptools==0.6.1
     # via uvicorn
 httpx==0.27.0
     # via fastapi
-    # via python-gemini-api
-hyperframe==6.0.1
-    # via h2
 idna==3.7
     # via anyio
     # via email-validator
     # via httpx
     # via requests
-    # via yarl
 iniconfig==2.0.0
     # via pytest
 isort==5.13.2
     # via fastapi-practice
-jeepney==0.8.0
-    # via browser-cookie3
 jinja2==3.1.4
     # via fastapi
     # via fastapi-practice
 jmespath==1.0.1
     # via boto3
     # via botocore
-loguru==0.7.2
-    # via python-gemini-api
-lz4==4.3.3
-    # via browser-cookie3
 mako==1.3.5
     # via alembic
 markdown-it-py==3.0.0
@@ -124,9 +131,6 @@ markupsafe==2.1.5
 mdurl==0.1.2
     # via markdown-it-py
 minio==7.2.7
-multidict==6.0.5
-    # via aiohttp
-    # via yarl
 mypy==1.10.0
 mypy-extensions==1.0.0
     # via black
@@ -148,16 +152,29 @@ pluggy==1.5.0
     # via pytest
 polars==0.20.29
     # via fastapi-practice
+proto-plus==1.23.0
+    # via google-ai-generativelanguage
+    # via google-api-core
+protobuf==4.25.3
+    # via google-ai-generativelanguage
+    # via google-api-core
+    # via google-generativeai
+    # via googleapis-common-protos
+    # via grpcio-status
+    # via proto-plus
+pyasn1==0.6.0
+    # via pyasn1-modules
+    # via rsa
+pyasn1-modules==0.4.0
+    # via google-auth
 pycparser==2.22
     # via cffi
 pycryptodome==3.20.0
     # via minio
-pycryptodomex==3.20.0
-    # via browser-cookie3
 pydantic==2.7.1
     # via fastapi
+    # via google-generativeai
     # via pydantic-settings
-    # via python-gemini-api
 pydantic-core==2.18.2
     # via pydantic
 pydantic-settings==2.2.1
@@ -170,6 +187,8 @@ pymysql==1.1.1
     # via aiomysql
 pyotp==2.9.0
     # via fastapi-practice
+pyparsing==3.1.2
+    # via httplib2
 pytest==8.2.1
     # via allure-pytest
     # via pytest-asyncio
@@ -183,8 +202,6 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
     # via pydantic-settings
     # via uvicorn
-python-gemini-api==2.4.12
-    # via fastapi-practice
 python-multipart==0.0.9
     # via fastapi
 pyyaml==6.0.1
@@ -193,9 +210,11 @@ redis==4.6.0
     # via arq
 requests==2.32.2
     # via docker
-    # via python-gemini-api
+    # via google-api-core
 rich==13.7.1
     # via typer
+rsa==4.9
+    # via google-auth
 ruff==0.4.5
 s3transfer==0.10.1
     # via boto3
@@ -216,6 +235,8 @@ starlette==0.37.2
 tenacity==8.3.0
     # via fastapi-practice
 testcontainers==4.4.1
+tqdm==4.66.4
+    # via google-generativeai
 typer==0.12.3
     # via fastapi-cli
 types-passlib==1.7.7.20240327
@@ -224,6 +245,7 @@ typing-extensions==4.12.0
     # via aiosqlite
     # via alembic
     # via fastapi
+    # via google-generativeai
     # via minio
     # via mypy
     # via pydantic
@@ -233,6 +255,8 @@ typing-extensions==4.12.0
     # via typer
 ujson==5.10.0
     # via fastapi
+uritemplate==4.1.1
+    # via google-api-python-client
 urllib3==2.2.1
     # via botocore
     # via docker
@@ -251,5 +275,3 @@ websockets==12.0
     # via uvicorn
 wrapt==1.16.0
     # via testcontainers
-yarl==1.9.4
-    # via aiohttp

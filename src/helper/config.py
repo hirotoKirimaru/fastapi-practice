@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     )
     ENV: Literal["local", "prod"]
     SECRET: str
+    GOOGLE_API_KEY: str
 
 
 settings = Settings()  # type: ignore
