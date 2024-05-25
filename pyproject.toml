@@ -44,6 +44,7 @@ dev-dependencies = [
     "minio>=7.2.5",
     "alembic>=1.13.1",
     "allure-pytest>=2.13.5",
+    "types-passlib>=1.7.7.20240327",
 ]
 
 [tool.hatch.metadata]
