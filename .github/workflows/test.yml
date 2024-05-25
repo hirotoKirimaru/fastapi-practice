@@ -28,7 +28,7 @@ jobs:
       - name: compose up
         run: docker compose up -d
       - name: db migration
-        run: docker compose api alembic upgrade head
+        run: alembic upgrade head
       - name: Test
         run: pytest
       - name: Build test report
