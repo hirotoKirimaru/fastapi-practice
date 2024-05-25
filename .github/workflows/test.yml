@@ -27,6 +27,8 @@ jobs:
         continue-on-error: true
       - name: compose up
         run: docker compose up -d
+      - name: db migration
+        run: docker compose api alembic upgrade head
       - name: Test
         run: pytest
       - name: Build test report
