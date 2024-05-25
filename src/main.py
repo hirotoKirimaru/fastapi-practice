@@ -17,12 +17,12 @@ app.include_router(api_router)
 
 app.add_middleware(SentryAsgiMiddleware)
 
-
-@app.middleware("http")
-async def add_request_id_middleware(
-    request: Request, call_next: Callable[[Request], Awaitable[Response]]
-) -> Any:
-    pass
+# TODO: 変な状態で定義していると動かない
+# @app.middleware("http")
+# async def add_request_id_middleware(
+#     request: Request, call_next: Callable[[Request], Awaitable[Response]]
+# ) -> Any:
+#     pass
     # TODO: ログまで出したい
     # TODO: fom sentry_sdk import Hub
     #
