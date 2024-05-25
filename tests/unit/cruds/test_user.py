@@ -91,23 +91,33 @@ class TestUserRelationShip:
 
     async def test_02(self, db: AsyncSession):
         user1 = User(id=1, name="11", email="a@example.com", organization_id=1)
-        _ = Organization(id=1)
+        organization_1 = Organization(id=1)
         db.add(user1)
+        db.add(organization_1)
         await db.commit()
 
         query: Select = (select(User)
                          .options(joinedload(User.organization))
                          .where(User.id == 1))
         result = (await db.execute(query)).scalars().first()
-        _ = result.organization
+        assert result.organization is not None
 
-    async def test_lazy(self, db: AsyncSession):
+    async def test_not_lazy_default(self, db: AsyncSession):
+        """
+        lazyがselectだけダメな模様？
+
+
+        :param db:
+        :return:
+        """
         user1 = User(id=1, name="11", email="a@example.com", organization_id=1)
-        _ = Organization(id=1)
+        organization_1 = Organization(id=1)
         db.add(user1)
+        db.add(organization_1)
         await db.commit()
 
         query: Select = (select(User)
                          .where(User.id == 1))
         result = (await db.execute(query)).scalars().first()
-        _ = result.organization2
+        assert result.organization2 is not None
+        assert result.organization3 is None

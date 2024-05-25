@@ -2,4 +2,5 @@ from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):
-    pass
+    def __repr__(self):
+        return str(self.__dict__)

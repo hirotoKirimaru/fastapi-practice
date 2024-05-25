@@ -16,7 +16,8 @@ class User(Base):
     email: Mapped[str] = mapped_column(VARCHAR(1024))
     organization_id: Mapped[str] = mapped_column(INTEGER, ForeignKey("organizations.id"))
     organization: Mapped["Organization"]  = relationship("Organization")
-    organization2: Mapped["Organization"]  = relationship("Organization", lazy="joined")
+    organization2: Mapped["Organization"]  = relationship("Organization", lazy="joined") # 自動でロードする
+    organization3: Mapped["Organization"]  = relationship("Organization", lazy="noload") # 読み込まない
     birth_day: Mapped[datetime | None] = mapped_column(DATETIME, nullable=True)
     salt: Mapped[str | None] = mapped_column(VARCHAR(255), nullable=True)
 
