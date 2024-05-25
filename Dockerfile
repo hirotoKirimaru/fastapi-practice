@@ -19,7 +19,7 @@ COPY src /src
 
 WORKDIR /src
 
-RUN curl -sSf https://rye-up.com/get | RYE_NO_AUTO_INSTALL=1 RYE_INSTALL_OPTION="--yes" bash
+RUN curl -sSf https://rye.astral.sh/get | RYE_NO_AUTO_INSTALL=1 RYE_INSTALL_OPTION="--yes" bash
 
 RUN rye config --set-bool behavior.global-python=true && \
    rye config --set-bool behavior.use-uv=true
