@@ -27,6 +27,12 @@ jobs:
         continue-on-error: true
       - name: compose up
         run: docker compose up -d
+      - name: docker ps
+        run: docker ps
+      - name: sleep
+        run: sleep 20
+      - name: docker ps
+        run: docker ps
       - name: db migration
         run: alembic upgrade head
       - name: Test
