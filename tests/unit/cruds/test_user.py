@@ -101,4 +101,13 @@ class TestUserRelationShip:
         result = (await db.execute(query)).scalars().first()
         _ = result.organization
 
+    async def test_lazy(self, db: AsyncSession):
+        user1 = User(id=1, name="11", email="a@example.com", organization_id=1)
+        _ = Organization(id=1)
+        db.add(user1)
+        await db.commit()
 
+        query: Select = (select(User)
+                         .where(User.id == 1))
+        result = (await db.execute(query)).scalars().first()
+        _ = result.organization2
