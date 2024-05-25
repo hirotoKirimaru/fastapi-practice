@@ -1,4 +1,4 @@
-name: Python Test CI
+name: Build Check
 
 on: [push]
 
