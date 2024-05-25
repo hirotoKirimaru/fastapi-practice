@@ -25,9 +25,17 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("name", sa.String(1024)),
         sa.Column("email", sa.String(1024)),
-        sa.Column("organization_id", sa.String(1024)),
+        sa.Column("organization_id", sa.Integer),
         # sa.Column("user_name", sa.String(50), nullable=False),
     )
+
+    op.create_table(
+        "organizations",
+        sa.Column("id", sa.Integer, primary_key=True),
+    )
+
+    op.create_foreign_key('fk_users_organization_id_organizations', 'users',
+                          'organizations', ['organization_id'], ['id'])
 
     op.create_table(
         "tasks",

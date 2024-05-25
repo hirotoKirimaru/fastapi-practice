@@ -1,9 +1,14 @@
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
+from sqlalchemy.exc import MissingGreenlet
+from sqlalchemy.orm import joinedload
+
+import pytest
 
 # import logging
 from src.models.user import User
+from src.models.organization import Organization
 
 
 async def test_01(db: AsyncSession) -> None:
@@ -72,3 +77,28 @@ async def test_03(db: AsyncSession) -> None:
 
     # assert user1.id == actual[0].id
     assert len(actual) == 1
+
+class TestUserRelationShip:
+    async def test_01(self, db: AsyncSession):
+        user1 = User(id=1, name="11", email="a@example.com", organization_id=1)
+        db.add(user1)
+        await db.commit()
+
+        query: Select = select(User).where(User.id == 1)
+        result = (await db.execute(query)).scalars().first()
+        with pytest.raises(MissingGreenlet) as e:
+            _ = result.organization
+
+    async def test_02(self, db: AsyncSession):
+        user1 = User(id=1, name="11", email="a@example.com", organization_id=1)
+        _ = Organization(id=1)
+        db.add(user1)
+        await db.commit()
+
+        query: Select = (select(User)
+                         .options(joinedload(User.organization))
+                         .where(User.id == 1))
+        result = (await db.execute(query)).scalars().first()
+        _ = result.organization
+
+

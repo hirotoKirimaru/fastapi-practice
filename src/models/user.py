@@ -1,8 +1,9 @@
 from datetime import datetime
 
 from sqlalchemy import DATETIME, INTEGER, VARCHAR, Column, ForeignKey, Integer
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.models.base import Base
+from src.models.organization import Organization
 
 from src.helper.datetime_resolver import DatetimeResolver
 
@@ -13,7 +14,8 @@ class User(Base):
     id: Mapped[int] = mapped_column(INTEGER, primary_key=True)
     name: Mapped[str] = mapped_column(VARCHAR(1024))
     email: Mapped[str] = mapped_column(VARCHAR(1024))
-    organization_id: Mapped[str] = mapped_column(VARCHAR(1024))
+    organization_id: Mapped[str] = mapped_column(INTEGER, ForeignKey("organizations.id"))
+    organization: Mapped["Organization"]  = relationship("Organization")
     birth_day: Mapped[datetime | None] = mapped_column(DATETIME, nullable=True)
     salt: Mapped[str | None] = mapped_column(VARCHAR(255), nullable=True)
 
