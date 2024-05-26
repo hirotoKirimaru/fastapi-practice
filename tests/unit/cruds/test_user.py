@@ -91,8 +91,12 @@ class TestUserRelationShip:
 
     async def test_02(self, db: AsyncSession):
         user1 = User(id=1, name="11", email="a@example.com", organization_id=1)
+        user2 = User(id=2, name="22", email="b@example.com", organization_id=1)
+        user3 = User(id=3, name="33", email="c@example.com", organization_id=1)
         organization_1 = Organization(id=1)
         db.add(user1)
+        db.add(user2)
+        db.add(user3)
         db.add(organization_1)
         await db.commit()
 
@@ -101,6 +105,54 @@ class TestUserRelationShip:
                          .where(User.id == 1))
         result = (await db.execute(query)).scalars().first()
         assert result.organization is not None
+
+        # NOTE: 以降はSQLの確認
+        # 実行時にLeft outer joinがいいか、別でID検索したほうが総合的に早いか…？
+        # https://docs.sqlalchemy.org/en/20/orm/relationship_api.html#sqlalchemy.orm.relationship.params.lazy
+        query: Select = (select(User)
+                         .options(joinedload(User.organization))
+                         .where(User.id == 2))
+        result = (await db.execute(query)).scalars().first()
+        assert result.organization is not None
+
+        query: Select = (select(User)
+                         .options(joinedload(User.organization))
+                         .where(User.id == 3))
+        result = (await db.execute(query)).scalars().first()
+        assert result.organization is not None
+
+    async def test_immediate(self, db: AsyncSession):
+        """
+        これを有効活用した方が早いのかも…。
+        """
+        user1 = User(id=1, name="11", email="a@example.com", organization_id=1)
+        user2 = User(id=2, name="22", email="b@example.com", organization_id=1)
+        user3 = User(id=3, name="33", email="c@example.com", organization_id=1)
+        organization_1 = Organization(id=1)
+        db.add(user1)
+        db.add(user2)
+        db.add(user3)
+        db.add(organization_1)
+        await db.commit()
+
+        query: Select = (select(User)
+                         .where(User.id == 1))
+        result = (await db.execute(query)).scalars().first()
+        assert result.organization4 is not None
+
+        # NOTE: 以降はSQLの確認
+        # 実行時にLeft outer joinがいいか、別でID検索したほうが総合的に早いか…？
+        # https://docs.sqlalchemy.org/en/20/orm/relationship_api.html#sqlalchemy.orm.relationship.params.lazy
+        # lazy=immediateだけの方がいいかも。
+        query: Select = (select(User)
+                         .where(User.id == 2))
+        result = (await db.execute(query)).scalars().first()
+        assert result.organization4 is not None
+
+        query: Select = (select(User)
+                         .where(User.id == 3))
+        result = (await db.execute(query)).scalars().first()
+        assert result.organization4 is not None
 
     async def test_not_lazy_default(self, db: AsyncSession):
         """

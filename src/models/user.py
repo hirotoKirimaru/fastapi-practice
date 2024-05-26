@@ -18,6 +18,7 @@ class User(Base):
     organization: Mapped["Organization"]  = relationship("Organization")
     organization2: Mapped["Organization"]  = relationship("Organization", lazy="joined") # 自動でロードする
     organization3: Mapped["Organization"]  = relationship("Organization", lazy="noload") # 読み込まない
+    organization4: Mapped["Organization"]  = relationship("Organization", lazy="immediate") # 親読み込み時に自動(これが一番早い？)
     birth_day: Mapped[datetime | None] = mapped_column(DATETIME, nullable=True)
     salt: Mapped[str | None] = mapped_column(VARCHAR(255), nullable=True)
 
