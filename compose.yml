@@ -7,7 +7,7 @@ x-common:
 services:
   api:
     build: .
-    read_only: true
+#    read_only: true # TODO: これがあると動かない…？
     volumes:
       #      - .dockervenv:/src/.venv
       - .:/src
