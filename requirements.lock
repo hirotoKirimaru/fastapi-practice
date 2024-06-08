@@ -45,6 +45,7 @@ fastapi==0.111.0
     # via fastapi-practice
 fastapi-cli==0.0.4
     # via fastapi
+    # via fastapi-practice
 google-ai-generativelanguage==0.6.4
     # via google-generativeai
 google-api-core==2.19.0
