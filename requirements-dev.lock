@@ -31,14 +31,14 @@ arq==0.26.0
 attrs==23.2.0
     # via allure-python-commons
 black==24.4.2
-boto3==1.34.116
+boto3==1.34.122
     # via fastapi-practice
-botocore==1.34.116
+botocore==1.34.122
     # via boto3
     # via s3transfer
 cachetools==5.3.3
     # via google-auth
-certifi==2024.2.2
+certifi==2024.6.2
     # via httpcore
     # via httpx
     # via minio
@@ -70,9 +70,9 @@ google-api-core==2.19.0
     # via google-ai-generativelanguage
     # via google-api-python-client
     # via google-generativeai
-google-api-python-client==2.131.0
+google-api-python-client==2.132.0
     # via google-generativeai
-google-auth==2.29.0
+google-auth==2.30.0
     # via google-ai-generativelanguage
     # via google-api-core
     # via google-api-python-client
@@ -80,14 +80,14 @@ google-auth==2.29.0
     # via google-generativeai
 google-auth-httplib2==0.2.0
     # via google-api-python-client
-google-generativeai==0.5.4
+google-generativeai==0.6.0
     # via fastapi-practice
-googleapis-common-protos==1.63.0
+googleapis-common-protos==1.63.1
     # via google-api-core
     # via grpcio-status
 greenlet==3.0.3
     # via sqlalchemy
-grpcio==1.64.0
+grpcio==1.64.1
     # via google-api-core
     # via grpcio-status
 grpcio-status==1.62.2
@@ -152,7 +152,7 @@ platformdirs==4.2.2
 pluggy==1.5.0
     # via allure-python-commons
     # via pytest
-polars==0.20.30
+polars==0.20.31
     # via fastapi-practice
 proto-plus==1.23.0
     # via google-ai-generativelanguage
@@ -173,13 +173,13 @@ pycparser==2.22
     # via cffi
 pycryptodome==3.20.0
     # via minio
-pydantic==2.7.2
+pydantic==2.7.3
     # via fastapi
     # via google-generativeai
     # via pydantic-settings
-pydantic-core==2.18.3
+pydantic-core==2.18.4
     # via pydantic
-pydantic-settings==2.2.1
+pydantic-settings==2.3.1
     # via fastapi-practice
 pygments==2.18.0
     # via rich
@@ -191,7 +191,7 @@ pyotp==2.9.0
     # via fastapi-practice
 pyparsing==3.1.2
     # via httplib2
-pytest==8.2.1
+pytest==8.2.2
     # via allure-pytest
     # via pytest-asyncio
     # via pytest-check
@@ -217,10 +217,10 @@ rich==13.7.1
     # via typer
 rsa==4.9
     # via google-auth
-ruff==0.4.6
+ruff==0.4.8
 s3transfer==0.10.1
     # via boto3
-sentry-sdk==2.3.1
+sentry-sdk==2.5.1
     # via fastapi-practice
 shellingham==1.5.4
     # via typer
@@ -236,14 +236,14 @@ starlette==0.37.2
     # via fastapi
 tenacity==8.3.0
     # via fastapi-practice
-testcontainers==4.5.0
+testcontainers==4.5.1
 tqdm==4.66.4
     # via google-generativeai
 typer==0.12.3
     # via fastapi-cli
 types-passlib==1.7.7.20240327
 types-pytz==2024.1.0.20240417
-typing-extensions==4.12.0
+typing-extensions==4.12.2
     # via aiosqlite
     # via alembic
     # via fastapi
@@ -266,7 +266,7 @@ urllib3==2.2.1
     # via requests
     # via sentry-sdk
     # via testcontainers
-uvicorn==0.30.0
+uvicorn==0.30.1
     # via fastapi
     # via fastapi-practice
 uvloop==0.19.0
