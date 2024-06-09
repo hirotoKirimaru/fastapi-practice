@@ -26,6 +26,7 @@ def upgrade() -> None:
         sa.Column("name", sa.String(1024)),
         sa.Column("email", sa.String(1024)),
         sa.Column("organization_id", sa.Integer),
+        sa.Column("soft_destroyed_at", sa.DATETIME),
         # sa.Column("user_name", sa.String(50), nullable=False),
     )
 
@@ -51,3 +52,6 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_table("users")
+    op.drop_table("organizations")
+    op.drop_table("tasks")
+    op.drop_table("dones")
