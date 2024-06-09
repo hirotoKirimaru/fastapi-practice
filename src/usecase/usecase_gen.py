@@ -1,7 +1,8 @@
-from typing import Dict, Any
+from typing import Any
 import google.generativeai as genai
 
 from src.helper.config import settings
+
 
 class Gemini:
     _genai: Any
@@ -9,7 +10,7 @@ class Gemini:
 
     def __init__(self):
         self._genai = genai.configure(api_key=settings.GOOGLE_API_KEY)
-        self._model = genai.GenerativeModel('gemini-pro')
+        self._model = genai.GenerativeModel("gemini-pro")
 
     async def __aenter__(self):
         return self
