@@ -31,9 +31,9 @@ arq==0.26.0
 attrs==23.2.0
     # via allure-python-commons
 black==24.4.2
-boto3==1.34.122
+boto3==1.34.126
     # via fastapi-practice
-botocore==1.34.122
+botocore==1.34.126
     # via boto3
     # via s3transfer
 cachetools==5.3.3
@@ -70,7 +70,7 @@ google-api-core==2.19.0
     # via google-ai-generativelanguage
     # via google-api-python-client
     # via google-generativeai
-google-api-python-client==2.132.0
+google-api-python-client==2.133.0
     # via google-generativeai
 google-auth==2.30.0
     # via google-ai-generativelanguage
@@ -137,9 +137,9 @@ mypy==1.10.0
 mypy-extensions==1.0.0
     # via black
     # via mypy
-orjson==3.10.3
+orjson==3.10.5
     # via fastapi
-packaging==24.0
+packaging==24.1
     # via black
     # via gunicorn
     # via pytest
@@ -173,13 +173,13 @@ pycparser==2.22
     # via cffi
 pycryptodome==3.20.0
     # via minio
-pydantic==2.7.3
+pydantic==2.7.4
     # via fastapi
     # via google-generativeai
     # via pydantic-settings
 pydantic-core==2.18.4
     # via pydantic
-pydantic-settings==2.3.1
+pydantic-settings==2.3.3
     # via fastapi-practice
 pygments==2.18.0
     # via rich
