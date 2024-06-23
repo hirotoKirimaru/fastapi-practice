@@ -31,9 +31,9 @@ arq==0.26.0
 attrs==23.2.0
     # via allure-python-commons
 black==24.4.2
-boto3==1.34.126
+boto3==1.34.131
     # via fastapi-practice
-botocore==1.34.126
+botocore==1.34.131
     # via boto3
     # via s3transfer
 cachetools==5.3.3
@@ -57,20 +57,20 @@ dnspython==2.6.1
     # via email-validator
 docker==7.1.0
     # via testcontainers
-email-validator==2.1.1
+email-validator==2.2.0
     # via fastapi
 fastapi==0.111.0
     # via fastapi-practice
 fastapi-cli==0.0.4
     # via fastapi
     # via fastapi-practice
-google-ai-generativelanguage==0.6.4
+google-ai-generativelanguage==0.6.5
     # via google-generativeai
 google-api-core==2.19.0
     # via google-ai-generativelanguage
     # via google-api-python-client
     # via google-generativeai
-google-api-python-client==2.133.0
+google-api-python-client==2.134.0
     # via google-generativeai
 google-auth==2.30.0
     # via google-ai-generativelanguage
@@ -80,7 +80,7 @@ google-auth==2.30.0
     # via google-generativeai
 google-auth-httplib2==0.2.0
     # via google-api-python-client
-google-generativeai==0.6.0
+google-generativeai==0.7.0
     # via fastapi-practice
 googleapis-common-protos==1.63.1
     # via google-api-core
@@ -154,7 +154,7 @@ pluggy==1.5.0
     # via pytest
 polars==0.20.31
     # via fastapi-practice
-proto-plus==1.23.0
+proto-plus==1.24.0
     # via google-ai-generativelanguage
     # via google-api-core
 protobuf==4.25.3
@@ -217,10 +217,10 @@ rich==13.7.1
     # via typer
 rsa==4.9
     # via google-auth
-ruff==0.4.8
+ruff==0.4.10
 s3transfer==0.10.1
     # via boto3
-sentry-sdk==2.5.1
+sentry-sdk==2.6.0
     # via fastapi-practice
 shellingham==1.5.4
     # via typer
@@ -229,14 +229,14 @@ six==1.16.0
 sniffio==1.3.1
     # via anyio
     # via httpx
-sqlalchemy==2.0.30
+sqlalchemy==2.0.31
     # via alembic
     # via fastapi-practice
 starlette==0.37.2
     # via fastapi
-tenacity==8.3.0
+tenacity==8.4.1
     # via fastapi-practice
-testcontainers==4.5.1
+testcontainers==4.6.0
 tqdm==4.66.4
     # via google-generativeai
 typer==0.12.3
@@ -259,7 +259,7 @@ ujson==5.10.0
     # via fastapi
 uritemplate==4.1.1
     # via google-api-python-client
-urllib3==2.2.1
+urllib3==2.2.2
     # via botocore
     # via docker
     # via minio
