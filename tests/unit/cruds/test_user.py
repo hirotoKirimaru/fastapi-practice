@@ -7,6 +7,7 @@ from datetime import datetime
 
 import pytest
 
+import src.cruds.user
 # import logging
 from src.models.user import User
 from src.models.organization import Organization
@@ -156,6 +157,33 @@ class TestUser:
             result = (await db.execute(query)).scalars().first()
             assert result.name == "UPDATE_NAME"
 
+    class TestFindByEmail:
+        class TestPartialMatch:
+            async def test_parameter_upper(self, db: AsyncSession):
+                user1 = User(
+                    id=1, name="kirimaru", email="a@example.com", organization_id=1
+                )
+                db.add(user1)
+                await db.commit()
+
+                parameter = "A@EXAMPLE.COM"
+                # SELECT users.id, users.name, users.email, users.soft_destroyed_at, users.organization_id, users.birth_day, users.salt, organizations_1.id AS id_1
+                # FROM users LEFT OUTER JOIN organizations AS organizations_1 ON organizations_1.id = users.organization_id
+                #   NOTE: ilike だとこうなる
+                # WHERE lower(users.email) LIKE lower(:email_1)
+                result = await src.cruds.user.find_by_email(db, email=parameter)
+                assert result.id == user1.id
+
+            async def test_parameter_lower(self, db: AsyncSession):
+                user1 = User(
+                    id=1, name="kirimaru", email="A@EXAMPLE.COM", organization_id=1
+                )
+                db.add(user1)
+                await db.commit()
+
+                parameter = "a@example.com"
+                result = await src.cruds.user.find_by_email(db, email=parameter)
+                assert result.id == user1.id
 
 class TestUserRelationShip:
     async def test_01(self, db: AsyncSession):
