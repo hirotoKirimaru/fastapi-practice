@@ -1,4 +1,4 @@
-from sqlalchemy import and_, select
+from sqlalchemy import and_, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 from sqlalchemy.exc import MissingGreenlet
@@ -183,6 +183,21 @@ class TestUser:
 
                 parameter = "a@example.com"
                 result = await src.cruds.user.find_by_email(db, email=parameter)
+                assert result.id == user1.id
+
+            async def test_lower_case(self, db: AsyncSession):
+                """
+                ilikeを使用しないパターン
+                """
+                user1 = User(
+                    id=1, name="kirimaru", email="a@example.com", organization_id=1
+                )
+                db.add(user1)
+                await db.commit()
+
+                parameter = "A@EXAMPLE.COM"
+                query = select(User).where(func.lower(User.email) == parameter.lower())
+                result = (await db.execute(query)).scalars().first()
                 assert result.id == user1.id
 
 class TestUserRelationShip:
