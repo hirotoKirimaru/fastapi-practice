@@ -1,16 +1,16 @@
-from typing import Optional
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class TaskBase(BaseModel):
-    title: Optional[str] = Field(None, examples=["クリーニングを取りに行く"])
+    title: Annotated[str | None, Field(None, examples=["クリーニングを取りに行く"])]
 
 
 class Task(TaskBase):
     id: int
-    title: Optional[str] = Field(None, examples=["クリーニングを取りに行く"])
-    done: bool = Field(False, description="完了フラグ")
+    title: Annotated[str | None, Field(None, examples=["クリーニングを取りに行く"])]
+    done: Annotated[bool, Field(False, description="完了フラグ")]
 
     model_config = ConfigDict(from_attributes=True)
 
