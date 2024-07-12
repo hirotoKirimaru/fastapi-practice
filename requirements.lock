@@ -19,14 +19,14 @@ anyio==4.4.0
     # via watchfiles
 arq==0.26.0
     # via fastapi-practice
-boto3==1.34.135
+boto3==1.34.143
     # via fastapi-practice
-botocore==1.34.135
+botocore==1.34.143
     # via boto3
     # via s3transfer
 cachetools==5.3.3
     # via google-auth
-certifi==2024.6.2
+certifi==2024.7.4
     # via httpcore
     # via httpx
     # via requests
@@ -52,9 +52,9 @@ google-api-core==2.19.1
     # via google-ai-generativelanguage
     # via google-api-python-client
     # via google-generativeai
-google-api-python-client==2.135.0
+google-api-python-client==2.137.0
     # via google-generativeai
-google-auth==2.30.0
+google-auth==2.32.0
     # via google-ai-generativelanguage
     # via google-api-core
     # via google-api-python-client
@@ -62,14 +62,14 @@ google-auth==2.30.0
     # via google-generativeai
 google-auth-httplib2==0.2.0
     # via google-api-python-client
-google-generativeai==0.7.1
+google-generativeai==0.7.2
     # via fastapi-practice
 googleapis-common-protos==1.63.2
     # via google-api-core
     # via grpcio-status
 greenlet==3.0.3
     # via sqlalchemy
-grpcio==1.64.1
+grpcio==1.65.0
     # via google-api-core
     # via grpcio-status
 grpcio-status==1.62.2
@@ -109,13 +109,13 @@ markupsafe==2.1.5
     # via jinja2
 mdurl==0.1.2
     # via markdown-it-py
-orjson==3.10.5
+orjson==3.10.6
     # via fastapi
 packaging==24.1
     # via gunicorn
 passlib==1.7.4
     # via fastapi-practice
-polars==0.20.31
+polars==1.1.0
     # via fastapi-practice
 proto-plus==1.24.0
     # via google-ai-generativelanguage
@@ -132,11 +132,11 @@ pyasn1==0.6.0
     # via rsa
 pyasn1-modules==0.4.0
     # via google-auth
-pydantic==2.7.4
+pydantic==2.8.2
     # via fastapi
     # via google-generativeai
     # via pydantic-settings
-pydantic-core==2.18.4
+pydantic-core==2.20.1
     # via pydantic
 pydantic-settings==2.3.4
     # via fastapi-practice
@@ -169,7 +169,7 @@ rsa==4.9
     # via google-auth
 s3transfer==0.10.2
     # via boto3
-sentry-sdk==2.7.1
+sentry-sdk==2.9.0
     # via fastapi-practice
 shellingham==1.5.4
     # via typer
@@ -182,7 +182,7 @@ sqlalchemy==2.0.31
     # via fastapi-practice
 starlette==0.37.2
     # via fastapi
-tenacity==8.4.2
+tenacity==8.5.0
     # via fastapi-practice
 tqdm==4.66.4
     # via google-generativeai
