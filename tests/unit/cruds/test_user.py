@@ -8,6 +8,7 @@ from datetime import datetime
 import pytest
 
 import src.cruds.user
+
 # import logging
 from src.models.user import User
 from src.models.organization import Organization
@@ -199,6 +200,7 @@ class TestUser:
                 query = select(User).where(func.lower(User.email) == parameter.lower())
                 result = (await db.execute(query)).scalars().first()
                 assert result.id == user1.id
+
 
 class TestUserRelationShip:
     async def test_01(self, db: AsyncSession):

@@ -1,10 +1,8 @@
 import pytest
-from dataclasses import dataclass
 
-from sqlalchemy import and_, select, func
-from pydantic import BaseModel
+from sqlalchemy import and_, select
 from src.models.user import User
-import pytest
+
 
 @pytest.mark.skipif(True, reason="再現できず。")
 # Python3.12
