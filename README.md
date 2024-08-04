@@ -46,7 +46,7 @@ rye lock --update-all
 ```
 
 ```bash
-rye pin 3.12.3
+rye pin 3.12.4
 ```
 
 # Dev
