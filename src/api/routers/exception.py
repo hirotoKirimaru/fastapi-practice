@@ -29,7 +29,8 @@ async def exception(input_: ExceptionInput = Body(...)) -> Any:
     raise Exception()
 
 
-@router.get("/exception", responses={422: {"model": ExceptionResponse, "description": "Validation Error"}})
+# @router.get("/exception", responses={422: {"model": ExceptionResponse, "description": "Validation Error"}})
+@router.get("/exception", responses={422: {"model": ExceptionResponse}})
 async def file_invalid() -> Any:
     return JSONResponse(
         status_code=422,
