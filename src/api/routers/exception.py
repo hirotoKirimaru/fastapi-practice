@@ -14,14 +14,14 @@ class ExceptionInput(BaseModel):
     age: int = Field(ge=18)
 
 
-class ErrorMessages(CustomModel):
+class ErrorMessage(CustomModel):
     reason: str
     indexes: Annotated[List[int], Field(description="エラーが発生したインデックスのリスト")]
 
 
 class ExceptionResponse(CustomModel):
     detail: Annotated[str, Field(description="Exception detail", examples=["File Invalid"])]
-    error_lists: Annotated[List[ErrorMessages], Field(description="Exception details", examples=[{"reason": "Not Found", "indexes": [1, 2, 3]}])]
+    error_lists: Annotated[List[ErrorMessage], Field(description="Exception details", examples=[{"reason": "Not Found", "indexes": [1, 2, 3]}])]
 
 
 @router.put("/exception")
