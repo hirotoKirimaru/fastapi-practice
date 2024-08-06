@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer
+# from sqlalchemy import Column, Integer
+from sqlmodel import Field
 from src.models.base import Base
 
 
-class Organization(Base):
+class Organization(Base, table=True):
     __tablename__ = "organizations"
 
-    id = Column(Integer, primary_key=True)
+    id: int = Field(primary_key=True)

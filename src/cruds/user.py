@@ -33,7 +33,7 @@ async def find_by_email(
 ) -> User | None:
     query = select(User)
     if partial_match:
-        query = query.where(User.email.ilike(f"%{email}%"))
+        query = query.where(User.display_email.ilike(f"%{email}%"))
     else:
-        query = query.where(User.email == email)
+        query = query.where(User.display_email == email)
     return (await db.execute(query)).scalars().first()

@@ -1,7 +1,7 @@
-from sqlalchemy.orm import DeclarativeBase
+from sqlmodel import SQLModel
 
-
-class Base(DeclarativeBase):
+# class Base(SQLModel, table=True):
+class Base(SQLModel):
     def __repr__(self):
         return str(self.__dict__)
 

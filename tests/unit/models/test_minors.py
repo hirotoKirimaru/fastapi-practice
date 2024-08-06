@@ -30,8 +30,14 @@ class TestIterator:
 
         actual = [x for x in target]
         assert len(actual) == 3, "18歳以下は3人"
-        assert set(actual) == {user_1, user_2, user_3}
+        # assert set(actual) == {user_1, user_2, user_3}
+        # NOTE: E TypeError: unhashable type: 'User'
+        assert user_1 in actual
+        assert user_2 in actual
+        assert user_3 in actual
 
         # target.valueと同じ
-        actual_2 = [x for x in target.value]
-        assert set(actual) == set(actual_2)
+        # actual_2 = [x for x in target.value]
+        # assert set(actual) == set(actual_2)
+        for x in target.value:
+            assert x in actual

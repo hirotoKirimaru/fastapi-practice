@@ -91,7 +91,7 @@ class TestUser:
 
             query: Select = select(User).where(User.id == 1)
             result = (await db.execute(query)).scalars().first()
-            assert result.name == "kirimaru"
+            assert result.display_name == "kirimaru"
 
         async def test_soft_destroyed_name(self, db: AsyncSession):
             user1 = User(
@@ -106,7 +106,7 @@ class TestUser:
 
             query: Select = select(User).where(User.id == 1)
             result = (await db.execute(query)).scalars().first()
-            assert result.name == "削除済ユーザ"
+            assert result.display_name == "削除済ユーザ"
 
         async def test_criteria_is_db_value(self, db: AsyncSession):
             user1 = User(
@@ -121,7 +121,7 @@ class TestUser:
 
             query: Select = select(User).where(User.name == "kirimaru")
             result = (await db.execute(query)).scalars().first()
-            assert result.name == "削除済ユーザ"
+            assert result.display_name == "削除済ユーザ"
 
         async def test_cant_find_app_name(self, db: AsyncSession):
             """
@@ -135,7 +135,7 @@ class TestUser:
                 soft_destroyed_at=datetime.now(),
             )
             db.add(user1)
-            name = user1.name
+            name = user1.display_name
             await db.commit()
 
             query: Select = select(User).where(User.name == name)
@@ -197,7 +197,7 @@ class TestUser:
                 await db.commit()
 
                 parameter = "A@EXAMPLE.COM"
-                query = select(User).where(func.lower(User.email) == parameter.lower())
+                query = select(User).where(func.lower(User.display_email) == parameter.lower())
                 result = (await db.execute(query)).scalars().first()
                 assert result.id == user1.id
 
