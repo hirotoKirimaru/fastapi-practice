@@ -1,8 +1,8 @@
 from collections import namedtuple
-from enum import Enum
+from enum import Enum, IntEnum, StrEnum
 
 
-class CsvHeaderColumn(int, Enum):
+class CsvHeaderColumn(IntEnum):
     """
     intを継承しているとvalueにアクセスしなくてもアクセスできる
 
@@ -14,7 +14,7 @@ class CsvHeaderColumn(int, Enum):
     ADMIN_FLG = 4
 
 
-class StrInherit(str, Enum):
+class StrInherit(StrEnum):
     ADMIN = "ADMIN"
 
 
