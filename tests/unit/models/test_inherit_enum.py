@@ -1,6 +1,9 @@
 from collections import namedtuple
 from enum import Enum, IntEnum, StrEnum
+from pydantic import BaseModel
 
+class IntInheritColumn(int, Enum):
+    ID = 1
 
 class CsvHeaderColumn(IntEnum):
     """
@@ -13,9 +16,15 @@ class CsvHeaderColumn(IntEnum):
     EMAIL = 3
     ADMIN_FLG = 4
 
-
 class StrInherit(StrEnum):
     ADMIN = "ADMIN"
+
+class Tmp(BaseModel):
+    aaa: IntInheritColumn
+    bbb: CsvHeaderColumn
+    ccc: StrInherit
+
+
 
 
 # metaclassの競合が起きるから、継承できない
@@ -49,6 +58,17 @@ class Test:
     def test_add(self):
         assert add(1, CsvHeaderColumn.ID) == 2
 
+    def test_repr(self):
+        actual = Tmp(
+            aaa=IntInheritColumn.ID,
+            bbb=CsvHeaderColumn.NAME,
+            ccc=StrInherit.ADMIN,
+        )
+        print(actual)
+        # {'aaa': <IntInheritColumn.ID: 1>, 'bbb': <CsvHeaderColumn.NAME: 2>, 'ccc': <StrInherit.ADMIN: 'ADMIN'>}
+        print(actual.model_dump_json())
+        # '{"aaa":1,"bbb":2,"ccc":"ADMIN"}'
+        pass
 
 class TestDummyUser:
     def test_normal(self):
