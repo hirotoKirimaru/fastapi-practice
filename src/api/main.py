@@ -8,6 +8,7 @@ from src.api.routers import (
     notification,
     task,
     generate_api,
+    dependency_injection
 )
 
 api_router = APIRouter()
@@ -20,3 +21,4 @@ api_router.include_router(
 api_router.include_router(healthcheck.router, prefix="/health")
 api_router.include_router(exception.router, prefix="/exception")
 api_router.include_router(generate_api.router, prefix="/gen", tags=["generate"])
+api_router.include_router(dependency_injection.router, prefix="/di", tags=["di"])
