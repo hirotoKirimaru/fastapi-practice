@@ -196,6 +196,8 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
     # via pydantic-settings
     # via uvicorn
+python-multipart==0.0.9
+    # via fastapi-practice
 pyyaml==6.0.1
     # via uvicorn
 redis==4.6.0
