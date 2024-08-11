@@ -1,5 +1,6 @@
 from sqlmodel import SQLModel
 
+
 # class Base(SQLModel, table=True):
 class Base(SQLModel):
     def __repr__(self):

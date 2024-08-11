@@ -16,12 +16,22 @@ class ExceptionInput(BaseModel):
 
 class ErrorMessage(CustomModel):
     reason: str
-    indexes: Annotated[List[int], Field(description="エラーが発生したインデックスのリスト")]
+    indexes: Annotated[
+        List[int], Field(description="エラーが発生したインデックスのリスト")
+    ]
 
 
 class ExceptionResponse(CustomModel):
-    detail: Annotated[str, Field(description="Exception detail", examples=["File Invalid"])]
-    error_lists: Annotated[List[ErrorMessage], Field(description="Exception details", examples=[{"reason": "Not Found", "indexes": [1, 2, 3]}])]
+    detail: Annotated[
+        str, Field(description="Exception detail", examples=["File Invalid"])
+    ]
+    error_lists: Annotated[
+        List[ErrorMessage],
+        Field(
+            description="Exception details",
+            examples=[{"reason": "Not Found", "indexes": [1, 2, 3]}],
+        ),
+    ]
 
 
 @router.put("/exception")
@@ -34,5 +44,7 @@ async def exception(input_: ExceptionInput = Body(...)) -> Any:
 async def file_invalid() -> Any:
     return JSONResponse(
         status_code=422,
-        content=ExceptionResponse(detail="File Invalid", error_lists=[]).model_dump(by_alias=True)
+        content=ExceptionResponse(detail="File Invalid", error_lists=[]).model_dump(
+            by_alias=True
+        ),
     )

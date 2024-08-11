@@ -8,7 +8,7 @@ from src.api.routers import (
     notification,
     task,
     generate_api,
-    dependency_injection
+    dependency_injection,
 )
 
 api_router = APIRouter()

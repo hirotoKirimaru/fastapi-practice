@@ -6,7 +6,7 @@ from datetime import datetime
 # from sqlalchemy.orm.attributes import InstrumentedAttribute
 from src.models.base import Base
 from src.models.organization import Organization
-from sqlalchemy import VARCHAR, DATETIME, ForeignKey
+from sqlalchemy import VARCHAR, DATETIME
 
 from src.helper.datetime_resolver import DatetimeResolver
 
@@ -92,9 +92,9 @@ from sqlmodel import Field
 
 
 from typing import Optional, ClassVar
-from datetime import datetime
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Relationship
 from sqlalchemy.ext.hybrid import hybrid_property
+
 
 class User(Base, table=True):
     __tablename__ = "users"
@@ -105,9 +105,15 @@ class User(Base, table=True):
     soft_destroyed_at: Optional[datetime] = Field(default=None, sa_column=DATETIME)
     organization_id: Optional[int] = Field(default=None, foreign_key="organizations.id")
     organization: Optional["Organization"] = Relationship()
-    organization2: Optional["Organization"] = Relationship(sa_relationship_kwargs={"lazy": "joined"})
-    organization3: Optional["Organization"] = Relationship(sa_relationship_kwargs={"lazy": "noload"})
-    organization4: Optional["Organization"] = Relationship(sa_relationship_kwargs={"lazy": "immediate"})
+    organization2: Optional["Organization"] = Relationship(
+        sa_relationship_kwargs={"lazy": "joined"}
+    )
+    organization3: Optional["Organization"] = Relationship(
+        sa_relationship_kwargs={"lazy": "noload"}
+    )
+    organization4: Optional["Organization"] = Relationship(
+        sa_relationship_kwargs={"lazy": "immediate"}
+    )
     birth_day: Optional[datetime] = Field(default=None, sa_column=DATETIME)
     salt: Optional[str] = Field(default=None, sa_column=VARCHAR(255))
 
@@ -161,6 +167,7 @@ class User(Base, table=True):
     # pydanticへのフィールド無視設定
     display_name: ClassVar = hybrid_property(display_name)
     display_email: ClassVar = hybrid_property(display_email)
+
 
 class UserProfile(Base, table=True):
     __tablename__ = "user_profiles"

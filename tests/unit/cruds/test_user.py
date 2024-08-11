@@ -197,7 +197,9 @@ class TestUser:
                 await db.commit()
 
                 parameter = "A@EXAMPLE.COM"
-                query = select(User).where(func.lower(User.display_email) == parameter.lower())
+                query = select(User).where(
+                    func.lower(User.display_email) == parameter.lower()
+                )
                 result = (await db.execute(query)).scalars().first()
                 assert result.id == user1.id
 
