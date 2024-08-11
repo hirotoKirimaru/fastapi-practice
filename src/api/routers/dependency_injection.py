@@ -17,8 +17,7 @@ class DIClass:
     ):
         print(self.msg)
 
-# TODO: なぜか使えなかった
-AsyncDi = Annotated[None, Depends(DIClass(msg="ASYNC TWO"))]
+AsyncDi = Annotated[None, Depends(DIClass(msg="ASYNC THREE"))]
 
 
 async def async_printer(msg: str) -> None:
@@ -30,9 +29,10 @@ def printer(msg: str) -> None:
 
 @router.post("/run", response_model=bool)
 async def read_unread_notifications(
+    *,
     _: None = Depends(lambda: printer(msg="SYNC")),
     __: None = Depends(lambda: async_printer(msg="ASYNC")),
     ___: None = Depends(DIClass(msg="ASYNC TWO")),
-    # ____: AsyncDi,
+    ____: AsyncDi,
 ) -> Any:
     return True
