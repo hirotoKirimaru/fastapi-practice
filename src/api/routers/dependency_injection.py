@@ -28,7 +28,7 @@ def printer(msg: str) -> None:
 
 
 @router.post("/run", response_model=bool)
-async def read_unread_notifications(
+async def di_test(
     *,
     _: None = Depends(lambda: printer(msg="SYNC")),
     __: None = Depends(lambda: async_printer(msg="ASYNC")),
