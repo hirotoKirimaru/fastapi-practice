@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Annotated
 
 from fastapi import APIRouter
 from src.schemas.base import CustomModel
@@ -8,8 +8,8 @@ router = APIRouter()
 
 class CustomArray(CustomModel):
     # TODO: 実はどっちでもちゃんと安全に処理できる
-    array: List[str] = Field(description="Array of strings", default=[])
-    array_factory: List[str] = Field(description="ArrayFactory", default_factory=list)
+    array: Annotated[List[str], Field(default=[])]
+    array_factory: Annotated[List[str], Field(default_factory=list)]
 
 def default_param(param: str, result:List[str]=[]) -> List[str]:
     result.append(param)
@@ -19,6 +19,11 @@ def default_param(param: str, result:List[str]=[]) -> List[str]:
 async def test_array_factory():
     result = CustomArray()
     result2 = CustomArray()
+    # print(result.model_dump())
+    # 別にこれでもおんなじものっぽい
+    print(result.model_dump(exclude_defaults=True))
+    print(result2.model_dump(exclude_defaults=True))
+
     result.array.append("A")
     result.array_factory.append("A")
     result2.array.append("B")
