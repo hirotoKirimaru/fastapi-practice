@@ -19,12 +19,12 @@ anyio==4.4.0
     # via watchfiles
 arq==0.26.0
     # via fastapi-practice
-boto3==1.34.153
+boto3==1.35.5
     # via fastapi-practice
-botocore==1.34.153
+botocore==1.35.5
     # via boto3
     # via s3transfer
-cachetools==5.4.0
+cachetools==5.5.0
     # via google-auth
 certifi==2024.7.4
     # via requests
@@ -35,7 +35,7 @@ click==8.1.7
     # via arq
     # via typer
     # via uvicorn
-fastapi==0.112.0
+fastapi==0.112.1
     # via fastapi-practice
 fastapi-cli==0.0.5
     # via fastapi-practice
@@ -45,9 +45,9 @@ google-api-core==2.19.1
     # via google-ai-generativelanguage
     # via google-api-python-client
     # via google-generativeai
-google-api-python-client==2.139.0
+google-api-python-client==2.142.0
     # via google-generativeai
-google-auth==2.32.0
+google-auth==2.34.0
     # via google-ai-generativelanguage
     # via google-api-core
     # via google-api-python-client
@@ -62,13 +62,11 @@ googleapis-common-protos==1.63.2
     # via grpcio-status
 greenlet==3.0.3
     # via sqlalchemy
-grpcio==1.65.4
+grpcio==1.66.0
     # via google-api-core
     # via grpcio-status
-grpcio-status==1.62.2
+grpcio-status==1.62.3
     # via google-api-core
-gunicorn==22.0.0
-    # via fastapi-practice
 h11==0.14.0
     # via uvicorn
 hiredis==3.0.0
@@ -78,7 +76,7 @@ httplib2==0.22.0
     # via google-auth-httplib2
 httptools==0.6.1
     # via uvicorn
-idna==3.7
+idna==3.8
     # via anyio
     # via requests
 isort==5.13.2
@@ -94,11 +92,9 @@ markupsafe==2.1.5
     # via jinja2
 mdurl==0.1.2
     # via markdown-it-py
-packaging==24.1
-    # via gunicorn
 passlib==1.7.4
     # via fastapi-practice
-polars==1.4.0
+polars==1.5.0
     # via fastapi-practice
 proto-plus==1.24.0
     # via google-ai-generativelanguage
@@ -141,7 +137,7 @@ python-dotenv==1.0.1
     # via uvicorn
 python-multipart==0.0.9
     # via fastapi-practice
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via uvicorn
 redis==4.6.0
     # via arq
@@ -153,7 +149,7 @@ rsa==4.9
     # via google-auth
 s3transfer==0.10.2
     # via boto3
-sentry-sdk==2.12.0
+sentry-sdk==2.13.0
     # via fastapi-practice
 shellingham==1.5.4
     # via typer
@@ -161,17 +157,17 @@ six==1.16.0
     # via python-dateutil
 sniffio==1.3.1
     # via anyio
-sqlalchemy==2.0.31
+sqlalchemy==2.0.32
     # via sqlmodel
 sqlmodel==0.0.21
     # via fastapi-practice
-starlette==0.37.2
+starlette==0.38.2
     # via fastapi
 tenacity==9.0.0
     # via fastapi-practice
 tqdm==4.66.5
     # via google-generativeai
-typer==0.12.3
+typer==0.12.4
     # via fastapi-cli
 typing-extensions==4.12.2
     # via fastapi
@@ -186,12 +182,12 @@ urllib3==2.2.2
     # via botocore
     # via requests
     # via sentry-sdk
-uvicorn==0.30.5
+uvicorn==0.30.6
     # via fastapi-cli
     # via fastapi-practice
-uvloop==0.19.0
+uvloop==0.20.0
     # via uvicorn
-watchfiles==0.22.0
+watchfiles==0.23.0
     # via uvicorn
-websockets==12.0
+websockets==13.0
     # via uvicorn
