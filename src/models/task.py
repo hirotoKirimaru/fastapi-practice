@@ -11,7 +11,7 @@ class Task(Base, table=True):
     title: str = Field(max_length=1024)
 
     # done: Sequence["Done"] = Relationship(back_populates="task")
-    done: List["Done"] = Relationship(back_populates="task")
+    done: "Done" = Relationship(back_populates="task", cascade_delete=True, sa_relationship_kwargs={"uselist": False})
 
 
 class Done(Base, table=True):
@@ -20,4 +20,4 @@ class Done(Base, table=True):
     id: int = Field(foreign_key="tasks.id", primary_key=True)
     # task_id: int = Field()
     # task: Sequence["Task"] = Relationship(back_populates="done")
-    task: List["Task"] = Relationship(back_populates="done")
+    task: "Task" = Relationship(back_populates="done")
