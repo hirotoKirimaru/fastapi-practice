@@ -7,6 +7,9 @@ from src.models.task import Task, Done
 
 class TestTaskCascade:
     async def test_01(self, db: AsyncSession) -> None:
+        """
+        Taskを削除したときに子テーブルのDoneも削除すること。
+        """
         task1 = Task(id=1, title="Test1")
         task2 = Task(id=2, title="Test1")
         task3 = Task(id=3, title="Test1")
@@ -22,14 +25,19 @@ class TestTaskCascade:
         db.add(done3)
         await db.commit()
 
+        # WHEN
+        print("XXXXXX")
+        await db.delete(task1)
+        await db.commit()
+        print("XXXXXX")
+
+        # THEN
         query: select = select(Task).options(joinedload(Task.done))
-
-        # condition = and_(User.id == 1)
-
-        # query = query.where(condition)
         actual = (await db.execute(query)).scalars().all()
+        assert {2, 3} == {x.id for x in actual}
 
-        # assert user1.id == actual[0].id
-        breakpoint()
-        assert len(actual) == 1
+        # THEN
+        query: select = select(Done)
+        actual = (await db.execute(query)).scalars().all()
+        assert {2, 3} == {x.id for x in actual}
 
