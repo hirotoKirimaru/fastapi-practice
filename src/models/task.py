@@ -17,7 +17,9 @@ class Task(Base, table=True):
 class Done(Base, table=True):
     __tablename__ = "dones"
 
-    id: int = Field(foreign_key="tasks.id", primary_key=True)
+    # id: int = Field(foreign_key="tasks.id", primary_key=True)
+    # NOTE: ondelete を付与しておくと、アプリを経由せずに削除されたデータも安全に処理できる。
+    id: int = Field(foreign_key="tasks.id", primary_key=True, ondelete="RESTRICT")
     # task_id: int = Field()
     # task: Sequence["Task"] = Relationship(back_populates="done")
     task: "Task" = Relationship(back_populates="done")
