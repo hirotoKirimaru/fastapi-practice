@@ -1,6 +1,6 @@
 import pytest
 
-import src.cruds
+import src.crud
 from src.models.task import Done, Task
 
 
@@ -16,7 +16,7 @@ class TestTask:
             await db.refresh(task1)
 
             # WHEN
-            actual = await src.cruds.task.get_tasks_with_done(db)
+            actual = await src.crud.task.get_tasks_with_done(db)
 
             # THEN
             assert len(actual) == 1
@@ -35,7 +35,7 @@ class TestTask:
             await db.refresh(task2)
 
             # WHEN
-            actual = await src.cruds.task.get_tasks_with_done(db)
+            actual = await src.crud.task.get_tasks_with_done(db)
 
             # THEN
             assert len(actual) == 2
@@ -58,7 +58,7 @@ class TestTask:
             await db.refresh(done1)
 
             # WHEN
-            actual = await src.cruds.task.get_tasks_with_done_inner_join(db)
+            actual = await src.crud.task.get_tasks_with_done_inner_join(db)
 
             # THEN
             assert len(actual) == 1
@@ -86,7 +86,7 @@ class TestTask:
             await db.refresh(done2)
 
             # WHEN
-            actual = await src.cruds.task.get_tasks_with_done_inner_join(db)
+            actual = await src.crud.task.get_tasks_with_done_inner_join(db)
 
             # THEN
             assert len(actual) == 2

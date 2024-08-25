@@ -7,7 +7,7 @@ from datetime import datetime
 
 import pytest
 
-import src.cruds.user
+import src.crud.user
 
 # import logging
 from src.models.user import User
@@ -172,7 +172,7 @@ class TestUser:
                 # FROM users LEFT OUTER JOIN organizations AS organizations_1 ON organizations_1.id = users.organization_id
                 #   NOTE: ilike だとこうなる
                 # WHERE lower(users.email) LIKE lower(:email_1)
-                result = await src.cruds.user.find_by_email(db, email=parameter)
+                result = await src.crud.user.find_by_email(db, email=parameter)
                 assert result.id == user1.id
 
             async def test_parameter_lower(self, db: AsyncSession):
@@ -183,7 +183,7 @@ class TestUser:
                 await db.commit()
 
                 parameter = "a@example.com"
-                result = await src.cruds.user.find_by_email(db, email=parameter)
+                result = await src.crud.user.find_by_email(db, email=parameter)
                 assert result.id == user1.id
 
             async def test_lower_case(self, db: AsyncSession):

@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi.responses import StreamingResponse
 
-import src.cruds.task as task_crud
+import src.crud.task as task_crud
 import src.schemas.task as task_schema
 from fastapi import APIRouter, HTTPException
 from src.api.deps import SessionWriterDep
