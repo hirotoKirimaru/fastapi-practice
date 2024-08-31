@@ -9,11 +9,13 @@ from src.api.routers import (
     task,
     generate_api,
     dependency_injection,
-    array_factory
+    array_factory,
+    user
 )
 
 api_router = APIRouter()
 
+api_router.include_router(user.router, prefix="/users", tags=["users"])
 api_router.include_router(task.router, prefix="/tasks", tags=["tasks"])
 api_router.include_router(done.router, prefix="/tasks", tags=["tasks"])
 api_router.include_router(
