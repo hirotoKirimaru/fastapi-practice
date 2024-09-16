@@ -3,7 +3,7 @@ import pytest
 from typing import Annotated, Dict, Any, List
 
 from pydantic import BaseModel, Json, Field, ValidationError
-
+from sqlalchemy import JSON
 
 JsonField = Annotated[
     Json[Any] | Dict[str, Any] | List[Any],
@@ -16,6 +16,12 @@ class TestJson:
 
     class _Test2(BaseModel):
         value: JsonField
+
+    class _Test3(BaseModel):
+        value: Json | JSON
+
+        class Config:
+            arbitrary_types_allowed=True
 
     @pytest.mark.parametrize(
         "value, expected_raise",
@@ -48,3 +54,18 @@ class TestJson:
         # instance = self._Test(value=json.dumps(["foo", "bar", "baz"]))
         instance = self._Test2(value=value)
         self._Test2.model_validate(instance.model_dump())
+
+    @pytest.mark.skipif(True, reason="pydanticとSQLAlchemyのJSONのかみ合わせが悪い")
+    @pytest.mark.parametrize(
+        "value",
+        [
+            '{"value": {"a": "b"}}',
+            ["A, B"],
+            {'value': [{'a': 'b'}]}
+        ],
+    )
+    async def test_03(self, value: Any):
+        # instance = self._Test(value=["foo", "bar", "baz"])
+        # instance = self._Test(value=json.dumps(["foo", "bar", "baz"]))
+        instance = self._Test3(value=json.dumps(value))
+        self._Test3.model_validate(instance.model_dump())
