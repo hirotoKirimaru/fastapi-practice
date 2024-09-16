@@ -34,6 +34,7 @@ class TestJson:
     async def test_01(self, value: Any, expected_raise: bool):
         # instance = self._Test(value=["foo", "bar", "baz"])
         # instance = self._Test(value=json.dumps(["foo", "bar", "baz"]))
+        # json.dumpsで文字列化が必須
         instance = self._Test(value=json.dumps(value))
         if expected_raise:
             with pytest.raises(ValidationError):
@@ -45,6 +46,7 @@ class TestJson:
         "value",
         [
             '{"value": {"a": "b"}}',
+            # '{[1, 2, 3]}', # 非jsonのエラーメッセージ確認
             ["A, B"],
             {'value': [{'a': 'b'}]}
         ],
@@ -52,6 +54,7 @@ class TestJson:
     async def test_02(self, value: Any):
         # instance = self._Test(value=["foo", "bar", "baz"])
         # instance = self._Test(value=json.dumps(["foo", "bar", "baz"]))
+        # Dict と Listを定義しているので、json.dumpsは不要
         instance = self._Test2(value=value)
         self._Test2.model_validate(instance.model_dump())
 
