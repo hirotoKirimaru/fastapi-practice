@@ -10,7 +10,8 @@ from src.api.routers import (
     generate_api,
     dependency_injection,
     array_factory,
-    user
+    user,
+    questions
 )
 
 api_router = APIRouter()
@@ -26,3 +27,4 @@ api_router.include_router(exception.router, prefix="/exception")
 api_router.include_router(generate_api.router, prefix="/gen", tags=["generate"])
 api_router.include_router(dependency_injection.router, prefix="/di", tags=["di"])
 api_router.include_router(array_factory.router, prefix="/array", tags=["array"])
+api_router.include_router(questions.router, prefix="/questions", tags=["questions"])
