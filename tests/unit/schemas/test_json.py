@@ -6,7 +6,7 @@ from pydantic import BaseModel, Json, Field, ValidationError
 
 
 JsonField = Annotated[
-    Json[Any] | Dict[str, Any] | List[Any] | None,
+    Json[Any] | Dict[str, Any] | List[Any],
     Field(description="JSON文字列、辞書、リスト、またはNoneを受け取るために使用するフィールドです。", default=None, examples=['{"value": {"a": "b"}}', ["A", "B"], {'value': [{'a': 'b'}]}]),
 ]
 
