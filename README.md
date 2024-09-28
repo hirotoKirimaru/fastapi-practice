@@ -58,5 +58,15 @@ rye run alembic upgrade head
 rye run alembic revision -m "description of changes"
 ```
 
+```bash
+rye self update
+```
+
+```bash
+# TODO pytypeをいい感じに使えるようにしたい
+
+```
+
+
 # 参考にする
 - [https://github.com/tiangolo/full-stack-fastapi-template/tree/master]

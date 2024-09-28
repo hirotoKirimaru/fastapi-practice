@@ -46,6 +46,7 @@ dev-dependencies = [
     "alembic>=1.13.1",
     "allure-pytest>=2.13.5",
     "types-passlib>=1.7.7.20240327",
+    "pytype>=2024.9.13",
 ]
 
 [tool.hatch.metadata]
