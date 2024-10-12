@@ -1,6 +1,7 @@
 from typing import AsyncGenerator, Optional, Sequence, Tuple
 
 from sqlalchemy import select
+from sqlalchemy.sql import Select
 from sqlalchemy.engine import Result
 from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -34,15 +35,14 @@ async def get_tasks_with_done(db: AsyncSession) -> Sequence[Row[Tuple[int, str, 
 
 async def get_tasks_with_done_inner_join(
     db: AsyncSession,
-) -> Sequence[Row[Tuple[int, str, bool]]]:
-    result: Result[Row[Tuple[int, str, bool]]] = await db.execute(
-        select(
-            task_model.Task.id,
-            task_model.Task.title,
-            task_model.Done.id.is_not(None).label("done"),
-        ).join(task_model.Task, task_model.Done.task)
-    )
-    return result.all()
+) -> Sequence[Tuple[int, str, bool]]:
+    query: Select = select(
+        task_model.Task.id,
+        task_model.Task.title,
+        task_model.Done.id.is_not(None).label("done"),
+    ).join(task_model.Task, task_model.Done.task)
+
+    return (await db.execute(query)).all()
 
 
 # async def get_task(db: AsyncSession, task_id: int, criteria: and_ | None = None) -> Optional[task_model.Task]:

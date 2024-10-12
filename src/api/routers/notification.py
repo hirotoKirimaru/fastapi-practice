@@ -10,7 +10,7 @@ from src.api.deps import SessionWriterDep, SessionReaderDep
 router = APIRouter()
 
 
-async def read(db: SessionWriterDep, read_time: datetime):
+async def read(db: SessionWriterDep, read_time: datetime) -> Any:
     # TODO: あれ、Serializeしなくても渡せる…？
     print(db)
     print(read_time)

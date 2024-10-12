@@ -1,3 +1,5 @@
+from typing import Any
+
 import src.crud.done as done_crud
 import src.schemas.done as done_schema
 from fastapi import APIRouter, HTTPException
@@ -7,7 +9,7 @@ router = APIRouter()
 
 
 @router.put("/{task_id}/done", response_model=done_schema.DoneResponse)
-async def mark_task_as_done(task_id: int, db: SessionWriterDep):
+async def mark_task_as_done(task_id: int, db: SessionWriterDep) -> Any:
     done = await done_crud.get_done(db, task_id=task_id)
     if done is not None:
         raise HTTPException(status_code=400, detail="Done already exists")
@@ -16,7 +18,7 @@ async def mark_task_as_done(task_id: int, db: SessionWriterDep):
 
 
 @router.delete("/{task_id}/done", response_model=None)
-async def unmark_task_as_done(task_id: int, db: SessionWriterDep):
+async def unmark_task_as_done(task_id: int, db: SessionWriterDep) -> Any:
     done = await done_crud.get_done(db, task_id=task_id)
     if done is None:
         raise HTTPException(status_code=404, detail="Done not found")

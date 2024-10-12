@@ -100,9 +100,11 @@ class User(Base, table=True):
     __tablename__ = "users"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    name: str = Field(sa_column=VARCHAR(1024))
-    email: str = Field(sa_column=VARCHAR(1024))
-    soft_destroyed_at: Optional[datetime] = Field(default=None, sa_column=DATETIME)
+    name: str = Field(sa_column=Column(VARCHAR(1024)))
+    email: str = Field(sa_column=Column(VARCHAR(1024)))
+    soft_destroyed_at: Optional[datetime] = Field(
+        default=None, sa_column=Column(DATETIME)
+    )
     organization_id: Optional[int] = Field(default=None, foreign_key="organizations.id")
     organization: Optional["Organization"] = Relationship()
     organization2: Optional["Organization"] = Relationship(
@@ -115,7 +117,7 @@ class User(Base, table=True):
         sa_relationship_kwargs={"lazy": "immediate"}
     )
     birth_day: Optional[datetime] = Field(default=None, sa_column=Column(DATETIME))
-    salt: Optional[str] = Field(default=None, sa_column=VARCHAR(255))
+    salt: Optional[str] = Field(default=None, sa_column=Column(VARCHAR(255)))
 
     @property
     def age(self) -> int:

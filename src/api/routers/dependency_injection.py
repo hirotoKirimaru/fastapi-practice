@@ -1,4 +1,4 @@
-from typing import Any, Annotated, Callable
+from typing import Any, Annotated, Callable, Awaitable
 
 from fastapi import APIRouter, Depends, Security, UploadFile, File
 
@@ -10,12 +10,12 @@ router = APIRouter()
 
 
 class DIClass:
-    def __init__(self, msg: str):
+    def __init__(self, msg: str) -> None:
         self.msg = msg
 
     async def __call__(
         self,
-    ):
+    ) -> None:
         print(self.msg)
 
 
@@ -51,15 +51,15 @@ class CsvFileValidator:
     """
 
     def __init__(
-        self, validator: Callable[[AsyncSession, UploadFile, None], bool]
-    ) -> Any:
+        self, validator: Callable[[AsyncSession, UploadFile, Any], Awaitable[bool]]
+    ) -> None:
         self.validator = validator
 
     async def __call__(
         self,
         session: SessionReaderDep,  # Validate処理でReaderインスタンスを取得する
         file: UploadFile = File(...),
-        current_user=Security(get_current_user),
+        current_user: Any = Security(get_current_user),
     ) -> Any:
         return await self.validator(session, file, current_user)
 
