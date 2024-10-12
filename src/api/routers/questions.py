@@ -1,6 +1,6 @@
 from typing import Any, List
 
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter
 
 from src.schemas.json import Question
 

@@ -1,4 +1,4 @@
-from sqlalchemy import and_, select, func, text, delete
+from sqlalchemy import select, text, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 

@@ -1,6 +1,6 @@
 from typing import Annotated, Any, List, Dict
 
-from pydantic import BaseModel, ConfigDict, Field, Json
+from pydantic import Field, Json
 
 from src.schemas.base import CustomModel
 

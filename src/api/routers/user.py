@@ -17,7 +17,7 @@ async def register_by_users(
         db: SessionWriterDep,
         file: UploadFile = File(...)
 ) -> Any:
-    async with session_context(db) as session:
+    async with session_context(db) as _session:
         contents = await file.read()
         try:
             df = polars.read_csv(contents)

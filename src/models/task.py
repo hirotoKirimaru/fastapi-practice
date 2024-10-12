@@ -1,5 +1,3 @@
-from typing import List
-
 from sqlmodel import Relationship, Field
 from src.models.base import Base
 

@@ -1,11 +1,11 @@
 from collections import defaultdict
 import sys
 
+from operator import attrgetter
+from itertools import groupby
 
 
 import pytest
-from collections import defaultdict
-import sys
 
 class TestDefaultDict:
     def test_defaultdict_basic(self):
@@ -62,9 +62,6 @@ class TestDefaultDict:
         final_size = sys.getsizeof(d8)
         assert final_size > initial_size
 
-from collections import defaultdict
-from operator import attrgetter
-from itertools import groupby
 
 
 class TestGroupBy:
