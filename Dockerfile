@@ -1,28 +1,28 @@
-FROM python:3.12 AS builder
+FROM python:3.12-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH="/src:$PYTHONPATH"
+ENV PYTHONPATH="/app:$PYTHONPATH"
+ENV PATH="/app/.venv/bin:$PATH"
 
 WORKDIR /app
 
 COPY src /app/src
-COPY README.md pyproject.toml uv.lock ./
+COPY README.md pyproject.toml .python-version uv.lock ./
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
+COPY pyproject.toml uv.lock ./
+
+FROM base AS development
+
+COPY alembic.ini .env ./
+RUN uv sync --frozen --no-cache --dev
+#RUN uv pip install --no-cache -e .[dev] --system
+CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0"]
+
+FROM base AS production
+
+#RUN uv pip install --no-cache -e . --system
 RUN uv sync --frozen --no-cache
-
-FROM python:3.12-slim
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH="/src:$PYTHONPATH"
-
-WORKDIR /app
-
-COPY --from=builder /app /app
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY --from=builder /bin/uv /bin/uv
-
-CMD ["uv", "run", "uvicorn", "src.main:app", "--reload", "--host", "0.0.0.0"]
+CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0"]

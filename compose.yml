@@ -6,7 +6,9 @@ x-common:
 
 services:
   api:
-    build: .
+    build:
+      context: .
+      target: ${BUILD_TARGET:-development}
 #    read_only: true # TODO: これがあると動かない…？
     volumes:
       #      - .dockervenv:/src/.venv

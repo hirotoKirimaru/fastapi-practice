@@ -30,6 +30,15 @@ http://localhost:8000/docs
 
 Describe your project here.
 
+```bash
+# 開発環境でビルド
+#普通にビルドでoK
+#docker compose build --target development
+# 本番環境でビルド
+#docker compose build --target production
+BUILD_TARGET=development docker compose build
+```
+
 # Rye か uvの使い方
 
 ```bash
