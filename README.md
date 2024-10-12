@@ -30,36 +30,38 @@ http://localhost:8000/docs
 
 Describe your project here.
 
-# Ryeの使い方
+# Rye か uvの使い方
 
 ```bash
-rye sync
+uv sync
 ```
 ```bash
-rye add pytest
-rye add --dev pytest
+uv add pytest
+uv add --dev pytest
 
-rye run pytest .
+uv run pytest .
 ```
 ```bash
-rye lock --update-all
+uv lock
+#rye lock --update-all
 ```
 
 ```bash
-rye pin 3.12.4
+uv python pin 3.13
+#rye pin 3.12.4
 ```
 
 # Dev
 ```bash
 # 
-rye run alembic upgrade head
+uv run alembic upgrade head
 
 # 
-rye run alembic revision -m "description of changes"
+uv run alembic revision -m "description of changes"
 ```
 
 ```bash
-rye self update
+uv self update
 ```
 
 ```bash
@@ -67,6 +69,14 @@ rye self update
 
 ```
 
+```bash
+# rye.tools.scripts
+rye lint
+rye start
+rye production
+
+
+```
 
 # 参考にする
 - [https://github.com/tiangolo/full-stack-fastapi-template/tree/master]
