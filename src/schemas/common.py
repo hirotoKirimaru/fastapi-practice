@@ -12,7 +12,8 @@ class CustomEmailStr(EmailStr):
     @classmethod
     def validate_half_and_full_email(cls, value: str) -> str:
         lower_value = value.lower()
-        if not re.search(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", lower_value):
+        if not re.search(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", lower_value):
+        # if not re.search(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", lower_value):
             logging.warn(f"Invalid email address: {value}")
             raise ValueError("ERROR.EMAIL_VALIDATION")
         return lower_value
