@@ -16,6 +16,8 @@ COPY pyproject.toml uv.lock ./
 
 FROM base AS development
 
+COPY tests /app/tests
+COPY alembic /app/alembic
 COPY alembic.ini .env ./
 RUN uv sync --frozen --no-cache --dev
 #RUN uv pip install --no-cache -e .[dev] --system
