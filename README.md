@@ -87,5 +87,8 @@ rye production
 
 ```
 
+# Allureのページ
+- [https://hirotokirimaru.github.io/fastapi-practice]
+
 # 参考にする
 - [https://github.com/tiangolo/full-stack-fastapi-template/tree/master]
