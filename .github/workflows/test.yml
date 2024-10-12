@@ -3,7 +3,7 @@ name: Test
 on: [push]
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
     strategy:
@@ -12,19 +12,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.lock
-          pip install -r requirements-dev.lock
-      - name: Lint with Ruff
-        run: |
-          ruff .
-        continue-on-error: true
+#      - name: Set up Python ${{ matrix.python-version }}
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: ${{ matrix.python-version }}
+#      - name: Install Dependencies
+#        run: |
+#          python -m pip install --upgrade pip
+#          pip install -r requirements.lock
+#          pip install -r requirements-dev.lock
+#      - name: Lint with Ruff
+#        run: |
+#          ruff .
+#        continue-on-error: true
       - name: compose up
         run: docker compose up -d
       - name: db migration
@@ -35,7 +35,8 @@ jobs:
           retry_wait_seconds: 10
           command: alembic upgrade head
       - name: Test
-        run: pytest
+#        run: pytest
+        run: docker compose exec api pytest
       - name: Build test report
         uses: simple-elf/allure-report-action@v1.9
         if: always()
