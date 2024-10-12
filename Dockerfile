@@ -1,4 +1,5 @@
-FROM python:3.12-slim AS base
+FROM python:3.12 AS base
+#FROM python:3.12-slim AS base # 後でこっちに戻す
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
