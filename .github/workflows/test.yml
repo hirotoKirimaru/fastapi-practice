@@ -33,10 +33,17 @@ jobs:
           timeout_minutes: 5
           max_attempts: 3
           retry_wait_seconds: 10
-          command: alembic upgrade head
+          command: docker compose exec api alembic upgrade head
+#          command: alembic upgrade head
       - name: Test
 #        run: pytest
-        run: docker compose exec api pytest
+#        run: docker compose exec api pytest
+        run: docker compose exec -T api pytest --alluredir=/app/allure-results
+
+      - name: Copy Allure results from container
+        run: |
+          docker cp $(docker compose ps -q api):/app/allure-results ./allure-results
+
       - name: Build test report
         uses: simple-elf/allure-report-action@v1.9
         if: always()
