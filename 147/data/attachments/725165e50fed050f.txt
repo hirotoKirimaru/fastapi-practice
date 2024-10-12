@@ -1,0 +1,93 @@
+2024-10-12 11:29:12,344 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2024-10-12 11:29:12,344 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("tasks")
+2024-10-12 11:29:12,344 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,345 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("tasks")
+2024-10-12 11:29:12,345 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,346 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("dones")
+2024-10-12 11:29:12,346 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,346 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("dones")
+2024-10-12 11:29:12,346 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,347 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("organizations")
+2024-10-12 11:29:12,347 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,348 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("organizations")
+2024-10-12 11:29:12,348 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,348 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("users")
+2024-10-12 11:29:12,348 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,349 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("users")
+2024-10-12 11:29:12,349 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,349 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("user_profiles")
+2024-10-12 11:29:12,349 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,350 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("user_profiles")
+2024-10-12 11:29:12,351 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,352 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("tasks")
+2024-10-12 11:29:12,352 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,352 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("tasks")
+2024-10-12 11:29:12,352 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,353 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("dones")
+2024-10-12 11:29:12,353 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,353 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("dones")
+2024-10-12 11:29:12,353 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,354 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("organizations")
+2024-10-12 11:29:12,354 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,354 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("organizations")
+2024-10-12 11:29:12,354 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,355 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("users")
+2024-10-12 11:29:12,355 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,355 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("users")
+2024-10-12 11:29:12,356 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,356 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("user_profiles")
+2024-10-12 11:29:12,356 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,357 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("user_profiles")
+2024-10-12 11:29:12,357 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-10-12 11:29:12,358 INFO sqlalchemy.engine.Engine 
+CREATE TABLE tasks (
+	id INTEGER NOT NULL, 
+	title VARCHAR(1024) NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2024-10-12 11:29:12,358 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2024-10-12 11:29:12,359 INFO sqlalchemy.engine.Engine 
+CREATE TABLE organizations (
+	id INTEGER NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2024-10-12 11:29:12,359 INFO sqlalchemy.engine.Engine [no key 0.00016s] ()
+2024-10-12 11:29:12,359 INFO sqlalchemy.engine.Engine 
+CREATE TABLE dones (
+	id INTEGER NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(id) REFERENCES tasks (id) ON DELETE CASCADE
+)
+
+
+2024-10-12 11:29:12,359 INFO sqlalchemy.engine.Engine [no key 0.00016s] ()
+2024-10-12 11:29:12,360 INFO sqlalchemy.engine.Engine 
+CREATE TABLE users (
+	id INTEGER NOT NULL, 
+	name VARCHAR NOT NULL, 
+	email VARCHAR NOT NULL, 
+	soft_destroyed_at DATETIME, 
+	organization_id INTEGER, 
+	birth_day DATETIME, 
+	salt VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES organizations (id)
+)
+
+
+2024-10-12 11:29:12,360 INFO sqlalchemy.engine.Engine [no key 0.00018s] ()
+2024-10-12 11:29:12,361 INFO sqlalchemy.engine.Engine 
+CREATE TABLE user_profiles (
+	id INTEGER NOT NULL, 
+	user_id INTEGER, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id)
+)
+
+
+2024-10-12 11:29:12,361 INFO sqlalchemy.engine.Engine [no key 0.00016s] ()
+2024-10-12 11:29:12,361 INFO sqlalchemy.engine.Engine COMMIT
