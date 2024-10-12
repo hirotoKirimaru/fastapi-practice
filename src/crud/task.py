@@ -26,7 +26,7 @@ async def get_tasks_with_done(db: AsyncSession) -> Sequence[Row[Tuple[int, str, 
         select(
             task_model.Task.id,
             task_model.Task.title,
-            task_model.Done.id.isnot(None).label("done"),
+            task_model.Done.id.is_not(None).label("done"),
         ).outerjoin(task_model.Done)
     )
     return result.all()
@@ -35,11 +35,11 @@ async def get_tasks_with_done(db: AsyncSession) -> Sequence[Row[Tuple[int, str, 
 async def get_tasks_with_done_inner_join(
     db: AsyncSession,
 ) -> Sequence[Row[Tuple[int, str, bool]]]:
-    result: Result = await db.execute(
+    result: Result[Row[Tuple[int, str, bool]]] = await db.execute(
         select(
             task_model.Task.id,
             task_model.Task.title,
-            task_model.Done.id.isnot(None).label("done"),
+            task_model.Done.id.is_not(None).label("done"),
         ).join(task_model.Task, task_model.Done.task)
     )
     return result.all()

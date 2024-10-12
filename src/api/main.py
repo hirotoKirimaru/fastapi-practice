@@ -11,7 +11,7 @@ from src.api.routers import (
     dependency_injection,
     array_factory,
     user,
-    questions
+    questions,
 )
 
 api_router = APIRouter()

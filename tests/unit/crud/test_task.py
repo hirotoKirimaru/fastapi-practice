@@ -76,8 +76,6 @@ class TestTaskCascade:
         actual = (await db.execute(query)).scalars().all()
         assert {1, 2, 3} == {x.id for x in actual}
 
-
-
     # NOTE: アプリ上で実行するときはこれは動かない
     async def _test_delete_at_db(self, db: AsyncSession) -> None:
         """

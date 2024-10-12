@@ -6,7 +6,7 @@ from datetime import datetime
 # from sqlalchemy.orm.attributes import InstrumentedAttribute
 from src.models.base import Base
 from src.models.organization import Organization
-from sqlalchemy import VARCHAR, DATETIME
+from sqlalchemy import VARCHAR, DATETIME, Column
 
 from src.helper.datetime_resolver import DatetimeResolver
 
@@ -114,7 +114,7 @@ class User(Base, table=True):
     organization4: Optional["Organization"] = Relationship(
         sa_relationship_kwargs={"lazy": "immediate"}
     )
-    birth_day: Optional[datetime] = Field(default=None, sa_column=DATETIME)
+    birth_day: Optional[datetime] = Field(default=None, sa_column=Column(DATETIME))
     salt: Optional[str] = Field(default=None, sa_column=VARCHAR(255))
 
     @property

@@ -5,7 +5,7 @@ from sentry_sdk.integrations.fastapi import FastApiIntegration
 
 class Sentry:
     @classmethod
-    def init_sentry(cls):
+    def init_sentry(cls) -> None:
         _ = sentry_sdk.init(
             dsn="https://41f9f871815cd788ed98b20b44f5b383@o4507057023811584.ingest.us.sentry.io/4507057026498560",
             # Set traces_sample_rate to 1.0 to capture 100%

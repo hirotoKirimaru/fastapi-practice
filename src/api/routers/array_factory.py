@@ -6,14 +6,17 @@ from pydantic import Field
 
 router = APIRouter()
 
+
 class CustomArray(CustomModel):
     # TODO: 実はどっちでもちゃんと安全に処理できる
     array: Annotated[List[str], Field(default=[])]
     array_factory: Annotated[List[str], Field(default_factory=list)]
 
-def default_param(param: str, result:List[str]=[]) -> List[str]:
+
+def default_param(param: str, result: List[str] = []) -> List[str]:
     result.append(param)
     return result
+
 
 @router.put("/test/array_factory", response_model=CustomArray)
 async def test_array_factory():
@@ -34,7 +37,4 @@ async def test_array_factory():
     resultx = default_param("2")
     print(resultx)
 
-
     return result2
-
-

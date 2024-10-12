@@ -7,8 +7,13 @@ from sqlalchemy import JSON
 
 JsonField = Annotated[
     Json[Any] | Dict[str, Any] | List[Any],
-    Field(description="JSON文字列、辞書、リスト、またはNoneを受け取るために使用するフィールドです。", default=None, examples=['{"value": {"a": "b"}}', ["A", "B"], {'value': [{'a': 'b'}]}]),
+    Field(
+        description="JSON文字列、辞書、リスト、またはNoneを受け取るために使用するフィールドです。",
+        default=None,
+        examples=['{"value": {"a": "b"}}', ["A", "B"], {"value": [{"a": "b"}]}],
+    ),
 ]
+
 
 class TestJson:
     class _Test(BaseModel):
@@ -21,14 +26,14 @@ class TestJson:
         value: Json | JSON
 
         class Config:
-            arbitrary_types_allowed=True
+            arbitrary_types_allowed = True
 
     @pytest.mark.parametrize(
         "value, expected_raise",
         [
             ('{"value": {"a": "b"}}', False),
             (["A, B"], True),
-            ({'value': [{'a': 'b'}]}, True)
+            ({"value": [{"a": "b"}]}, True),
         ],
     )
     async def test_01(self, value: Any, expected_raise: bool):
@@ -48,7 +53,7 @@ class TestJson:
             '{"value": {"a": "b"}}',
             # '{[1, 2, 3]}', # 非jsonのエラーメッセージ確認
             ["A, B"],
-            {'value': [{'a': 'b'}]}
+            {"value": [{"a": "b"}]},
         ],
     )
     async def test_02(self, value: Any):
@@ -61,11 +66,7 @@ class TestJson:
     @pytest.mark.skipif(True, reason="pydanticとSQLAlchemyのJSONのかみ合わせが悪い")
     @pytest.mark.parametrize(
         "value",
-        [
-            '{"value": {"a": "b"}}',
-            ["A, B"],
-            {'value': [{'a': 'b'}]}
-        ],
+        ['{"value": {"a": "b"}}', ["A, B"], {"value": [{"a": "b"}]}],
     )
     async def test_03(self, value: Any):
         # instance = self._Test(value=["foo", "bar", "baz"])

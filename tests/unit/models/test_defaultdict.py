@@ -7,61 +7,65 @@ from itertools import groupby
 
 import pytest
 
+
 class TestDefaultDict:
     def test_defaultdict_basic(self):
         d1 = defaultdict(int)
-        assert d1['新しいキー'] == 0
-        d1['apple'] += 1
-        d1['banana'] += 2
-        assert dict(d1) == {'新しいキー': 0, 'apple': 1, 'banana': 2}
+        assert d1["新しいキー"] == 0
+        d1["apple"] += 1
+        d1["banana"] += 2
+        assert dict(d1) == {"新しいキー": 0, "apple": 1, "banana": 2}
 
     def test_defaultdict_list(self):
         d2 = defaultdict(list)
-        d2['fruits'].append('apple')
-        d2['fruits'].append('banana')
-        d2['vegetables'].append('carrot')
-        assert dict(d2) == {'fruits': ['apple', 'banana'], 'vegetables': ['carrot']}
+        d2["fruits"].append("apple")
+        d2["fruits"].append("banana")
+        d2["vegetables"].append("carrot")
+        assert dict(d2) == {"fruits": ["apple", "banana"], "vegetables": ["carrot"]}
 
     def test_defaultdict_custom_function(self):
         def default_value():
             return "未知の項目"
+
         d3 = defaultdict(default_value)
-        assert d3['存在しないキー'] == "未知の項目"
+        assert d3["存在しないキー"] == "未知の項目"
 
     def test_defaultdict_lambda(self):
         d4 = defaultdict(lambda: sys.maxsize)
-        assert d4['任意のキー'] == sys.maxsize
+        assert d4["任意のキー"] == sys.maxsize
 
     def test_nested_defaultdict(self):
         d5 = defaultdict(lambda: defaultdict(int))
-        d5['外部キー1']['内部キー1'] += 1
-        d5['外部キー1']['内部キー2'] += 2
-        d5['外部キー2']['内部キー1'] += 3
-        assert dict(d5) == {'外部キー1': {'内部キー1': 1, '内部キー2': 2}, '外部キー2': {'内部キー1': 3}}
+        d5["外部キー1"]["内部キー1"] += 1
+        d5["外部キー1"]["内部キー2"] += 2
+        d5["外部キー2"]["内部キー1"] += 3
+        assert dict(d5) == {
+            "外部キー1": {"内部キー1": 1, "内部キー2": 2},
+            "外部キー2": {"内部キー1": 3},
+        }
 
     def test_defaultdict_vs_dict(self):
         normal_dict = {}
         with pytest.raises(KeyError):
-            normal_dict['存在しないキー'] += 1
+            normal_dict["存在しないキー"] += 1
 
         d6 = defaultdict(int)
-        d6['存在しないキー'] += 1
-        assert dict(d6) == {'存在しないキー': 1}
+        d6["存在しないキー"] += 1
+        assert dict(d6) == {"存在しないキー": 1}
 
     def test_defaultdict_type_conversion(self):
-        d7 = defaultdict(int, {'a': 1, 'b': 2})
-        assert dict(d7) == {'a': 1, 'b': 2}
-        assert list(d7.keys()) == ['a', 'b']
+        d7 = defaultdict(int, {"a": 1, "b": 2})
+        assert dict(d7) == {"a": 1, "b": 2}
+        assert list(d7.keys()) == ["a", "b"]
         assert list(d7.values()) == [1, 2]
 
     def test_defaultdict_memory_usage(self):
         d8 = defaultdict(int)
         initial_size = sys.getsizeof(d8)
         for i in range(1000):
-            d8[f'key_{i}'] = i
+            d8[f"key_{i}"] = i
         final_size = sys.getsizeof(d8)
         assert final_size > initial_size
-
 
 
 class TestGroupBy:
@@ -73,11 +77,11 @@ class TestGroupBy:
     @pytest.fixture
     def parameters(self):
         return [
-            self._Test(1, 'A'),
-            self._Test(2, 'A'),
-            self._Test(3, 'B'),
-            self._Test(4, 'A'),
-            self._Test(5, 'B'),
+            self._Test(1, "A"),
+            self._Test(2, "A"),
+            self._Test(3, "B"),
+            self._Test(4, "A"),
+            self._Test(5, "B"),
         ]
 
     class TestDefaultDict:
@@ -85,20 +89,26 @@ class TestGroupBy:
             grouped_data = defaultdict(list)
             for user in parameters:
                 grouped_data[user.group_id].append(user.user_id)
-            expected = {'A': [1, 2, 4], 'B': [3, 5]}
+            expected = {"A": [1, 2, 4], "B": [3, 5]}
             assert dict(grouped_data) == expected
 
     class TestItertools:
         def test_group_by(self, parameters):
             # NOTE: ソートがかかっていないと正しくgroup_byされない
-            non_continuous_data = {k: [user.user_id for user in v] for k, v in groupby(parameters, key=attrgetter('group_id'))}
-            expected = {'A': [4], 'B': [5]}
+            non_continuous_data = {
+                k: [user.user_id for user in v]
+                for k, v in groupby(parameters, key=attrgetter("group_id"))
+            }
+            expected = {"A": [4], "B": [5]}
             assert non_continuous_data == expected
 
-            sorted_users = sorted(parameters, key=attrgetter('group_id'))
+            sorted_users = sorted(parameters, key=attrgetter("group_id"))
 
-            grouped_data = {k: [user.user_id for user in v] for k, v in groupby(sorted_users, key=attrgetter('group_id'))}
-            expected = {'A': [1, 2, 4], 'B': [3, 5]}
+            grouped_data = {
+                k: [user.user_id for user in v]
+                for k, v in groupby(sorted_users, key=attrgetter("group_id"))
+            }
+            expected = {"A": [1, 2, 4], "B": [3, 5]}
             assert grouped_data == expected
 
 

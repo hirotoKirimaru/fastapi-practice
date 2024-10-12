@@ -9,7 +9,11 @@ class Task(Base, table=True):
     title: str = Field(max_length=1024)
 
     # done: Sequence["Done"] = Relationship(back_populates="task")
-    done: "Done" = Relationship(back_populates="task", cascade_delete=True, sa_relationship_kwargs={"uselist": False})
+    done: "Done" = Relationship(
+        back_populates="task",
+        cascade_delete=True,
+        sa_relationship_kwargs={"uselist": False},
+    )
 
 
 class Done(Base, table=True):
