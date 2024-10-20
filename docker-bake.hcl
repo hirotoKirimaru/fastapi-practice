@@ -12,6 +12,10 @@ variable "AWS_S3_SECRET_KEY" {
   default = "minio1234"
 }
 
+variable "TAG" {
+  default = "latest"
+}
+
 group "default" {
   targets = ["api"]
 }
@@ -29,7 +33,8 @@ variable "common_args" {
 target "api" {
   context = "."
   target = "${BUILD_TARGET}"
-  tags = ["api:latest"]
+  tags = ["api:${TAG}"]
+
   args = merge(common_args, {
     SERVICE_NAME = "api"
   })
