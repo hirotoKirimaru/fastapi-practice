@@ -92,3 +92,14 @@ rye production
 
 # 参考にする
 - [https://github.com/tiangolo/full-stack-fastapi-template/tree/master]
+
+# Docker buildxを素振り
+
+```bash
+docker buildx bake
+docker buildx bake --set BUILD_TARGET=production
+
+# 環境変数を指定する場合
+## .env でよければ指定不要。基本的にアプリと混ざらせたくなかったので、これを分ける
+export $(cat docker.env | xargs) && docker buildx bake
+```
