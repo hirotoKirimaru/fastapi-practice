@@ -14,7 +14,7 @@ WORKDIR /app
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # 1. 開発用ランタイムのビルド
-FROM base AS dev_runtime
+FROM base AS dev
 
 COPY src /app/src
 COPY README.md pyproject.toml .python-version uv.lock ./
