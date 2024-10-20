@@ -25,6 +25,8 @@ jobs:
 #        run: |
 #          ruff .
 #        continue-on-error: true
+      - name: build
+        run: export $(cat docker.env | xargs) && docker buildx bake
       - name: compose up
         run: docker compose up -d
       - name: db migration

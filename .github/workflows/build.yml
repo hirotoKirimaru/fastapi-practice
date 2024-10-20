@@ -10,7 +10,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: build
-        run: docker compose build
+        run: export $(cat docker.env | xargs) && docker buildx bake
+#      - name: build
+#        run: docker compose build
 #      - name: compose up -d
         # Mysqlの起動待ちで20秒
 #        run: |
