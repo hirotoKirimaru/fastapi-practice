@@ -105,6 +105,14 @@ export $(cat docker.env | xargs) && docker buildx bake
 
 export $(cat docker.env | xargs) && docker buildx bake --set common.target=production
 
+#export $(cat docker.env | xargs) && docker buildx bake api --set common.target=prod_runtime --push --set *.tags="kirimaru/fastapi-practice_prod-runtime:latest,kirimaru/fastapi-practice_prod-runtime:0.0.1"
+# 事前にランタイムだけビルド
+export $(cat docker.env | xargs) && docker buildx bake api --set common.target=prod_runtime --push --set *.tags="kirimaru/fastapi-practice_prod-runtime:0.0.1"
+# 本番ビルド
+export $(cat docker.env | xargs) && docker buildx bake api --set common.target=prod --push --set *.tags="kirimaru/fastapi-practice_prod:0.0.1"
+# 本番起動
+docker run --rm kirimaru/fastapi-practice_prod:0.0.1
+
 # これで一緒にタグ付けできそう
 docker buildx bake --set *.tags="myapp/api:latest,myapp/api:v1.0"
 
@@ -114,4 +122,25 @@ docker buildx bake --push --set TAG=v1.0
 
 # 指定してビルドしたいとき
 docker buildx bake api worker
+```
+
+
+### CI運用
+```bash
+## 既存のRuntimeイメージからuv.lockを吐き出させる
+docker create --name temp_container kirimaru/fastapi-practice_prod-runtime:0.0.1
+docker cp temp_container:/app/uv.lock ./uv.lock.docker
+docker rm temp_container
+
+## 差分チェック
+diff uv.lock uv.lock.docker
+
+### 差分チェック？
+if [ $? -eq 0 ]; then
+    echo "ファイルに差分はありません"
+elif [ $? -eq 1 ]; then
+    echo "ファイルに差分があります"
+else
+    echo "diffコマンドでエラーが発生しました"
+fi
 ```

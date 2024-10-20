@@ -1,32 +1,49 @@
-FROM python:3.12 AS base
-#FROM python:3.12-slim AS base # 後でこっちに戻す
+ARG PROD_TAG=latest
+
+# ベースイメージ
+#FROM python:3.12 AS base
+#軽量版に切り替える場合はこちらを使用
+FROM python:3.12-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-#ENV PYTHONPATH="/app:$PYTHONPATH"
-#ENV PATH="/app/.venv/bin:$PATH"
 ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
 
 WORKDIR /app
 
-COPY src /app/src
-COPY README.md pyproject.toml .python-version uv.lock ./
-
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-COPY pyproject.toml uv.lock ./
+# 1. 開発用ランタイムのビルド
+FROM base AS dev_runtime
 
-FROM base AS development
-
+COPY src /app/src
+COPY README.md pyproject.toml .python-version uv.lock ./
 COPY tests /app/tests
 COPY alembic /app/alembic
 COPY alembic.ini .env ./
 RUN uv sync --frozen --no-cache --dev
-#RUN uv pip install --no-cache -e .[dev] --system
-CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0"]
 
-FROM base AS production
+## ローカルはあんまりここを分けるメリットがない
+## 2. 開発用ランタイムを使用して起動
+#FROM dev_runtime AS dev
+#
+#COPY src /app/src
 
-#RUN uv pip install --no-cache -e . --system
+CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
+
+# 3. 本番用ランタイムのビルド
+FROM base AS prod_runtime
+
+COPY README.md pyproject.toml .python-version uv.lock ./
+
 RUN uv sync --frozen --no-cache
+
+# 4. 本番用ランタイムを使用して起動
+#FROM kirimaru/fastapi-practice_prod-runtime:${PROD_TAG} AS prod
+# TODO: まずは固定で動くことの確認
+#FROM kirimaru/fastapi-practice_prod-runtime:latest AS prod
+FROM kirimaru/fastapi-practice_prod-runtime:0.0.1 AS prod
+COPY src /app/src
+COPY .env ./
+
 CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0"]

@@ -1,5 +1,5 @@
 variable "BUILD_TARGET" {
-  default = "development"
+  default = "dev"
 }
 
 variable "ENV" {}
@@ -37,7 +37,11 @@ variable "common_args" {
 target "api" {
   inherits = ["common"]
   context = "."
-  tags = ["api:${TAG}"]
+  tags = [
+    "api:latest",
+    "kirimaru/fastapi-practice_prod-runtime:latest"
+//     "kirimaru/fastapi-practice_prod-runtime:${TAG}"
+  ]
   args = merge(common_args, {
     SERVICE_NAME = "api"
   })
