@@ -17,9 +17,13 @@ variable "TAG" {
 }
 
 group "default" {
-  targets = ["api"]
+  targets = ["api", "worker"]
 }
 
+// BUILD_TARGETだけを切り替えたいがための継承
+target "common" {
+  target = "${BUILD_TARGET}"
+}
 
 variable "common_args" {
   default = {
@@ -31,18 +35,18 @@ variable "common_args" {
 }
 
 target "api" {
+  inherits = ["common"]
   context = "."
-  target = "${BUILD_TARGET}"
   tags = ["api:${TAG}"]
-
   args = merge(common_args, {
     SERVICE_NAME = "api"
   })
 }
 
 target "worker" {
+  inherits = ["common"]
+
   context = "."
-  target = "${BUILD_TARGET}"
   tags = ["api:latest"]
   args = merge(common_args, {
     SERVICE_NAME = "worker"

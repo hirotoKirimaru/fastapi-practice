@@ -97,11 +97,13 @@ rye production
 
 ```bash
 docker buildx bake
-docker buildx bake --set BUILD_TARGET=production
+#docker buildx bake --set BUILD_TARGET=production
 
 # 環境変数を指定する場合
 ## .env でよければ指定不要。基本的にアプリと混ざらせたくなかったので、これを分ける
 export $(cat docker.env | xargs) && docker buildx bake
+
+export $(cat docker.env | xargs) && docker buildx bake --set common.target=production
 
 # これで一緒にタグ付けできそう
 docker buildx bake --set *.tags="myapp/api:latest,myapp/api:v1.0"
@@ -109,4 +111,7 @@ docker buildx bake --set *.tags="myapp/api:latest,myapp/api:v1.0"
 # 動的にやるならこっち
 TAG=v1.0 docker buildx bake
 docker buildx bake --push --set TAG=v1.0
+
+# 指定してビルドしたいとき
+docker buildx bake api worker
 ```
