@@ -51,7 +51,14 @@ uv add --dev pytest
 uv run pytest .
 ```
 ```bash
-uv lock
+# update
+uv lock --upgrade
+
+# pyprojectの更新
+uv remove fastapi
+uv add fastapi
+
+#uv lock
 #rye lock --update-all
 ```
 
@@ -132,7 +139,7 @@ docker create --name temp_container kirimaru/fastapi-practice_prod-runtime:0.0.1
 docker cp temp_container:/app/uv.lock ./uv.lock.docker
 docker rm temp_container
 
-## 差分チェック
+## 差分チェック[docker-bake.hcl](docker-bake.hcl)
 diff uv.lock uv.lock.docker
 
 ### 差分チェック？
