@@ -47,10 +47,9 @@ COPY README.md pyproject.toml .python-version uv.lock ./
 RUN uv sync --frozen --no-cache
 
 # 5. 本番用ランタイムを使用して起動
-#FROM kirimaru/fastapi-practice_prod-runtime:${PROD_TAG} AS prod
-# TODO: まずは固定で動くことの確認
-#FROM kirimaru/fastapi-practice_prod-runtime:latest AS prod
-FROM kirimaru/fastapi-practice_prod-runtime:0.0.1 AS prod
+FROM kirimaru/fastapi-practice_prod-runtime:${RUNTIME_TAG} AS prod
+ARG RUNTIME_TAG
+
 COPY src /app/src
 COPY .env ./
 
