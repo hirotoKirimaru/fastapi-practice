@@ -151,3 +151,19 @@ else
     echo "diffコマンドでエラーが発生しました"
 fi
 ```
+
+
+```bash
+
+export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
+export RUNTIME_TAG=$LOCK_HASH
+
+docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG && pull_status=$? || pull_status=$?
+if [ $pull_status -eq 1 ]; then
+  export $(cat docker.env | xargs) && docker buildx bake
+  docker tag api:latest kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
+  docker push kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
+fi
+
+
+```

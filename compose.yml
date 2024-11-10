@@ -6,11 +6,11 @@ x-common:
 
 services:
   api:
-    image: api:latest
-    pull_policy: never # bakeで事前実行を必須とする
-#    build:
-#      context: .
-#      target: ${BUILD_TARGET:-development}
+#    image: api:latest
+#    pull_policy: never # bakeで事前実行を必須とする # これはなくてもいい
+    build:
+      context: .
+      target: ${BUILD_TARGET:-development}
 #    read_only: true # TODO: これがあると動かない…？
     volumes:
       #      - .dockervenv:/src/.venv

@@ -39,7 +39,7 @@ target "api" {
   context = "."
   tags = [
     "api:latest",
-    "kirimaru/fastapi-practice_prod-runtime:latest"
+//     "kirimaru/fastapi-practice_prod-runtime:latest"
 //     "kirimaru/fastapi-practice_prod-runtime:${TAG}"
   ]
   args = merge(common_args, {

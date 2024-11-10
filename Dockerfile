@@ -1,4 +1,5 @@
 ARG PROD_TAG=latest
+ARG RUNTIME_TAG=latest
 
 # ベースイメージ
 #FROM python:3.12 AS base
@@ -25,20 +26,27 @@ RUN uv sync --frozen --no-cache --dev
 
 ## ローカルはあんまりここを分けるメリットがない
 ## 2. 開発用ランタイムを使用して起動
-#FROM dev_runtime AS dev
-#
-#COPY src /app/src
+FROM dev_runtime AS dev
+
+COPY src /app/src
 
 CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 
-# 3. 本番用ランタイムのビルド
+## 3. test 用
+FROM kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG} AS test
+ARG RUNTIME_TAG
+
+# NOTE: compose ファイルでマウントするなら不要
+COPY src /app/src
+
+# 4. 本番用ランタイムのビルド
 FROM base AS prod_runtime
 
 COPY README.md pyproject.toml .python-version uv.lock ./
 
 RUN uv sync --frozen --no-cache
 
-# 4. 本番用ランタイムを使用して起動
+# 5. 本番用ランタイムを使用して起動
 #FROM kirimaru/fastapi-practice_prod-runtime:${PROD_TAG} AS prod
 # TODO: まずは固定で動くことの確認
 #FROM kirimaru/fastapi-practice_prod-runtime:latest AS prod
