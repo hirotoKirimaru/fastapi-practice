@@ -11,6 +11,8 @@ services:
     build:
       context: .
       target: ${BUILD_TARGET:-dev}
+      args:
+        - RUNTIME_TAG=${RUNTIME_TAG}
 #    read_only: true # TODO: これがあると動かない…？
     volumes:
       #      - .dockervenv:/src/.venv
