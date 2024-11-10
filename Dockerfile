@@ -1,4 +1,3 @@
-ARG PROD_TAG=latest
 ARG RUNTIME_TAG=latest
 
 # ベースイメージ
