@@ -40,12 +40,14 @@ jobs:
           export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
           export RUNTIME_TAG=$LOCK_HASH
           docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
-  
-          echo "RUNTIME_TAG=$RUNTIME_TAG" >> $GITHUB_ENV
+#          echo "RUNTIME_TAG=$RUNTIME_TAG" >> $GITHUB_ENV
+          echo "MY_ENV_VAR=myValue" >> $GITHUB_ENV
+
       - name: compose up
         run: |
 #          echo "AAAAAAAAAA"
 #          echo $RUNTIME_TAG
+          echo "The value of MY_ENV_VAR is $MY_ENV_VAR"
           export env.RUNTIME_TAG
           docker compose up -d
       - name: db migration
