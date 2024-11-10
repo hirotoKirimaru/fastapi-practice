@@ -28,7 +28,7 @@ jobs:
 
       - name: Compose up
         run: |
-          export ${{ env.RUNTIME_TAG }}
+          export RUNTIME_TAG=${{ env.RUNTIME_TAG }}
           docker compose up -d
 
       - name: DB migration
