@@ -10,7 +10,7 @@ services:
 #    pull_policy: never # bakeで事前実行を必須とする # これはなくてもいい
     build:
       context: .
-      target: ${BUILD_TARGET:-development}
+      target: ${BUILD_TARGET:-dev}
 #    read_only: true # TODO: これがあると動かない…？
     volumes:
       #      - .dockervenv:/src/.venv
