@@ -18,32 +18,30 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: pull
+
+      - name: Pull Docker image
         run: |
-          export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
-          export RUNTIME_TAG=$LOCK_HASH
+          LOCK_HASH=$(sha1sum < uv.lock | cut -d' ' -f1)
+          RUNTIME_TAG="python-$LOCK_HASH"
           docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
-#          echo "RUNTIME_TAG=$RUNTIME_TAG" >> $GITHUB_ENV
+          echo "RUNTIME_TAG=$RUNTIME_TAG" >> $GITHUB_ENV
           echo "MY_ENV_VAR=myValue" >> $GITHUB_ENV
 
-      - name: compose up
+      - name: Compose up
         run: |
-#          echo "AAAAAAAAAA"
-#          echo $RUNTIME_TAG
-          echo "The value of MY_ENV_VAR is $MY_ENV_VAR"
-          export env.RUNTIME_TAG
+          echo "The value of MY_ENV_VAR is ${{ env.MY_ENV_VAR }}"
+          echo "The value of RUNTIME_TAG is ${{ env.RUNTIME_TAG }}"
           docker compose up -d
-      - name: db migration
+
+      - name: DB migration
         uses: nick-invision/retry@v3
         with:
           timeout_minutes: 5
           max_attempts: 3
           retry_wait_seconds: 10
           command: docker compose exec api alembic upgrade head
-#          command: alembic upgrade head
-      - name: Test
-#        run: pytest
-#        run: docker compose exec api pytest
+
+      - name: Run tests
         run: docker compose exec -T api pytest --alluredir=/app/allure-results
 
       - name: Copy Allure results from container
@@ -65,7 +63,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
-
 
 # なぜかエラーになるので後ろにもっていく
 #      - name: Set up Python ${{ matrix.python-version }}
