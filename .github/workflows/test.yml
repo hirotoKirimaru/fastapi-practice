@@ -39,7 +39,8 @@ jobs:
         run: |
           export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
           export RUNTIME_TAG=$LOCK_HASH
-          echo "RUNTIME_TAG=$RUNTIME_TAG" >> $GITHUB_ENV # 環境変数を引き継ぐため
+          # 環境変数を引き継ぐため
+          echo "RUNTIME_TAG=$RUNTIME_TAG" >> $GITHUB_ENV 
           docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
       - name: compose up
         run: |
