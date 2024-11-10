@@ -39,10 +39,12 @@ jobs:
         run: |
           export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
           export RUNTIME_TAG=$LOCK_HASH
-          docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG      
-
+          docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
       - name: compose up
-        run: docker compose up -d
+        run: |
+          echo "AAAAAAAAAA"
+          echo $RUNTIME_TAG
+          docker compose up -d
       - name: db migration
         uses: nick-invision/retry@v3
         with:
