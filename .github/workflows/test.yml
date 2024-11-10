@@ -7,6 +7,9 @@ on:
     types:
       - completed
 
+env:
+  BUILD_TARGET: test
+
 jobs:
   test:
 
@@ -30,8 +33,14 @@ jobs:
 #        run: |
 #          ruff .
 #        continue-on-error: true
-      - name: build
-        run: export $(cat docker.env | xargs) && docker buildx bake
+#      - name: build
+#        run: export $(cat docker.env | xargs) && docker buildx bake
+      - name: pull
+        run: |
+          export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
+          export RUNTIME_TAG=$LOCK_HASH
+          docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG      
+
       - name: compose up
         run: docker compose up -d
       - name: db migration
