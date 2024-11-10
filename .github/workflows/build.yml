@@ -17,7 +17,7 @@ jobs:
 
 #          docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG && pull_status=$? || pull_status=$?
           docker manifest inspect kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG > /dev/null 2>&1
-          if [ $? -eq 1 ]; then
+          if [ $? -ne 0 ]; then
             export $(cat docker.env | xargs) && docker buildx bake
             docker tag api:latest kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
             docker push kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
