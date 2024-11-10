@@ -39,11 +39,13 @@ jobs:
         run: |
           export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
           export RUNTIME_TAG=$LOCK_HASH
+          echo "RUNTIME_TAG=$RUNTIME_TAG" >> $GITHUB_ENV # 環境変数を引き継ぐため
           docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
       - name: compose up
         run: |
-          echo "AAAAAAAAAA"
-          echo $RUNTIME_TAG
+#          echo "AAAAAAAAAA"
+#          echo $RUNTIME_TAG
+          export env.RUNTIME_TAG
           docker compose up -d
       - name: db migration
         uses: nick-invision/retry@v3
