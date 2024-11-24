@@ -29,9 +29,8 @@ jobs:
       - name: Compose up
         run: |
           export RUNTIME_TAG=${{ env.RUNTIME_TAG }}
-#          docker compose up -d --wait
-          docker compose up -d
-          docker compose logs api
+          docker compose rum --rm api bash # debug
+          docker compose up -d --wait
 
       - name: DB migration
         uses: nick-invision/retry@v3
