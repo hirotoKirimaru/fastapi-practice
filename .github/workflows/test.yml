@@ -29,8 +29,7 @@ jobs:
       - name: Compose up
         run: |
           export RUNTIME_TAG=${{ env.RUNTIME_TAG }}
-          docker compose up -d
-          echo $! > .docker-compose.pid # docker composeをバックグラウンドで継続
+          docker compose up -d --wait
 
       - name: DB migration
         uses: nick-invision/retry@v3
