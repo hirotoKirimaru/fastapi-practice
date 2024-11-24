@@ -7,7 +7,8 @@ FROM python:3.12-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
+# TODO: poetry virtualenvs.create false と同等のことをしたいが、syncが動かない
+#ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
 
 WORKDIR /app
 
@@ -21,9 +22,9 @@ COPY README.md pyproject.toml .python-version uv.lock ./
 COPY tests /app/tests
 COPY alembic /app/alembic
 COPY alembic.ini .env ./
-# RUN uv sync --frozen --no-cache --dev
+RUN uv sync --frozen --no-cache --dev
 # systemにインストールされたPythonを使用する
-RUN uv sync --frozen --no-cache --dev --system
+# RUN uv sync --frozen --no-cache --dev --system
 
 
 ## ローカルはあんまりここを分けるメリットがない
