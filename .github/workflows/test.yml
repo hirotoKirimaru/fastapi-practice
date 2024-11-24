@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.12"]
+        python-version: ["3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +29,7 @@ jobs:
       - name: Compose up
         run: |
           export RUNTIME_TAG=${{ env.RUNTIME_TAG }}
-          docker compose rum --rm api bash # debug
+          docker compose run --rm api bash # debug
           docker compose up -d --wait
 
       - name: DB migration
