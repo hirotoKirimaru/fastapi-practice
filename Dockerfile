@@ -7,7 +7,6 @@ FROM python:3.12-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-# TODO: poetry virtualenvs.create false と同等のことをしたいが、syncが動かない
 #ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
 
 WORKDIR /app
@@ -23,9 +22,6 @@ COPY tests /app/tests
 COPY alembic /app/alembic
 COPY alembic.ini .env ./
 RUN uv sync --frozen --no-cache --dev
-# systemにインストールされたPythonを使用する
-# RUN uv sync --frozen --no-cache --dev --system
-
 
 ## ローカルはあんまりここを分けるメリットがない
 ## 2. 開発用ランタイムを使用して起動
@@ -36,8 +32,8 @@ COPY src /app/src
 CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 
 ## 3. test 用
-FROM kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG} AS test
 ARG RUNTIME_TAG
+FROM kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG} AS test
 
 # NOTE: compose ファイルでマウントするなら不要
 COPY src /app/src
@@ -50,8 +46,8 @@ COPY README.md pyproject.toml .python-version uv.lock ./
 RUN uv sync --frozen --no-cache
 
 # 5. 本番用ランタイムを使用して起動
-FROM kirimaru/fastapi-practice_prod-runtime:${RUNTIME_TAG} AS prod
 ARG RUNTIME_TAG
+FROM kirimaru/fastapi-practice_prod-runtime:${RUNTIME_TAG} AS prod
 
 COPY src /app/src
 COPY .env ./

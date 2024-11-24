@@ -25,8 +25,6 @@ jobs:
           RUNTIME_TAG="python-$LOCK_HASH"
           echo "RUNTIME_TAG=$RUNTIME_TAG" >> $GITHUB_ENV
           docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
-          # タグでapi:latestにしないと、後続が動かない？
-          docker tags kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG api:latest
 
       - name: Compose up
         run: |

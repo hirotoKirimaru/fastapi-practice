@@ -108,9 +108,9 @@ docker buildx bake
 
 # 環境変数を指定する場合
 ## .env でよければ指定不要。基本的にアプリと混ざらせたくなかったので、これを分ける
-export $(cat docker.env | xargs) && docker buildx bake
+export $(grep -v '^#' docker.env | xargs) && docker buildx bake
 
-export $(cat docker.env | xargs) && docker buildx bake --set common.target=production
+export $(grep -v '^#' docker.env | xargs) && docker buildx bake --set common.target=production
 
 #export $(cat docker.env | xargs) && docker buildx bake api --set common.target=prod_runtime --push --set *.tags="kirimaru/fastapi-practice_prod-runtime:latest,kirimaru/fastapi-practice_prod-runtime:0.0.1"
 # 事前にランタイムだけビルド
