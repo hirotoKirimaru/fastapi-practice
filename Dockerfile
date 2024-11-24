@@ -21,7 +21,10 @@ COPY README.md pyproject.toml .python-version uv.lock ./
 COPY tests /app/tests
 COPY alembic /app/alembic
 COPY alembic.ini .env ./
-RUN uv sync --frozen --no-cache --dev
+# RUN uv sync --frozen --no-cache --dev
+# systemにインストールされたPythonを使用する
+RUN uv sync --frozen --no-cache --dev --system
+
 
 ## ローカルはあんまりここを分けるメリットがない
 ## 2. 開発用ランタイムを使用して起動
