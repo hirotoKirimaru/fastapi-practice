@@ -10,6 +10,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: build or push
         run: |
+          set -euxo pipefail
           export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
           export RUNTIME_TAG=$LOCK_HASH
           docker manifest inspect kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG > /dev/null 2>&1
