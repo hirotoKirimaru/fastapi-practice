@@ -29,13 +29,16 @@ jobs:
       - name: Compose up
         run: |
           export RUNTIME_TAG=${{ env.RUNTIME_TAG }}
-          docker compose up -d --wait
+#          docker compose up -d --wait
+          docker compose up -d
+          docker compose logs api
 
-      - name: debug
-        run: |
-          docker ps -a
-          docker compose logs api 
-          docker compose logs api || docker compose logs $(docker compose ps -a --format json | jq -r '.[] | select(.Service == "api") | .Name')
+
+#      - name: debug
+#        run: |
+#          docker ps -a
+#          docker compose logs api
+#          docker compose logs api || docker compose logs $(docker compose ps -a --format json | jq -r '.[] | select(.Service == "api") | .Name')
 
       - name: DB migration
         uses: nick-invision/retry@v3
