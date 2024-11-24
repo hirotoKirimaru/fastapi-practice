@@ -19,7 +19,7 @@ jobs:
           export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
           export RUNTIME_TAG=$LOCK_HASH
           if ! docker manifest inspect kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG > /dev/null 2>&1; then
-            export $(cat docker.env | xargs) && docker buildx bake
+            export $(grep -v '^#' docker.env | xargs) && docker buildx bake
             docker tag api:latest kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
             docker push kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
           fi
