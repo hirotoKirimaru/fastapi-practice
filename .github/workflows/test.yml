@@ -34,7 +34,7 @@ jobs:
       - name: debug
         run: |
           docker ps
-          docker compose run api --rm bash
+          docker compose run --rm api bash
 
       - name: DB migration
         uses: nick-invision/retry@v3
