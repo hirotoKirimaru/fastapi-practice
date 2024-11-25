@@ -22,6 +22,9 @@ jobs:
             export $(grep -v '^#' docker.env | xargs) && docker buildx bake
             docker tag api:latest kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
             docker push kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
+          
+            # TODO: なぜか　api:latest だけが pushされる
+            echo "completed"
           fi
       #        run: export $(cat docker.env | xargs) && docker buildx bake
       #          docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG && pull_status=$? || pull_status=$?
