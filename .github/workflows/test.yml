@@ -1,4 +1,5 @@
 name: Test
+run-name: Test for ${{ github.event.workflow_run.head_branch }} (${{ github.event.workflow_run.head_commit.message }})
 
 on:
   workflow_run:
