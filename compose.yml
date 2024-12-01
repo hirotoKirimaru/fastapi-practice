@@ -39,6 +39,20 @@ services:
       - 33306:3306  # ホストマシンのポート33306を、docker内のポート3306に接続する
     networks:
       - development_network
+  # postgresに切り替えたいときに。
+  db2:
+    image: postgres:latest
+    ports:
+      - "15432:5432"
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: pass
+      POSTGRES_USER: user
+      POSTGRES_DB: database
+    hostname: postgres
+    restart: always
+    networks:
+      - development_network
   storage:
     image: minio/minio
     entrypoint: sh
