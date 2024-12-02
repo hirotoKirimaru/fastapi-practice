@@ -38,6 +38,10 @@ FROM kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG} AS test
 # NOTE: compose ファイルでマウントするなら不要
 COPY src /app/src
 
+# CI用に起動しっぱなしであってほしい
+CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
+
+
 # 4. 本番用ランタイムのビルド
 FROM base AS prod_runtime
 

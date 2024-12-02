@@ -10,17 +10,20 @@ services:
       context: .
       target: ${BUILD_TARGET:-dev}
       args:
-        - RUNTIME_TAG=${RUNTIME_TAG}
+        - RUNTIME_TAG=${RUNTIME_TAG:-latest}
 #    read_only: true # TODO: これがあると動かない…？
     volumes:
       #      - .dockervenv:/src/.venv
       - .:/src
       - /tmp
-#    environment:
-#      ENV: local
-#      S3_BUCKET: tmp.local
+    environment:
+      ENV: local
+      S3_BUCKET: tmp.local
 #      AWS_S3_ACCESS_KEY: *aws_s3_access_key
 #      AWS_S3_SECRET_KEY: *aws_s3_secret_key
+      AWS_S3_ACCESS_KEY: minio
+      AWS_S3_SECRET_KEY: minio1234
+#      KROKER_LOG: debug # debugログ?
     ports:
       - 8000:8000
     networks:
@@ -40,19 +43,19 @@ services:
     networks:
       - development_network
   # postgresに切り替えたいときに。
-  db2:
-    image: postgres:latest
-    ports:
-      - "15432:5432"
-    container_name: postgres
-    environment:
-      POSTGRES_PASSWORD: pass
-      POSTGRES_USER: user
-      POSTGRES_DB: database
-    hostname: postgres
-    restart: always
-    networks:
-      - development_network
+#  db2:
+#    image: postgres:latest
+#    ports:
+#      - "15432:5432"
+#    container_name: postgres
+#    environment:
+#      POSTGRES_PASSWORD: pass
+#      POSTGRES_USER: user
+#      POSTGRES_DB: database
+#    hostname: postgres
+#    restart: always
+#    networks:
+#      - development_network
   storage:
     image: minio/minio
     entrypoint: sh
