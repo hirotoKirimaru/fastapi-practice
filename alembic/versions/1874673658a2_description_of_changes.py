@@ -61,21 +61,26 @@ def upgrade() -> None:
         sa.Column("user_id_2", sa.Integer, ForeignKey("users.id")),
         sa.Column("start_at", sa.DATETIME),
         sa.Column("end_at", sa.DATETIME),
-        sa.UniqueConstraint("user_id_1", "user_id_2", "start_at", "end_at", name="uq_user_ids_start_end")
+        sa.UniqueConstraint(
+            "user_id_1", "user_id_2", "start_at", "end_at", name="uq_user_ids_start_end"
+        ),
     )
     # 仮想カラムを追加
-    op.execute("""
+    op.execute(
+        """
     ALTER TABLE relation_timelines 
     ADD COLUMN end_at_flag TINYINT AS (IF(end_at IS NULL, 1, null)) VIRTUAL
-    """)
+    """
+    )
 
     # ユニークインデックスを追加
     op.create_index(
-        'uq_user_ids_start_end_flag',
-        'relation_timelines',
-        ['user_id_1', 'user_id_2', 'end_at_flag'],
-        unique=True
+        "uq_user_ids_start_end_flag",
+        "relation_timelines",
+        ["user_id_1", "user_id_2", "end_at_flag"],
+        unique=True,
     )
+
 
 def downgrade() -> None:
     op.drop_table("users")
