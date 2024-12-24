@@ -1,6 +1,6 @@
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from src.api.deps import get_writer_db
@@ -31,7 +31,9 @@ async def async_client() -> AsyncClient:
     app.dependency_overrides[get_writer_db] = get_test_db
 
     # テスト用に非同期HTTPクライアントを返却
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         yield client
 
 
