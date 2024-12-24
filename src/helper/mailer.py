@@ -6,6 +6,8 @@ from minijinja import Environment
 
 class Mailer:
 
+    env = Environment(loader=lambda name: open(f"src/resources/templates/{name}").read())
+
     class Body(NamedTuple):
         text: str
         html: str
@@ -20,19 +22,17 @@ class Mailer:
 
     @classmethod
     def get_templates(cls, path: str) -> Templates:
-        env = Environment(loader=lambda name: open(f"src/resources/templates/{name}").read())
-        template_text = env.loader(f"{path}.{Mailer.MailExtension.TEXT.value}")
-        template_html = env.loader(f"{path}.{Mailer.MailExtension.HTML.value}")
+        template_text = cls.env.loader(f"{path}.{Mailer.MailExtension.TEXT.value}")
+        template_html = cls.env.loader(f"{path}.{Mailer.MailExtension.HTML.value}")
 
         return cls.Templates(template_text, template_html)
 
     @classmethod
     def build_body(cls, path: str, params={}) -> Body:
         text_template, html_template = cls.get_templates(path)
-        env = Environment()
         return cls.Body(
-            text=env.render_str(text_template, **params),
-            html=env.render_str(html_template, **params)
+            text=cls.env.render_str(text_template, **params),
+            html=cls.env.render_str(html_template, **params)
         )
 
     class Local:
