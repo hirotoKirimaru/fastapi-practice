@@ -371,7 +371,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "fastapi-cli" },
     { name = "google-generativeai" },
-    { name = "jinja2" },
+    { name = "minijinja" },
     { name = "passlib" },
     { name = "polars" },
     { name = "pydantic", extra = ["email"] },
@@ -411,7 +411,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.115.4" },
     { name = "fastapi-cli", specifier = ">=0.0.4" },
     { name = "google-generativeai", specifier = ">=0.5.4" },
-    { name = "jinja2", specifier = ">=3.1.4" },
+    { name = "minijinja", specifier = ">=2.5.0" },
     { name = "passlib", specifier = ">=1.7.4" },
     { name = "polars", specifier = ">=0.20.16" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.9.2" },
@@ -726,18 +726,6 @@ wheels = [
 ]
 
 [[package]]
-name = "jinja2"
-version = "3.1.5"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "markupsafe" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/af/92/b3130cbbf5591acf9ade8708c365f3238046ac7cb8ccba6e81abccb0ccff/jinja2-3.1.5.tar.gz", hash = "sha256:8fefff8dc3034e27bb80d67c671eb8a9bc424c0ef4c0826edbff304cceff43bb", size = 244674 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/bd/0f/2ba5fbcd631e3e88689309dbe978c5769e883e4b84ebfe7da30b43275c5a/jinja2-3.1.5-py3-none-any.whl", hash = "sha256:aba0f4dc9ed8013c424088f68a5c226f7d6097ed89b246d7749c2ec4175c6adb", size = 134596 },
-]
-
-[[package]]
 name = "jmespath"
 version = "1.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -815,6 +803,21 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d6/54/cfe61301667036ec958cb99bd3efefba235e65cdeb9c84d24a8293ba1d90/mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba", size = 8729 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8", size = 9979 },
+]
+
+[[package]]
+name = "minijinja"
+version = "2.5.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c8/0e/7b76e4a45d5665047bb288a3e5f2520f25a691be58a1662e5a0ca80ae5b5/minijinja-2.5.0.tar.gz", hash = "sha256:ca97a8d8053aa0111f855d6706883dbfdbda600bd2dd0e152c03077a42c003e3", size = 218425 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a3/d7/d5a36cc6e293a91fe8183155c8c1db26b8ca1f34f8126ae0e76cf6639e42/minijinja-2.5.0-cp38-abi3-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl", hash = "sha256:888d88ab7328de337581656b220409aaa85c992d3ec25e50095196fb4f0752ae", size = 1693920 },
+    { url = "https://files.pythonhosted.org/packages/29/d4/2e8a5cfb701a779e69b5c6e917a96ba70d6fc7f5c358bd645c67cea55716/minijinja-2.5.0-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:de15fc9ee8c6e0cd22799460af499520055139a8db3636e1c7136278215fe095", size = 856027 },
+    { url = "https://files.pythonhosted.org/packages/66/3f/22a11b8ba1f6c514ab50c64d2cbeccc20cf1bc43e1ab01361566e8365b31/minijinja-2.5.0-cp38-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:516e84a4f03b81002fd0eea966341b8c12fd9ebc4b222dc6ebc50a2b7535df13", size = 849556 },
+    { url = "https://files.pythonhosted.org/packages/84/3f/6ad712c2943f44781a72d6927063e9c8c4540555d9a5fd92154cf9de8145/minijinja-2.5.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:369d6ed56b571feb25f84b87eec0fb286b1931bb472eed1f148ca69777c596d3", size = 915568 },
+    { url = "https://files.pythonhosted.org/packages/e5/8e/a008fa6a19e3d3d3e6de731acaa5c258d2bc4b60e3023c6b662f020d20ff/minijinja-2.5.0-cp38-abi3-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:025c0232bfbb92ff53bd474cfd230b687480fd6b4c4e9b4f5b354d91a62dc144", size = 990999 },
+    { url = "https://files.pythonhosted.org/packages/86/b8/208121205af6cc20f802a29df4312d75f332a7501c13ed73790e9fc3df82/minijinja-2.5.0-cp38-abi3-win32.whl", hash = "sha256:d393ca982b5189c2a8f42b82612170885b48f500e4afac6dc127e980b286b798", size = 820098 },
+    { url = "https://files.pythonhosted.org/packages/92/8b/67c5fc89ec9eec5872e222f28671c36963c635d1d22ad93ecd9ee766d279/minijinja-2.5.0-cp38-abi3-win_amd64.whl", hash = "sha256:1ddd1941d0fbf84dbce103f65a3e04eba7d958d08e399f6d3c63bce2fbc1ae0c", size = 868506 },
 ]
 
 [[package]]
