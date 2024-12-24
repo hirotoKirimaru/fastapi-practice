@@ -17,12 +17,13 @@ dependencies = [
     "fastapi-cli>=0.0.4",
     "sqlmodel>=0.0.21",
     "python-multipart>=0.0.9",
-    "pydantic[email]>=2.9.2", # いつかminijinjaにする
+    "pydantic[email]>=2.9.2",
     "sentry-sdk>=2.19.0",
     "minijinja>=2.5.0",
+    "greenlet>=3.1.1", # 明示的に必要
 ]
 readme = "README.md"
-requires-python = ">= 3.12"
+requires-python = ">= 3.13"
 
 [build-system]
 requires = ["hatchling"]
