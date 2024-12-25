@@ -2,7 +2,9 @@ from typing import Final, NamedTuple
 from email.message import EmailMessage
 from smtplib import SMTP
 from enum import Enum
-from minijinja import Environment
+
+from jinja2 import Template, Environment, FileSystemLoader, StrictUndefined
+
 
 class Mailer:
 
@@ -11,8 +13,8 @@ class Mailer:
         html: str
 
     class Templates(NamedTuple):
-        text: str
-        html: str
+        text: Template
+        html: Template
 
     class MailExtension(str, Enum):
         TEXT = "txt"
@@ -20,20 +22,17 @@ class Mailer:
 
     @classmethod
     def get_templates(cls, path: str) -> Templates:
-        env = Environment(loader=lambda name: open(f"src/resources/templates/{name}").read())
-        template_text = env.loader(f"{path}.{Mailer.MailExtension.TEXT.value}")
-        template_html = env.loader(f"{path}.{Mailer.MailExtension.HTML.value}")
+        file_loader = FileSystemLoader("src/resources/templates")
+        env = Environment(loader=file_loader, undefined=StrictUndefined)
+        template_text = env.get_template(f"{path}.{Mailer.MailExtension.TEXT.value}")
+        template_html = env.get_template(f"{path}.{Mailer.MailExtension.HTML.value}")
 
-        return cls.Templates(template_text, template_html)
+        return template_text, template_html
 
     @classmethod
     def build_body(cls, path: str, params={}) -> Body:
-        text_template, html_template = cls.get_templates(path)
-        env = Environment()
-        return cls.Body(
-            text=env.render_str(text_template, **params),
-            html=env.render_str(html_template, **params)
-        )
+        text, html = cls.get_templates(path)
+        return text.render(**params), html.render(**params)
 
     class Local:
         # host: Final[str] = "mail"
