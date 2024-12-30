@@ -19,6 +19,10 @@ jobs:
           export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
           export RUNTIME_TAG=$LOCK_HASH
           if ! docker manifest inspect kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG > /dev/null 2>&1; then
+            # この環境変数が必要？
+            export DOCKER_BUILDKIT=1
+            export COMPOSE_DOCKER_CLI_BUILD=1
+            docker buildx ls
             export $(grep -v '^#' docker.env | xargs) && docker buildx bake
           
             # docker.env の環境変数で上書きされているので再度上書き
