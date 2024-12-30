@@ -44,10 +44,10 @@ jobs:
           timeout_minutes: 5
           max_attempts: 3
           retry_wait_seconds: 10
-          command: docker compose exec api alembic upgrade head
+          command: docker compose exec api uv run alembic upgrade head
 
       - name: Run tests
-        run: docker compose exec -T api pytest --alluredir=/app/allure-results
+        run: docker compose exec -T api uv run pytest --alluredir=/app/allure-results
 
       - name: Copy Allure results from container
         run: |
