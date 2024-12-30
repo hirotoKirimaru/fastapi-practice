@@ -23,6 +23,9 @@ group "default" {
 // BUILD_TARGETだけを切り替えたいがための継承
 target "common" {
   target = "${BUILD_TARGET}"
+  // push=true とするとbake時にアップロードもできる
+  // gzipではなく、zstd を使用
+  output = ["type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true"]
 }
 
 variable "common_args" {
