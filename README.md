@@ -172,5 +172,5 @@ fi
 ```bash
 # buildx build を使用する場合
 export DOCKER_BUILDKIT=1
-docker buildx build --target dev_runtime -t kirimaru/fastapi-practice_prod-runtime:$RUNTIME_TAG .
+docker buildx build --target dev_runtime -t kirimaru/fastapi-practice_prod-runtime:$RUNTIME_TAG . --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true
 ```
