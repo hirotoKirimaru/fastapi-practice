@@ -175,17 +175,13 @@ export DOCKER_BUILDKIT=1
 #docker buildx create --name zstd-builder --use --platform linux/amd64
 docker buildx create --name builder --use --platform linux/amd64
 docker buildx build --builder builder --target dev_runtime -t kirimaru/fastapi-practice_prod-runtime:$RUNTIME_TAG --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true --load .
-
-# type=dockerのバージョン
-docker buildx build --builder builder --target dev_runtime -t kirimaru/fastapi-practice_prod-runtime:$RUNTIME_TAG --output type=docker,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true .
-
-
 ```
 
 ```bash
 # zstdでビルドされたことを確認する
+# 最新版builderで実行するためにcreateする必要がある
+# ※ --loadを付与したりtype=dockerにすると、なぜかgzipでの圧縮になるようなので、type=imageにしたうえで、push=trueで運用する必要があった
 
-docker buildx imagetools inspect --raw kirimaru/fastapi-practice_dev-runtime:latest
 # 圧縮レベル3
 docker buildx imagetools inspect --raw kirimaru/fastapi-practice_dev-runtime:python-97df63af48201968a20c804cdb84e10765e68ee7
 # 圧縮レベル22
