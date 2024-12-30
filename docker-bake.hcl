@@ -28,7 +28,8 @@ target "common" {
   // gzipではなく、zstd を使用
   // これ指定するとダメ？
 //   platforms = ["linux/amd64"]
-  output = ["type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true"]
+//   output = ["type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true"]
+  output = ["type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true, push=true"]
 }
 
 variable "common_args" {
@@ -44,7 +45,8 @@ target "api" {
   inherits = ["common"]
   context = "."
   tags = [
-    "api:latest",
+    "kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG}"
+//     "api:latest",
 //     "kirimaru/fastapi-practice_prod-runtime:latest"
 //     "kirimaru/fastapi-practice_prod-runtime:${TAG}"
   ]
