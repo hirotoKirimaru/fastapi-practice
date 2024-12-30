@@ -27,7 +27,7 @@ target "common" {
   // oci-mediatypes=true だと Open Container Image 準拠になる
   // gzipではなく、zstd を使用
   // これ指定するとダメ？
-  platforms = ["linux/amd64"]
+//   platforms = ["linux/amd64"]
   output = ["type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true"]
 }
 
