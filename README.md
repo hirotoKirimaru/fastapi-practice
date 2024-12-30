@@ -172,10 +172,14 @@ fi
 ```bash
 # buildx build を使用する場合
 export DOCKER_BUILDKIT=1
-docker buildx build --target dev_runtime -t kirimaru/fastapi-practice_prod-runtime:$RUNTIME_TAG . --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true
+docker buildx create --name zstd-builder --use --platform linux/amd64
+docker buildx build --builder zstd-builder --target dev_runtime -t kirimaru/fastapi-practice_prod-runtime:$RUNTIME_TAG . --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true
 ```
 
-kirimaru/fastapi-practice_prod-runtime:latest
+```bash
+# zstdでビルドされたことを確認する
 
 docker buildx imagetools inspect --raw kirimaru/fastapi-practice_dev-runtime:latest
 docker buildx imagetools inspect --raw kirimaru/fastapi-practice_dev-runtime:python-97df63af48201968a20c804cdb84e10765e68ee7
+
+```

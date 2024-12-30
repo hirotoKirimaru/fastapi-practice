@@ -21,7 +21,8 @@ jobs:
           if ! docker manifest inspect kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG > /dev/null 2>&1; then
             # この環境変数が必要？
             # nocache必要？
-            export $(grep -v '^#' docker.env | xargs) && docker buildx bake --no-cache --debug
+            docker buildx create --name zstd-builder --use --platform linux/amd64
+            export $(grep -v '^#' docker.env | xargs) && docker buildx bake
           
             # docker.env の環境変数で上書きされているので再度上書き
             export RUNTIME_TAG=$LOCK_HASH
