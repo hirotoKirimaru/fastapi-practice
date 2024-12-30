@@ -32,8 +32,8 @@ jobs:
           
             # docker.env の環境変数で上書きされているので再度上書き
             export RUNTIME_TAG=$LOCK_HASH
-            # docker tag api:latest kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
-            # docker push kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
+            docker tag api:latest kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
+            docker push kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
           fi
 
       #        run: export $(cat docker.env | xargs) && docker buildx bake

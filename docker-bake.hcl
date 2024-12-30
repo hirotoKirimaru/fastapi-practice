@@ -29,7 +29,8 @@ target "common" {
   // これ指定するとダメ？
 //   platforms = ["linux/amd64"]
 //   output = ["type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true"]
-  output = ["type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true, push=true"]
+// type=imageだと、ビルドキャッシュにしか残らない。type=imageなら--loadが必要
+  output = ["type=docker,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true, push=true"]
 }
 
 variable "common_args" {
@@ -45,8 +46,7 @@ target "api" {
   inherits = ["common"]
   context = "."
   tags = [
-    "kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG}"
-//     "api:latest",
+    "api:latest",
 //     "kirimaru/fastapi-practice_prod-runtime:latest"
 //     "kirimaru/fastapi-practice_prod-runtime:${TAG}"
   ]
