@@ -24,7 +24,8 @@ jobs:
             # bakeパターンだからうまくうごかない？
             # export $(grep -v '^#' docker.env | xargs) && docker buildx bake
             
-            docker buildx build --builder builder --target dev_runtime -t kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push=true .
+            # docker buildx build --builder builder --target dev_runtime -t kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push=true .
+            docker buildx build --builder builder --target dev_runtime -t kirimaru/fastapi-practice_dev-runtime:22 --output type=image,oci-mediatypes=true,compression=zstd,compression-level=22,force-compression=true,push=true .
           
             ## 直接pushするやり方にしているので不要？
             # docker.env の環境変数で上書きされているので再度上書き
