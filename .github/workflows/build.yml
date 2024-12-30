@@ -22,7 +22,13 @@ jobs:
             # この環境変数が必要？
             # nocache必要？
             docker buildx create --name zstd-builder --use --platform linux/amd64
+          
+            docker version
+            docker buildx version
+          
             export $(grep -v '^#' docker.env | xargs) && docker buildx bake
+          
+            docker images
           
             # docker.env の環境変数で上書きされているので再度上書き
             export RUNTIME_TAG=$LOCK_HASH
