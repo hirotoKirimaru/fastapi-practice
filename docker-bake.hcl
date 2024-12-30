@@ -26,7 +26,8 @@ target "common" {
   // push=true とするとbake時にアップロードもできる
   // oci-mediatypes=true だと Open Container Image 準拠になる
   // gzipではなく、zstd を使用
-  platforms = ["linux/amd64"]
+  // これ指定するとダメ？
+  // platforms = ["linux/amd64"]
   output = ["type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true"]
 }
 
