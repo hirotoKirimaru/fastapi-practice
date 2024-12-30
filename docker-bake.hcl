@@ -53,12 +53,13 @@ target "api" {
   })
 }
 
-target "worker" {
-  inherits = ["common"]
-
-  context = "."
-  tags = ["api:latest"]
-  args = merge(common_args, {
-    SERVICE_NAME = "worker"
-  })
-}
+// ダブるとダメ？
+// target "worker" {
+//   inherits = ["common"]
+//
+//   context = "."
+//   tags = ["api:latest"]
+//   args = merge(common_args, {
+//     SERVICE_NAME = "worker"
+//   })
+// }

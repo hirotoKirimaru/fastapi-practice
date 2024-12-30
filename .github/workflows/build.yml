@@ -28,7 +28,7 @@ jobs:
           
             export $(grep -v '^#' docker.env | xargs) && docker buildx bake
           
-            # docker images
+            docker images
           
             # docker.env の環境変数で上書きされているので再度上書き
             export RUNTIME_TAG=$LOCK_HASH
