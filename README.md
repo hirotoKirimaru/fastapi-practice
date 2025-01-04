@@ -174,7 +174,7 @@ fi
 export DOCKER_BUILDKIT=1
 #docker buildx create --name zstd-builder --use --platform linux/amd64
 docker buildx create --name builder --use --platform linux/amd64
-docker buildx build --builder builder --target dev_runtime -t kirimaru/fastapi-practice_prod-runtime:$RUNTIME_TAG --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true --load .
+docker buildx build --builder builder --target dev_runtime -t kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push=true .
 ```
 
 ```bash
