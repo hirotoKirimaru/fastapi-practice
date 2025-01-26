@@ -19,16 +19,18 @@ class TestUser:
 
 class TestAge:
     NOW: date = date(2023, 11, 20)
+    # pytest -m specific
+    # , marks = pytest.mark.specific
 
     @pytest.mark.parametrize(
         "input_birth_day, expected_age",
         [
-            (date(2023, 11, 20), 0),
-            (date(2023, 11, 19), 0),
-            (date(2022, 11, 21), 0),
-            (date(2022, 11, 20), 1),
-            (date(2022, 11, 19), 1),
-            (date(1992, 2, 4), 31),
+            (pytest.param(date(2023, 11, 20), 0, id="当日")),
+            (pytest.param(date(2023, 11, 19), 0, id="前日")),
+            (pytest.param(date(2022, 11, 21), 0, id="1年前+1日")),
+            (pytest.param(date(2022, 11, 20), 1, id="1年前当日")),
+            (pytest.param(date(2022, 11, 19), 1, id="1年前-1日")),
+            (pytest.param(date(1992, 2, 4), 31, id="適当な年齢")),
         ],
     )
     def test_one(
