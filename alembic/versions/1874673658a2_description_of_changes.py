@@ -29,6 +29,13 @@ def upgrade() -> None:
         sa.Column("soft_destroyed_at", sa.DATETIME),
         # sa.Column("user_name", sa.String(50), nullable=False),
     )
+    op.create_table('posts',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('title', sa.String(), nullable=True),
+        sa.Column('user_id', sa.Integer(), nullable=True),
+        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+        sa.PrimaryKeyConstraint('id')
+    )
 
     op.create_table(
         "organizations",

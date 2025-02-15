@@ -1,4 +1,3 @@
-# from sqlalchemy import Column, Integer
 from sqlmodel import Field
 from src.models.base import Base
 

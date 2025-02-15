@@ -119,6 +119,8 @@ class User(Base, table=True):
     birth_day: Optional[datetime] = Field(default=None, sa_column=Column(DATETIME))
     salt: Optional[str] = Field(default=None, sa_column=Column(VARCHAR(255)))
 
+    posts: list["Post"] = Relationship()
+
     @property
     def age(self) -> int:
         """
