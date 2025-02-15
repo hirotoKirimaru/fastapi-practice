@@ -91,10 +91,13 @@ from sqlmodel import Field
 #     user_id = Column(Integer, ForeignKey("users.id"))
 
 
-from typing import Optional, ClassVar
+from typing import Optional, ClassVar, TYPE_CHECKING
 from sqlmodel import Relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 
+if TYPE_CHECKING:
+    from .organization import Organization
+    from .post import Post
 
 class User(Base, table=True):
     __tablename__ = "users"
