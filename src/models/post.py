@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class Post(Base, table=True):
     __tablename__ = 'posts'
-    id: int = Field(primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
     title: str
     user_id: int = Field(foreign_key="users.id")
     user: Optional["User"] = Relationship(back_populates="posts")

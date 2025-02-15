@@ -8,6 +8,7 @@ from sqlmodel import Field, Relationship
 from src.helper.datetime_resolver import DatetimeResolver
 from src.models.base import Base
 from src.models.organization import Organization
+from src.models.post import Post
 
 if TYPE_CHECKING:
     from .organization import Organization
@@ -36,7 +37,7 @@ class User(Base, table=True):
     birth_day: Optional[datetime] = Field(default=None, sa_column=Column(DATETIME))
     salt: Optional[str] = Field(default=None, sa_column=Column(VARCHAR(255)))
 
-    posts: List["Post"] = Relationship(back_populates="user")
+    posts: List["Post"] = Relationship()
 
     @property
     def age(self) -> int:
