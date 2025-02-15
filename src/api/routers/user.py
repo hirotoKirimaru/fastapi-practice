@@ -1,10 +1,11 @@
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, File, UploadFile
+import polars
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
+
 from src.api.deps import SessionWriterDep
 from src.helper.helper import session_context
-import polars
 
 router = APIRouter()
 

@@ -1,8 +1,8 @@
-from sqlalchemy import select, text, delete
+from sqlalchemy import delete, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from src.models.task import Task, Done
+from src.models.task import Done, Task
 
 
 class TestTaskCascade:

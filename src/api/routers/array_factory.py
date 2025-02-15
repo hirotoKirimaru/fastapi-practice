@@ -1,8 +1,9 @@
-from typing import List, Annotated
+from typing import Annotated, List
 
 from fastapi import APIRouter
-from src.schemas.base import CustomModel
 from pydantic import Field
+
+from src.schemas.base import CustomModel
 
 router = APIRouter()
 

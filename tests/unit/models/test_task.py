@@ -1,6 +1,6 @@
 import pytest
-from sqlalchemy import select, Select
-from sqlalchemy.orm import selectinload, joinedload
+from sqlalchemy import Select, select
+from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.orm.exc import DetachedInstanceError
 
 import src.crud

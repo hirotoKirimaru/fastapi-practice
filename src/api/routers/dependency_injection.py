@@ -1,10 +1,10 @@
-from typing import Any, Annotated, Callable, Awaitable
+from typing import Annotated, Any, Awaitable, Callable
 
-from fastapi import APIRouter, Depends, Security, UploadFile, File
-
-from src.models.user import User
+from fastapi import APIRouter, Depends, File, Security, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.api.deps import SessionWriterDep, SessionReaderDep
+
+from src.api.deps import SessionReaderDep, SessionWriterDep
+from src.models.user import User
 
 router = APIRouter()
 

@@ -1,8 +1,8 @@
 import json
-import pytest
-from typing import Annotated, Dict, Any, List
+from typing import Annotated, Any, Dict, List
 
-from pydantic import BaseModel, Json, Field, ValidationError
+import pytest
+from pydantic import BaseModel, Field, Json, ValidationError
 from sqlalchemy import JSON
 
 JsonField = Annotated[

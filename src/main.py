@@ -1,12 +1,11 @@
+from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
-from fastapi import FastAPI
-from src.middleware.sentry import Sentry
 from src.api.main import api_router
-
+from src.middleware.sentry import Sentry
 
 Sentry.init_sentry()
 

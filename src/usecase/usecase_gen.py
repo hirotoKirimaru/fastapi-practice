@@ -1,4 +1,5 @@
 from typing import Any
+
 import google.generativeai as genai
 
 from src.helper.config import settings

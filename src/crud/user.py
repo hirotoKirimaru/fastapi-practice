@@ -1,14 +1,14 @@
 from typing import Optional, Sequence
 
+from pydantic import EmailStr, NameEmail
 from sqlalchemy import and_, select
 from sqlalchemy.engine import Result
 from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
-from pydantic import EmailStr, NameEmail
 
-from src.models.user import User
 import src.models.task as task_model
+from src.models.user import User
 
 
 async def base_query(task_id: int) -> ColumnElement:

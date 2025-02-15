@@ -1,8 +1,9 @@
-from datetime import datetime
-from zoneinfo import ZoneInfo
-from pydantic import BaseModel, field_serializer, PlainSerializer
 import json
+from datetime import datetime
 from typing import Annotated
+from zoneinfo import ZoneInfo
+
+from pydantic import BaseModel, PlainSerializer, field_serializer
 
 
 class _TestModel(BaseModel):

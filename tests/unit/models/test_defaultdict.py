@@ -1,9 +1,7 @@
-from collections import defaultdict
 import sys
-
-from operator import attrgetter
+from collections import defaultdict
 from itertools import groupby
-
+from operator import attrgetter
 
 import pytest
 

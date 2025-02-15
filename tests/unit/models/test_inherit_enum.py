@@ -1,5 +1,6 @@
 from collections import namedtuple
 from enum import Enum, IntEnum, StrEnum
+
 from pydantic import BaseModel
 
 

@@ -1,10 +1,10 @@
 from typing import AsyncGenerator, Optional, Sequence, Tuple
 
 from sqlalchemy import select
-from sqlalchemy.sql import Select
 from sqlalchemy.engine import Result
 from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import Select
 from sqlalchemy.sql.elements import ColumnElement
 
 import src.models.task as task_model

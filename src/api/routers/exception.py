@@ -1,9 +1,8 @@
-from typing import Any, List, Annotated
-
-from pydantic import BaseModel, Field
+from typing import Annotated, Any, List
 
 from fastapi import APIRouter, Body
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 
 from src.schemas.base import CustomModel
 

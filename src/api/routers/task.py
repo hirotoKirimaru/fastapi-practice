@@ -1,10 +1,10 @@
-from typing import List, Any
+from typing import Any, List
 
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
 import src.crud.task as task_crud
 import src.schemas.task as task_schema
-from fastapi import APIRouter, HTTPException
 from src.api.deps import SessionWriterDep
 
 router = APIRouter()

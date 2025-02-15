@@ -1,6 +1,6 @@
 import pytest
-
 from sqlalchemy import and_, select
+
 from src.models.user import User
 
 

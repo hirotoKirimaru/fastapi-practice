@@ -1,9 +1,9 @@
-from typing import Final, NamedTuple
 from email.message import EmailMessage
-from smtplib import SMTP
 from enum import Enum
+from smtplib import SMTP
+from typing import Final, NamedTuple
 
-from jinja2 import Template, Environment, FileSystemLoader, StrictUndefined
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, Template
 
 
 class Mailer:

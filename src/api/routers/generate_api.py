@@ -1,6 +1,7 @@
 from typing import Any
 
 from fastapi import APIRouter
+
 from src.api.deps import SessionReaderDep
 from src.schemas.gemini import GeminiInput
 from src.usecase.usecase_gen import Gemini

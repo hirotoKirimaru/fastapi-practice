@@ -1,17 +1,16 @@
-from sqlalchemy import and_, select, func
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import Select
-from sqlalchemy.exc import MissingGreenlet
-from sqlalchemy.orm import joinedload
 from datetime import datetime
 
 import pytest
+from sqlalchemy import and_, func, select
+from sqlalchemy.exc import MissingGreenlet
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
+from sqlalchemy.sql import Select
 
 import src.crud.user
-
+from src.models.organization import Organization
 # import logging
 from src.models.user import User
-from src.models.organization import Organization
 
 
 class TestUser:

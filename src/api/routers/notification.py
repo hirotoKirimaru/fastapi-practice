@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Any
 
-
 from fastapi import APIRouter, BackgroundTasks
+
+from src.api.deps import SessionReaderDep, SessionWriterDep
 from src.helper.datetime_resolver import DatetimeResolver
 from src.schemas.notification import Notification as schema_notification
-from src.api.deps import SessionWriterDep, SessionReaderDep
 
 router = APIRouter()
 

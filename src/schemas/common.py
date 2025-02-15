@@ -1,10 +1,9 @@
-from typing import Type, Any
+import logging
 import re
+from typing import Any, Type
 
 from pydantic import EmailStr, GetCoreSchemaHandler
 from pydantic_core import core_schema
-
-import logging
 
 
 class CustomEmailStr(EmailStr):

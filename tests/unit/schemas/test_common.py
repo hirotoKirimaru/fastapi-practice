@@ -1,6 +1,7 @@
-from src.schemas.common import CustomEmailStr
-from pydantic import BaseModel, ValidationError
 import pytest
+from pydantic import BaseModel, ValidationError
+
+from src.schemas.common import CustomEmailStr
 
 
 class TestCustomEmailStr:

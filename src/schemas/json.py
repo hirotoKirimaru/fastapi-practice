@@ -1,4 +1,4 @@
-from typing import Annotated, Any, List, Dict
+from typing import Annotated, Any, Dict, List
 
 from pydantic import Field, Json
 
