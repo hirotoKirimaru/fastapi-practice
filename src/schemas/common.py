@@ -13,7 +13,7 @@ class CustomEmailStr(EmailStr):
         lower_value = value.lower()
         if not re.search(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", lower_value):
             # if not re.search(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", lower_value):
-            logging.warn(f"Invalid email address: {value}")
+            logging.warning(f"Invalid email address: {value}")
             raise ValueError("ERROR.EMAIL_VALIDATION")
         return lower_value
 
