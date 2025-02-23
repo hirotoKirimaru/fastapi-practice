@@ -39,6 +39,7 @@ services:
       - mysql_data:/var/lib/mysql
       # 8.4.3 から だめになった？？？
 #    command: --default-authentication-plugin=mysql_native_password  # MySQL8.0ではデフォルトが"caching_sha2_password"で、ドライバが非対応のため変更
+    command: --mysql-native-password=ON
     ports:
       - 33306:3306  # ホストマシンのポート33306を、docker内のポート3306に接続する
     networks:
