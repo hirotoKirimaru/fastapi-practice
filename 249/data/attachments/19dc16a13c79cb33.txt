@@ -1,0 +1,112 @@
+INFO     sqlalchemy.engine.Engine:base.py:2699 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA main.table_info("organizations")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA temp.table_info("organizations")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA main.table_info("posts")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA temp.table_info("posts")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA main.table_info("users")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA temp.table_info("users")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA main.table_info("user_profiles")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA temp.table_info("user_profiles")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA main.table_info("tasks")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA temp.table_info("tasks")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA main.table_info("dones")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA temp.table_info("dones")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA main.table_info("organizations")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA temp.table_info("organizations")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA main.table_info("posts")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA temp.table_info("posts")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA main.table_info("users")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA temp.table_info("users")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA main.table_info("user_profiles")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA temp.table_info("user_profiles")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA main.table_info("tasks")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA temp.table_info("tasks")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA main.table_info("dones")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 PRAGMA temp.table_info("dones")
+INFO     sqlalchemy.engine.Engine:base.py:1843 [raw sql] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 
+CREATE TABLE organizations (
+	id INTEGER NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1843 [no key 0.00015s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 
+CREATE TABLE tasks (
+	id INTEGER NOT NULL, 
+	title VARCHAR(1024) NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1843 [no key 0.00015s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 
+CREATE TABLE users (
+	id INTEGER NOT NULL, 
+	name VARCHAR(1024), 
+	email VARCHAR(1024), 
+	soft_destroyed_at DATETIME, 
+	organization_id INTEGER, 
+	birth_day DATETIME, 
+	salt VARCHAR(255), 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES organizations (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1843 [no key 0.00016s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 
+CREATE TABLE dones (
+	id INTEGER NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(id) REFERENCES tasks (id) ON DELETE CASCADE
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1843 [no key 0.00015s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 
+CREATE TABLE posts (
+	id INTEGER NOT NULL, 
+	title VARCHAR NOT NULL, 
+	user_id INTEGER NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1843 [no key 0.00014s] ()
+INFO     sqlalchemy.engine.Engine:base.py:1843 
+CREATE TABLE user_profiles (
+	id INTEGER NOT NULL, 
+	user_id INTEGER, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id)
+)
+
+
+INFO     sqlalchemy.engine.Engine:base.py:1843 [no key 0.00013s] ()
+INFO     sqlalchemy.engine.Engine:base.py:2705 COMMIT
