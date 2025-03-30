@@ -1,6 +1,6 @@
 from datetime import timezone
 
-from sqlalchemy import DateTime, TypeDecorator
+from sqlalchemy import DATETIME, TypeDecorator
 from sqlmodel import SQLModel
 from typing_extensions import override
 
@@ -16,7 +16,7 @@ class Base(SQLModel):
 
 
 class UTCDateTime(TypeDecorator):
-    impl = DateTime
+    impl = DATETIME
 
     @override
     def process_result_value(self, value, dialect):
