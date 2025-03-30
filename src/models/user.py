@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from .organization import Organization
     from .post import Post
 
+
 class User(Base, table=True):
     __tablename__ = "users"
 
@@ -23,6 +24,10 @@ class User(Base, table=True):
     soft_destroyed_at: Optional[datetime] = Field(
         default=None, sa_column=Column(DATETIME)
     )
+    # UTCDateTime型を使うことで取得時にSQLを得られる
+    # soft_destroyed_at: Optional[datetime] = Field(
+    #     default=None, sa_column=Column(UTCDateTime)
+    # )
     organization_id: Optional[int] = Field(default=None, foreign_key="organizations.id")
     organization: Optional["Organization"] = Relationship()
     organization2: Optional["Organization"] = Relationship(

@@ -1,10 +1,8 @@
 import pytest
 from sqlalchemy import Select, select
-from sqlalchemy.orm import joinedload, selectinload
-from sqlalchemy.orm.exc import DetachedInstanceError
+from sqlalchemy.orm import joinedload
 
 import src.crud
-from src import models
 from src.models.post import Post
 from src.models.task import Done, Task
 from src.models.user import User
@@ -98,8 +96,6 @@ class TestTask:
             assert len(actual) == 2
             assert actual == [(1, "ダミー1", True), (2, "ダミー2", True)]
 
-
-
         class TestExpunge:
             """
             expungeやrefreshを学ぶため
@@ -107,6 +103,7 @@ class TestTask:
 
 
             """
+
             class Test1_1:
 
                 async def test_add_expunge(self, db):
@@ -115,7 +112,7 @@ class TestTask:
                     db.add(task1)
                     await db.flush()
 
-                    query: Select = (select(Task).options(joinedload(Task.done)))
+                    query: Select = select(Task).options(joinedload(Task.done))
                     actual = (await db.execute(query)).scalars().all()
 
                     # この時点ではインスタンスは紐づけがない
@@ -136,7 +133,6 @@ class TestTask:
 
                     assert task1.done == done1
 
-
                 async def test_delete_expunge(self, db):
                     # Given
                     task1 = Task(title="ダミー1")
@@ -150,7 +146,7 @@ class TestTask:
                     # と思っていたが、1:1の関係があると、flushの時点でマッピングしにいくらしい
                     assert task1.done == done1
 
-                    query: Select = (select(Task).options(joinedload(Task.done)))
+                    query: Select = select(Task).options(joinedload(Task.done))
                     # actual = (await db.execute(query)).scalars().all()
                     #
                     # # 検索したのでインスタンスがマッピングされた
@@ -159,7 +155,6 @@ class TestTask:
 
                     await db.delete(done1)
                     await db.flush()
-
 
                     # 削除済みだがインスタンスとしては何も変わらない
                     assert task1.done == done1
@@ -205,7 +200,7 @@ class TestTask:
                     await db.flush()
 
                     # リレーションシップの確認
-                    await db.refresh(user, attribute_names=['posts'])
+                    await db.refresh(user, attribute_names=["posts"])
                     assert len(user.posts) == 2
                     assert user.posts[0].title == "投稿1"
                     assert user.posts[1].title == "投稿2"
@@ -222,7 +217,11 @@ class TestTask:
                     db.expunge(user)
 
                     # 再検索（joinedloadを使用）
-                    query = select(User).options(joinedload(User.posts)).where(User.id == user.id)
+                    query = (
+                        select(User)
+                        .options(joinedload(User.posts))
+                        .where(User.id == user.id)
+                    )
                     result = await db.execute(query)
                     refreshed_user = result.scalars().first()
 
@@ -242,7 +241,7 @@ class TestTask:
                     await db.flush()
 
                     # 最初は2
-                    await db.refresh(user, attribute_names=['posts'])
+                    await db.refresh(user, attribute_names=["posts"])
                     assert len(user.posts) == 2
 
                     # 投稿を削除
@@ -250,7 +249,7 @@ class TestTask:
                     await db.flush()
 
                     # この時点では、userのpostsは更新されていない
-                    await db.refresh(user, attribute_names=['posts'])
+                    await db.refresh(user, attribute_names=["posts"])
                     assert len(user.posts) == 1
 
                     # userをexpunge
