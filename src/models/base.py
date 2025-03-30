@@ -2,6 +2,9 @@ from datetime import timezone
 
 from sqlalchemy import DateTime, TypeDecorator
 from sqlmodel import SQLModel
+from typing_extensions import override
+
+from src.helper.datetime_resolver import DatetimeResolver
 
 
 # class Base(SQLModel, table=True):
@@ -15,8 +18,6 @@ class Base(SQLModel):
 class UTCDateTime(TypeDecorator):
     impl = DateTime
 
+    @override
     def process_result_value(self, value, dialect):
-        # 取得時にUTCとして返す
-        if value is not None and value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-        return value.astimezone(timezone.utc)
+        return DatetimeResolver.enforce_utc(value)

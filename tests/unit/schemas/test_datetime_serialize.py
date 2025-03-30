@@ -9,7 +9,9 @@ from pydantic import (AfterValidator, BaseModel, PlainSerializer,
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.helper.datetime_resolver import DatetimeResolver
 from src.models.user import User
+from src.schemas.base import CustomModel
 
 
 class _TestModel(BaseModel):
@@ -32,15 +34,15 @@ class TestFieldSerializer:
         assert actual_dict.get("normal_dt") == "2024-12-01T02:03:04Z"
 
 
-def enforce_utc(value: datetime) -> datetime:
-    if value.tzinfo is None:  # タイムゾーン未設定の場合
-        value = value.replace(tzinfo=ZoneInfo("UTC"))  # UTCとみなす
-    return value.astimezone(tz=ZoneInfo("UTC"))  # UTCに変換
+# def enforce_utc(value: datetime) -> datetime:
+#     if value.tzinfo is None:  # タイムゾーン未設定の場合
+#         value = value.replace(tzinfo=ZoneInfo("UTC"))  # UTCとみなす
+#     return value.astimezone(tz=ZoneInfo("UTC"))  # UTCに変換
 
 
 CustomDatetime = Annotated[
     datetime,
-    AfterValidator(enforce_utc),
+    AfterValidator(DatetimeResolver.enforce_utc),
     PlainSerializer(lambda dt: dt.strftime("%Y-%m-%d %H:%M:%S")),
     # PlainValidator(lambda dt: datetime.strptime(dt, '%Y-%m-%d %H:%M:%S')), # str -> datetime, datetime -> strが混ざるのでNG。
 ]
@@ -77,6 +79,7 @@ class TestCustomDatetime:
         assert actual.normal_dt == dt
 
 
+# class _TestModel3(CustomModel):
 class _TestModel3(BaseModel):
     dt: datetime | None = None
     dt_2: CustomDatetime | None = None

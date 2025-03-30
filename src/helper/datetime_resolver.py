@@ -12,6 +12,14 @@ class DatetimeResolver:
         return datetime.now().astimezone(tz=timezone)
 
     @staticmethod
+    def enforce_utc(value: datetime | None) -> datetime | None:
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=ZoneInfo("UTC"))
+        return value.astimezone(tz=ZoneInfo("UTC"))
+
+    @staticmethod
     def is_chronological(*dates: datetime | None, inclusive: bool = False) -> bool:
         """
         複数のパラメータのdatetimeが時系列通りであることをチェックする。
