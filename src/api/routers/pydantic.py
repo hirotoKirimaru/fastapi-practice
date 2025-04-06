@@ -1,5 +1,6 @@
 import orjson
 from fastapi import APIRouter
+from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel, ConfigDict
 
 router = APIRouter()
@@ -182,5 +183,6 @@ async def pydantic_only():
 @router.get("/pydantic_with_orjson")
 async def with_orjson():
     return UserResponseB(**generate_deep_response())
+    # return ORJSONResponse(generate_deep_response())
 
 
