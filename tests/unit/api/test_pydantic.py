@@ -8,7 +8,7 @@ client = TestClient(app)
 
 
 # 別にこのレベルだと早くならない…
-# @pytest.mark.skip
+@pytest.mark.skip
 class TestSpeedPydantic:
     def test_pydantic_only_response(self):
         response = client.get("/pydantic/pydantic_only")

@@ -175,14 +175,14 @@ def generate_deep_response():
             "api_version": "2022-11-28"
         }
     ).model_dump()
-@router.get("/pydantic_only")
+@router.get("/pydantic_only", response_model=UserResponse)
 async def pydantic_only():
     return UserResponse(**generate_deep_response())
 
 
-@router.get("/pydantic_with_orjson")
+@router.get("/pydantic_with_orjson", response_model=UserResponseB)
 async def with_orjson():
-    return UserResponseB(**generate_deep_response())
-    # return ORJSONResponse(generate_deep_response())
+    # return UserResponseB(**generate_deep_response())
+    return ORJSONResponse(generate_deep_response())
 
 
