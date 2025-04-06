@@ -2,9 +2,19 @@
 
 from fastapi import APIRouter
 
-from src.api.routers import (array_factory, dependency_injection, done,
-                             exception, generate_api, healthcheck,
-                             notification, questions, task, user)
+from src.api.routers import (
+    array_factory,
+    dependency_injection,
+    done,
+    exception,
+    generate_api,
+    healthcheck,
+    notification,
+    questions,
+    task,
+    user,
+    pydantic,
+)
 
 api_router = APIRouter()
 
@@ -20,3 +30,4 @@ api_router.include_router(generate_api.router, prefix="/gen", tags=["generate"])
 api_router.include_router(dependency_injection.router, prefix="/di", tags=["di"])
 api_router.include_router(array_factory.router, prefix="/array", tags=["array"])
 api_router.include_router(questions.router, prefix="/questions", tags=["questions"])
+api_router.include_router(pydantic.router, prefix="/pydantic", tags=["pydantic"])

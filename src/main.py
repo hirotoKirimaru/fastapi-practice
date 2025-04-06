@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import ORJSONResponse
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -10,6 +11,7 @@ from src.middleware.sentry import Sentry
 Sentry.init_sentry()
 
 app = FastAPI()
+# app = FastAPI(default_response_class=ORJSONResponse)
 # app.include_router(api_router, prefix="/v1")
 app.include_router(api_router)
 
