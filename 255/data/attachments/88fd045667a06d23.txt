@@ -1,0 +1,112 @@
+2025-04-06 07:31:56,737 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-04-06 07:31:56,738 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("organizations")
+2025-04-06 07:31:56,738 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,738 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("organizations")
+2025-04-06 07:31:56,738 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,739 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("posts")
+2025-04-06 07:31:56,739 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,739 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("posts")
+2025-04-06 07:31:56,740 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,741 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("users")
+2025-04-06 07:31:56,741 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,742 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("users")
+2025-04-06 07:31:56,742 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,743 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("user_profiles")
+2025-04-06 07:31:56,743 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,743 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("user_profiles")
+2025-04-06 07:31:56,743 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,744 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("tasks")
+2025-04-06 07:31:56,744 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,744 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("tasks")
+2025-04-06 07:31:56,745 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,745 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("dones")
+2025-04-06 07:31:56,745 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,746 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("dones")
+2025-04-06 07:31:56,746 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,746 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("organizations")
+2025-04-06 07:31:56,747 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,747 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("organizations")
+2025-04-06 07:31:56,747 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,748 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("posts")
+2025-04-06 07:31:56,748 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,748 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("posts")
+2025-04-06 07:31:56,748 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,749 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("users")
+2025-04-06 07:31:56,749 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,750 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("users")
+2025-04-06 07:31:56,750 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,750 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("user_profiles")
+2025-04-06 07:31:56,750 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,751 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("user_profiles")
+2025-04-06 07:31:56,751 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,752 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("tasks")
+2025-04-06 07:31:56,752 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,752 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("tasks")
+2025-04-06 07:31:56,752 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,753 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("dones")
+2025-04-06 07:31:56,753 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,753 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("dones")
+2025-04-06 07:31:56,753 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-04-06 07:31:56,754 INFO sqlalchemy.engine.Engine 
+CREATE TABLE organizations (
+	id INTEGER NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2025-04-06 07:31:56,754 INFO sqlalchemy.engine.Engine [no key 0.00016s] ()
+2025-04-06 07:31:56,755 INFO sqlalchemy.engine.Engine 
+CREATE TABLE tasks (
+	id INTEGER NOT NULL, 
+	title VARCHAR(1024) NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+
+2025-04-06 07:31:56,755 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-04-06 07:31:56,756 INFO sqlalchemy.engine.Engine 
+CREATE TABLE users (
+	id INTEGER NOT NULL, 
+	name VARCHAR(1024), 
+	email VARCHAR(1024), 
+	soft_destroyed_at DATETIME, 
+	organization_id INTEGER, 
+	birth_day DATETIME, 
+	salt VARCHAR(255), 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(organization_id) REFERENCES organizations (id)
+)
+
+
+2025-04-06 07:31:56,756 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-04-06 07:31:56,756 INFO sqlalchemy.engine.Engine 
+CREATE TABLE dones (
+	id INTEGER NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(id) REFERENCES tasks (id) ON DELETE CASCADE
+)
+
+
+2025-04-06 07:31:56,757 INFO sqlalchemy.engine.Engine [no key 0.00019s] ()
+2025-04-06 07:31:56,757 INFO sqlalchemy.engine.Engine 
+CREATE TABLE posts (
+	id INTEGER NOT NULL, 
+	title VARCHAR NOT NULL, 
+	user_id INTEGER NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id)
+)
+
+
+2025-04-06 07:31:56,757 INFO sqlalchemy.engine.Engine [no key 0.00016s] ()
+2025-04-06 07:31:56,758 INFO sqlalchemy.engine.Engine 
+CREATE TABLE user_profiles (
+	id INTEGER NOT NULL, 
+	user_id INTEGER, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id)
+)
+
+
+2025-04-06 07:31:56,758 INFO sqlalchemy.engine.Engine [no key 0.00016s] ()
+2025-04-06 07:31:56,759 INFO sqlalchemy.engine.Engine COMMIT
