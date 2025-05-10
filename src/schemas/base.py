@@ -1,9 +1,7 @@
-from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, model_serializer
+from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-from src.helper.datetime_resolver import DatetimeResolver
 
 
 class CustomModel(BaseModel):

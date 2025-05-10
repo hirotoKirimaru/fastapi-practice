@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.helper.datetime_resolver import DatetimeResolver
 from src.models.user import User
-from src.schemas.base import CustomModel
 
 
 class _TestModel(BaseModel):

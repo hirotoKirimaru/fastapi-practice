@@ -1,7 +1,4 @@
-from dataclasses import dataclass
 
-import pytest
-from pydantic import BaseModel
 
 
 # この起債でtupleになった気がしたが、気のせいだった
