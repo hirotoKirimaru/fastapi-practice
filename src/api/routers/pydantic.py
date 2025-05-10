@@ -1,7 +1,7 @@
-import orjson
+# import orjson
 from fastapi import APIRouter
 from fastapi.responses import ORJSONResponse
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -9,9 +9,10 @@ class BaseModelA(BaseModel):
     pass
 
 class BaseModelB(BaseModel):
-    model_config = ConfigDict(
-        json_serializer=orjson.dumps
-    )
+    ...
+    # model_config = ConfigDict(
+    #     json_serializer=orjson.dumps
+    # )
 
 # GitHubユーザAPIの深い構造を再現
 class Repository(BaseModelA):
