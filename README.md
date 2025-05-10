@@ -43,6 +43,21 @@ BUILD_TARGET=development docker compose build
 
 ```bash
 uv sync
+
+# APIサーバーのみ
+uv sync --group api --group auth
+
+# ワーカーのみ
+uv sync --group worker
+
+# 特定の環境を組み合わせる場合
+uv sync --group api --group auth --group aws
+
+# 開発環境では全依存関係をインストール
+uv sync --all-groups
+
+# workerグループを除外
+uv sync --nogroup worker
 ```
 ```bash
 uv add pytest
@@ -77,7 +92,11 @@ uv run alembic revision -m "description of changes"
 ```
 
 ```bash
+# uvのアップデート
 uv self update
+
+# インストール対象の確認
+uv pip list
 ```
 
 ```bash

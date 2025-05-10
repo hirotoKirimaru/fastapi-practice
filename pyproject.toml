@@ -3,12 +3,9 @@ name = "fastapi-practice"
 version = "0.1.0"
 description = "Add your description here"
 dependencies = [
-    "fastapi[standard]>=0.115.12",
     "aiomysql>=0.2.0",
-    "pyjwt>=2.8.0",
     "polars>=0.20.31",
     "boto3>=1.37.23",
-    "pyotp>=2.9.0",
     "pydantic-settings>=2.2.1",
     "passlib>=1.7.4",
     "tenacity>=9.0.0",
@@ -21,13 +18,16 @@ dependencies = [
 readme = "README.md"
 requires-python = ">= 3.13"
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[dependency-groups]
+api = [
+    "fastapi[standard]>=0.115.12"
+]
+auth = [
+    "pyjwt>=2.8.0",
+    "pyotp>=2.9.0",
+]
 
-[tool.uv]
-#managed = true
-dev-dependencies = [
+dev = [
     "ruff>=0.7.3",
     "pytest-asyncio>=0.23.2",
     "aiosqlite>=0.19.0",
@@ -42,6 +42,16 @@ dev-dependencies = [
     "types-passlib>=1.7.7.20240327",
     "isort>=5.13.2",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+# 効いてない？？？？
+default-groups = "all"
+# こうしたら選べる
+#default-groups = ["api", "auth", "dev"]
 
 [tool.hatch.metadata]
 allow-direct-references = true
