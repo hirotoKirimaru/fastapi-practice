@@ -57,7 +57,7 @@ uv sync --group api --group auth --group aws
 uv sync --all-groups
 
 # workerグループを除外
-uv sync --nogroup worker
+uv sync --no-group worker
 ```
 ```bash
 uv add pytest
