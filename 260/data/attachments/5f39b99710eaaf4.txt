@@ -1,2 +1,0 @@
-a: a, b: b
-a: <class 'str'>, b: <class 'str'>
