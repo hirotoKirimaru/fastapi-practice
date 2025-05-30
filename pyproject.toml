@@ -65,11 +65,12 @@ allow-direct-references = true
 packages = ["src"]
 
 [tool.rye.scripts]
-lint = { chain = ["lint:black", "lint:ruff", "lint:mypy", "lint:isort" ] }
+lint = { chain = ["lint:black", "lint:ruff", "lint:mypy", "lint:isort", "lint:ty" ] }
 "lint:black" = "black ."
 "lint:ruff" = "ruff check . --fix"
 "lint:mypy" = "mypy ./src" # testディレクトリは無視
 "lint:isort" = "isort ."
+"lint:ty" = "ty check src"
 
 start = "uvicorn src.main:app --host 0.0.0.0 --reload"
 production = "uvicorn src.main:app --workers 4"
