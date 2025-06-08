@@ -73,6 +73,9 @@ uv lock --upgrade
 uv remove fastapi
 uv add fastapi
 
+
+uv add --group analyze jupyter matplot
+
 #uv lock
 #rye lock --update-all
 ```
