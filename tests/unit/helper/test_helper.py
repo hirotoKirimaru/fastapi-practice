@@ -177,10 +177,16 @@ class TestTimeitContextManager:
         async def test_func():
             await asyncio.sleep(0.1)
 
+        @timeit("TEST DECOLATOR2")
+        async def test_func2():
+            await asyncio.sleep(0.1)
+
         # WHEN
         await test_func()
+        await test_func2()
         # THEN
-        assert mock_logger.info.call_count == 2
+        assert mock_logger.info.call_count == 4
+        breakpoint()
 
         # 終了ログに実行時間が含まれている
         end_call = mock_logger.info.call_args_list[1]
