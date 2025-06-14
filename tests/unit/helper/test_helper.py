@@ -172,6 +172,23 @@ class TestTimeitContextManager:
         assert "実行時間:" in end_log_msg
         assert "秒" in end_log_msg
 
+    async def test_decolator(self, mock_logger):
+        @timeit("TEST DECOLATOR")
+        async def test_func():
+            await asyncio.sleep(0.1)
+
+        # WHEN
+        await test_func()
+        # THEN
+        assert mock_logger.info.call_count == 2
+
+        # 終了ログに実行時間が含まれている
+        end_call = mock_logger.info.call_args_list[1]
+        end_log_msg = str(end_call)
+        assert "実行時間:" in end_log_msg
+        assert "秒" in end_log_msg
+
+
 
 # パフォーマンステスト用のクラス
 class TestTimeitPerformance:
