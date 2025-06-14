@@ -2,6 +2,7 @@ import logging
 import time
 from contextlib import asynccontextmanager
 
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
@@ -12,6 +13,9 @@ async def session_context(session: AsyncSession) -> None:
     try:
         yield session
         await session.commit()
+    except HTTPException:
+        await session.rollback()
+        raise
     except Exception as e:
         await session.rollback()
         raise e
