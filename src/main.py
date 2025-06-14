@@ -52,3 +52,6 @@ async def validation_exception_handler(
         status_code=400,
         content={"detail": "BadRequestException"},
     )
+
+
+import sqlalchemy # noqa
