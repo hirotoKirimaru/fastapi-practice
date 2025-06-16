@@ -1,1 +1,0 @@
-WARNING  root:common.py:16 Invalid email address: aiueo+０@example.com
