@@ -186,7 +186,6 @@ class TestTimeitContextManager:
         await test_func2()
         # THEN
         assert mock_logger.info.call_count == 4
-        breakpoint()
 
         # 終了ログに実行時間が含まれている
         end_call = mock_logger.info.call_args_list[1]
