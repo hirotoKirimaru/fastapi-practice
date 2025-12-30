@@ -1,24 +1,40 @@
-name: Test
-run-name: Test for ${{ github.event.workflow_run.head_branch }} (${{ github.event.workflow_run.head_commit.message }})
+name: CI
 
-on:
-  workflow_run:
-    workflows: ["Build"]
-    types:
-      - completed
+on: [push]
 
-env:
-  BUILD_TARGET: test
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}  # ワークフロー×ブランチでグループ化
+  cancel-in-progress: true  # 前の実行をキャンセル
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        python-version: ["3.13"]
-#
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: build or push
+        run: |
+          set -euxo pipefail
+          export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
+          export RUNTIME_TAG=$LOCK_HASH
+          
+          if ! docker manifest inspect kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG > /dev/null 2>&1; then
+            docker buildx create --name builder --use --platform linux/amd64
+            docker buildx build --builder builder --target dev_runtime -t kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push=true .
+          fi
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # 30分で停止
+    env:
+      BUILD_TARGET: test
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Login to DockerHub
         uses: docker/login-action@v3
@@ -68,20 +84,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
-
-# なぜかエラーになるので後ろにもっていく
-#      - name: Set up Python ${{ matrix.python-version }}
-#        uses: actions/setup-python@v4
-#        with:
-#          python-version: ${{ matrix.python-version }}
-#      - name: Install Dependencies
-#        run: |
-#          python -m pip install --upgrade pip
-#          pip install -r requirements.lock
-#          pip install -r requirements-dev.lock
-#      - name: Lint with Ruff
-#        run: |
-#          ruff .
-#        continue-on-error: true
-#      - name: build
-#        run: export $(cat docker.env | xargs) && docker buildx bake
