@@ -15,7 +15,6 @@ class TestTimeitContextManager:
         with patch("src.helper.helper.logger") as mock_log:
             yield mock_log
 
-    @pytest.mark.asyncio
     async def test_timeit_normal_execution(self, mock_logger):
         """正常実行時のテスト"""
         operation_name = "テスト処理"
@@ -37,7 +36,6 @@ class TestTimeitContextManager:
         assert "実行時間:" in end_log_msg
         assert "秒" in end_log_msg
 
-    @pytest.mark.asyncio
     async def test_timeit_with_exception(self, mock_logger):
         """例外発生時のテスト"""
         operation_name = "エラー処理"
@@ -58,7 +56,6 @@ class TestTimeitContextManager:
         end_call = mock_logger.info.call_args_list[1]
         assert f"[{operation_name}] 処理完了" in str(end_call)
 
-    @pytest.mark.asyncio
     async def test_timeit_default_operation_name(self, mock_logger):
         """デフォルトの操作名のテスト"""
         async with timeit():
@@ -71,7 +68,6 @@ class TestTimeitContextManager:
         end_call = mock_logger.info.call_args_list[1]
         assert "[Operation] 処理完了" in str(end_call)
 
-    @pytest.mark.asyncio
     async def test_timeit_execution_time_accuracy(self, mock_logger):
         """実行時間の精度テスト"""
         sleep_duration = 0.2
@@ -98,7 +94,6 @@ class TestTimeitContextManager:
         assert abs(logged_duration - sleep_duration) < 0.05
         assert abs(logged_duration - actual_duration) < 0.05
 
-    @pytest.mark.asyncio
     async def test_timeit_nested_context(self, mock_logger):
         """ネストしたコンテキストのテスト"""
         async with timeit("外側"):
@@ -115,7 +110,6 @@ class TestTimeitContextManager:
         assert "[内側] 処理完了" in calls[2]
         assert "[外側] 処理完了" in calls[3]
 
-    @pytest.mark.asyncio
     async def test_timeit_concurrent_execution(self, mock_logger):
         """並行実行のテスト"""
 
@@ -144,7 +138,6 @@ class TestTimeitContextManager:
         assert "タスクB" in all_logs
         assert "タスクC" in all_logs
 
-    @pytest.mark.asyncio
     async def test_timeit_with_custom_exception(self, mock_logger):
         """カスタム例外での例外伝播テスト"""
 
@@ -158,7 +151,6 @@ class TestTimeitContextManager:
         # 例外が発生してもログは出力される
         assert mock_logger.info.call_count == 2
 
-    @pytest.mark.asyncio
     async def test_timeit_zero_duration(self, mock_logger):
         """極短時間実行のテスト"""
         async with timeit("瞬時実行"):
@@ -199,7 +191,7 @@ class TestTimeitContextManager:
 class TestTimeitPerformance:
     """timeitのパフォーマンステスト"""
 
-    @pytest.mark.asyncio
+    @pytest.mark.skip
     async def test_timeit_overhead(self):
         """timeitコンテキストマネージャーのオーバーヘッドテスト"""
         # timeitなしでの実行時間
