@@ -3,50 +3,50 @@ name = "fastapi-practice"
 version = "0.1.0"
 description = "Add your description here"
 dependencies = [
-    "aiomysql>=0.2.0",
-    "polars>=0.20.31",
-    "boto3>=1.37.23",
-    "pydantic-settings>=2.2.1",
+    "aiomysql>=0.3.2",
+    "polars>=1.36.1",
+    "boto3>=1.42.18",
+    "pydantic-settings>=2.12.0",
     "passlib>=1.7.4",
-    "tenacity>=9.0.0",
+    "tenacity>=9.1.2",
     "google-generativeai>=0.5.4",
-    "sqlmodel>=0.0.21",
-    "pydantic[email]>=2.9.2",
-    "sentry-sdk>=2.19.0",
-    "greenlet>=3.1.1",
+    "sqlmodel>=0.0.31",
+    "pydantic[email]>=2.12.5",
+    "sentry-sdk>=2.48.0",
+    "greenlet>=3.3.0",
     "matplot>=0.1.9",
 ]
 readme = "README.md"
-requires-python = ">= 3.13"
+requires-python = ">= 3.14"
 
 [dependency-groups]
 api = [
-    "fastapi[standard]>=0.115.12"
+    "fastapi[standard]>=0.128.0"
 ]
 auth = [
-    "pyjwt>=2.8.0",
+    "pyjwt>=2.10.1",
     "pyotp>=2.9.0",
 ]
 
 worker = [
-    "celery>=5.5.2",
+    "celery>=5.6.1",
 ]
 
 dev = [
-    "ruff>=0.7.3",
-    "pytest-asyncio>=0.23.2",
-    "aiosqlite>=0.19.0",
-    "pytest-mock>=3.14.0",
-    "black>=23.11.0",
-    "pytest-check>=2.2.2",
-    "mypy>=1.8.0",
+    "ruff>=0.14.7",
+    "pytest-asyncio>=0.26.0",
+    "aiosqlite>=0.22.1",
+    "pytest-mock>=3.15.1",
+    "black>=25.12.0",
+    "pytest-check>=2.6.2",
+    "mypy>=1.19.1",
     "testcontainers>=4.1.1",
     "minio>=7.2.5",
     "alembic>=1.13.1",
     "allure-pytest>=2.13.5",
     "types-passlib>=1.7.7.20240327",
     "isort>=5.13.2",
-    "ty>=0.0.0a8",
+    "ty>=0.0.8",
     "tuna>=0.5.11",
 ]
 analyze = [
