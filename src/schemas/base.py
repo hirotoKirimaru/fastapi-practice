@@ -1,7 +1,5 @@
-
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
-
 
 
 class CustomModel(BaseModel):
@@ -12,8 +10,6 @@ class CustomModel(BaseModel):
         populate_by_name=True,
         strict=True,
     )
-
-
 
     # @model_serializer(mode="wrap")
     # def serialize_datetime(self, handler, info) -> dict:

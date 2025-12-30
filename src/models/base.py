@@ -1,4 +1,3 @@
-
 from sqlalchemy import DATETIME, TypeDecorator
 from sqlmodel import SQLModel
 from typing_extensions import override

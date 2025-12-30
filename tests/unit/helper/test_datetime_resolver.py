@@ -11,11 +11,15 @@ class TestDateTimeResolver:
         date_3 = datetime(2022, 1, 3, 12, 0, 0)
 
         def test_is_valid_case(self):
-            result = DatetimeResolver.is_chronological(self.date_1, self.date_2, self.date_3)
+            result = DatetimeResolver.is_chronological(
+                self.date_1, self.date_2, self.date_3
+            )
             assert result
 
         def test_is_invalid_case(self):
-            result = DatetimeResolver.is_chronological(self.date_3, self.date_2, self.date_1)
+            result = DatetimeResolver.is_chronological(
+                self.date_3, self.date_2, self.date_1
+            )
             assert not result
 
         def test_is_identical_dates(self):

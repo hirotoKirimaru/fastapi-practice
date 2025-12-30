@@ -1,6 +1,3 @@
-
-
-
 # この起債でtupleになった気がしたが、気のせいだった
 class TestTuple:
     @staticmethod

@@ -1,5 +1,5 @@
 import numpy as np
-from sqlalchemy import and_, func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.user import User
 
@@ -14,4 +14,3 @@ class TestNpNan:
         actual = (await db.execute(query)).scalars().all()
 
         assert len(actual) == 0
-

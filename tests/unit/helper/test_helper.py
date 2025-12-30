@@ -186,7 +186,6 @@ class TestTimeitContextManager:
         assert "秒" in end_log_msg
 
 
-
 # パフォーマンステスト用のクラス
 class TestTimeitPerformance:
     """timeitのパフォーマンステスト"""

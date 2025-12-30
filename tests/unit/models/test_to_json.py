@@ -1,11 +1,9 @@
 import json
-from dataclasses import dataclass
 from datetime import datetime
 from enum import IntEnum, Enum
 
 import pytest
 from pydantic import BaseModel
-from pydantic.v1 import PatternError
 
 from src.helper.datetime_resolver import DatetimeResolver
 
@@ -14,9 +12,11 @@ class PatternEnum(IntEnum):
     A = 0
     B = 1
 
+
 class Pattern2Enum(str, Enum):
     A = 0
     B = 1
+
 
 class TestToJson:
 
@@ -58,10 +58,10 @@ class TestToJson:
         # 単体テストとしては通るが…
         assert expected == c.model_dump()
         # 文字列のシリアライズがうまくいかない
-        assert expected != c.model_dump(mode='json')
+        assert expected != c.model_dump(mode="json")
         with pytest.raises(TypeError):
             assert expected == json.dumps(c.model_dump())
-        assert expected != json.dumps(c.model_dump(mode='json'))
+        assert expected != json.dumps(c.model_dump(mode="json"))
 
         # {'id': 'aaa', 'value': 'ccc', 'pattern': <PatternEnum.B: 1>}
         # {'id': 'aaa', 'value': 'ccc', 'pattern': 1}

@@ -54,4 +54,4 @@ async def validation_exception_handler(
     )
 
 
-import sqlalchemy # noqa
+import sqlalchemy  # noqa

@@ -27,9 +27,15 @@ class DatetimeResolver:
 
         また、呼出元が楽になるように、None項目はすべて除外する。
         """
-        safe_dates: list[datetime] = [d.astimezone(ZoneInfo("UTC")) for d in dates if d is not None]
+        safe_dates: list[datetime] = [
+            d.astimezone(ZoneInfo("UTC")) for d in dates if d is not None
+        ]
 
         if inclusive:
-            return all(earlier <= later for earlier, later in zip(safe_dates, safe_dates[1:]))
+            return all(
+                earlier <= later for earlier, later in zip(safe_dates, safe_dates[1:])
+            )
         else:
-            return all(earlier < later for earlier, later in zip(safe_dates, safe_dates[1:]))
+            return all(
+                earlier < later for earlier, later in zip(safe_dates, safe_dates[1:])
+            )

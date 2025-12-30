@@ -5,14 +5,17 @@ from pydantic import BaseModel
 
 router = APIRouter()
 
+
 class BaseModelA(BaseModel):
     pass
+
 
 class BaseModelB(BaseModel):
     ...
     # model_config = ConfigDict(
     #     json_serializer=orjson.dumps
     # )
+
 
 # GitHubユーザAPIの深い構造を再現
 class Repository(BaseModelA):
@@ -23,11 +26,13 @@ class Repository(BaseModelA):
     html_url: str
     description: str
 
+
 class Organization(BaseModelA):
     login: str
     id: int
     url: str
     repos_url: str
+
 
 class UserResponse(BaseModelA):
     login: str
@@ -66,6 +71,7 @@ class UserResponse(BaseModelA):
     organizations: list[Organization]
     metadata: dict[str, str]
 
+
 class RepositoryB(BaseModelB):
     id: int
     name: str
@@ -74,11 +80,13 @@ class RepositoryB(BaseModelB):
     html_url: str
     description: str
 
+
 class OrganizationB(BaseModelB):
     login: str
     id: int
     url: str
     repos_url: str
+
 
 class UserResponseB(BaseModelB):
     login: str
@@ -159,7 +167,7 @@ def generate_deep_response():
                 full_name="octocat/Spoon-Knife",
                 private=False,
                 html_url="https://github.com/octocat/Spoon-Knife",
-                description="Test repository"
+                description="Test repository",
             )
         ],
         organizations=[
@@ -167,15 +175,17 @@ def generate_deep_response():
                 login="github",
                 id=1,
                 url="https://api.github.com/orgs/github",
-                repos_url="https://api.github.com/orgs/github/repos"
+                repos_url="https://api.github.com/orgs/github/repos",
             )
         ],
         metadata={
             "rate_limit": "1000",
             "remaining": "990",
-            "api_version": "2022-11-28"
-        }
+            "api_version": "2022-11-28",
+        },
     ).model_dump()
+
+
 @router.get("/pydantic_only", response_model=UserResponse)
 async def pydantic_only():
     return UserResponse(**generate_deep_response())
@@ -185,5 +195,3 @@ async def pydantic_only():
 async def with_orjson():
     # return UserResponseB(**generate_deep_response())
     return ORJSONResponse(generate_deep_response())
-
-
