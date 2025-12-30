@@ -36,6 +36,10 @@ async def async_client() -> AsyncClient:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         yield client
+        
+    # テスト終了後にオーバーライドをクリア
+    app.dependency_overrides.clear()
+    await async_engine.dispose()
 
 
 # alembicがasync対応していないからできない
