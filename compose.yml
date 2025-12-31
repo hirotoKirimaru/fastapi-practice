@@ -28,6 +28,9 @@ services:
       - 8000:8000
     networks:
       - development_network
+    depends_on:
+      - db
+      - storage
   db:
     image: mysql:8.4
     platform: linux/x86_64  # M1 Macの場合必要
