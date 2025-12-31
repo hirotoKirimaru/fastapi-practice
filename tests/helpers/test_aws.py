@@ -10,6 +10,7 @@ from src.helper.aws import Aws
 
 
 class TestAws:
+    @pytest.mark.skip("Docker not working in github actions?")
     async def test_01(self):
         # https://github.com/testcontainers/testcontainers-python/blob/c9c6f92348299a2cc04988af8d69a53a23a7c7d5/modules/minio/testcontainers/minio/__init__.py#L45
         #         image: str = "minio/minio:RELEASE.2022-12-02T19-19-22Z",
