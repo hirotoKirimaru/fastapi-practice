@@ -66,6 +66,11 @@ jobs:
         run: docker compose exec -T api uv run pytest --alluredir=/app/allure-results
 #        run: uv run pytest --alluredir=./allure-results
 
+      # デバッグ
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: failure() # 失敗したときだけ接続したい場合
+
       - name: Copy Allure results from container
         run: |
           docker cp $(docker compose ps -q api):/app/allure-results ./allure-results
