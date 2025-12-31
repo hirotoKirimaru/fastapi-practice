@@ -17,7 +17,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 FROM base AS dev_runtime
 
 COPY src /app/src
-COPY README.md pyproject.toml .python-version uv.lock ./
+COPY README.md pytest.ini pyproject.toml .python-version uv.lock ./
 COPY tests /app/tests
 COPY alembic /app/alembic
 COPY alembic.ini .env ./
