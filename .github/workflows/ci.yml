@@ -63,11 +63,12 @@ jobs:
           command: docker compose exec api uv run alembic upgrade head
 
       - name: Run tests
-        run: docker compose exec -T api uv run pytest --alluredir=/app/allure-results
+#        run: docker compose exec -T api uv run pytest --alluredir=/app/allure-results
+        run: uv run pytest --alluredir=./allure-results
 
-      - name: Copy Allure results from container
-        run: |
-          docker cp $(docker compose ps -q api):/app/allure-results ./allure-results
+#      - name: Copy Allure results from container
+#        run: |
+#          docker cp $(docker compose ps -q api):/app/allure-results ./allure-results
 
       - name: Build test report
         uses: simple-elf/allure-report-action@v1.13
