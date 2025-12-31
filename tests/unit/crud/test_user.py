@@ -9,7 +9,6 @@ from sqlalchemy.sql import Select
 
 import src.crud.user
 from src.models.organization import Organization
-
 # import logging
 from src.models.user import User
 

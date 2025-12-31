@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from enum import IntEnum, Enum
+from enum import Enum, IntEnum
 
 import pytest
 from pydantic import BaseModel

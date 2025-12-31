@@ -113,7 +113,7 @@ class TestTask:
                     await db.flush()
 
                     query: Select = select(Task).options(joinedload(Task.done))
-                    actual = (await db.execute(query)).scalars().all()
+                    _ = (await db.execute(query)).scalars().all()
 
                     # この時点ではインスタンスは紐づけがない
                     assert task1.done is None
@@ -125,7 +125,7 @@ class TestTask:
                     # インスタンス側は変更なし
                     assert task1.done is None
 
-                    actual2 = (await db.execute(query)).scalars().all()
+                    _ = (await db.execute(query)).scalars().all()
 
                     assert task1.done is None
 

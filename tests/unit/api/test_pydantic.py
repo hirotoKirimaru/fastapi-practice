@@ -2,6 +2,7 @@ import timeit
 
 import pytest
 from fastapi.testclient import TestClient
+
 from src.main import app  # 上記コードが保存されているファイル名
 
 client = TestClient(app)

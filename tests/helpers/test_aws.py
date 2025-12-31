@@ -4,6 +4,7 @@ from datetime import datetime
 from io import StringIO
 
 import polars
+import pytest
 from testcontainers.minio import MinioContainer
 
 from src.helper.aws import Aws
