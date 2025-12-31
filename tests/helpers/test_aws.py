@@ -10,8 +10,7 @@ from testcontainers.minio import MinioContainer
 from src.helper.aws import Aws
 
 
-class TestAws:
-    pass
+# class TestAws:
     # NOTE: なぜか起動しない…
     # @pytest.mark.skip("Docker not working in github actions?")
     # async def test_01(self):
