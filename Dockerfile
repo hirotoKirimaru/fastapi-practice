@@ -3,7 +3,7 @@ ARG RUNTIME_TAG=latest
 # ベースイメージ
 #FROM python:3.12 AS base
 #軽量版に切り替える場合はこちらを使用
-FROM python:3.14-slim AS base
+FROM python:3.13-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
