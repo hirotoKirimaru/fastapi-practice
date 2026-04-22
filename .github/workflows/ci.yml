@@ -111,12 +111,42 @@ jobs:
           command: docker compose exec -T api uv run alembic upgrade head
 
       - name: Run tests
-        run: docker compose exec -T api uv run pytest --alluredir=/app/allure-results
+        id: pytest
+        run: |
+          set +e
+          docker compose exec -T api uv run pytest --alluredir=/app/allure-results 2>&1 | tee /tmp/pytest.log
+          echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
 
-      - name: Setup tmate session (on failure)
-        uses: mxschmitt/action-tmate@v3
-        if: failure()
-        timeout-minutes: 15
+      - name: Dump diagnostics on failure
+        if: always()
+        run: |
+          {
+            echo "## pytest status: ${{ steps.pytest.outputs.status }}"
+            echo
+            echo "### pytest log (tail)"
+            echo '```'
+            tail -200 /tmp/pytest.log 2>/dev/null || echo "(no pytest log)"
+            echo '```'
+            echo
+            echo "### docker compose ps"
+            echo '```'
+            docker compose ps
+            echo '```'
+            echo
+            echo "### api container logs (tail)"
+            echo '```'
+            docker compose logs --tail=120 api 2>&1 || true
+            echo '```'
+            echo
+            echo "### db container logs (tail)"
+            echo '```'
+            docker compose logs --tail=60 db 2>&1 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail if pytest failed
+        if: steps.pytest.outputs.status != '0'
+        run: exit 1
 
       - name: Copy Allure results from container
         if: always()
