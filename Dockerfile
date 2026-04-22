@@ -1,9 +1,8 @@
+# syntax=docker/dockerfile:1.7
 ARG RUNTIME_TAG=latest
-ARG UV_VERSION=0.8.17
-ARG PYTHON_VERSION=3.14-slim
 
 # ベースイメージ
-FROM python:${PYTHON_VERSION} AS base
+FROM python:3.14-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -13,11 +12,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# pre-FROM の ARG はステージ内で使うため再宣言が必要
-ARG UV_VERSION
-
 # uv をバージョン固定で取得
-COPY --from=ghcr.io/astral-sh/uv:${UV_VERSION} /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.8.17 /uv /usr/local/bin/uv
 
 # 1. 開発用ランタイムのビルド
 FROM base AS dev_runtime
@@ -42,7 +38,6 @@ FROM kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG} AS test
 COPY src /app/src
 COPY tests /app/tests
 
-# CI 用に起動しっぱなしであってほしい
 CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 
 

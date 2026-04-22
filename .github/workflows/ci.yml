@@ -35,6 +35,25 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Diagnostics
+        run: |
+          {
+            echo "## Build diagnostics"
+            echo
+            echo "RUNTIME_TAG=\`${RUNTIME_TAG}\`"
+            echo
+            echo "### Versions"
+            echo '```'
+            docker --version
+            docker buildx version
+            echo '```'
+            echo
+            echo "### Manifest inspect (existing tag check)"
+            echo '```'
+            docker manifest inspect "kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG}" 2>&1 | head -20 || echo "(manifest missing → will build)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Build & push dev_runtime (only if tag missing)
         run: |
           set -euxo pipefail
@@ -43,11 +62,23 @@ jobs:
             exit 0
           fi
           docker buildx create --name builder --use --platform linux/amd64
+          # 失敗時に最後の出力を summary に残す
+          set +e
           docker buildx build --builder builder \
+            --progress=plain \
             --target dev_runtime \
             -t "kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG}" \
             --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push=true \
-            .
+            . 2>&1 | tee /tmp/buildx.log
+          STATUS=${PIPESTATUS[0]}
+          set -e
+          {
+            echo "### docker buildx build status: ${STATUS}"
+            echo '```'
+            tail -120 /tmp/buildx.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "${STATUS}"
 
   test:
     needs: build
