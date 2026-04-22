@@ -15,13 +15,14 @@ dependencies = [
     "sentry-sdk>=2.48.0",
     "greenlet>=3.3.0",
     "matplot>=0.1.9",
+    "strawberry-graphql[fastapi]>=0.314.3",
 ]
 readme = "README.md"
-requires-python = ">= 3.13"
+requires-python = ">= 3.14"
 
 [dependency-groups]
 api = [
-    "fastapi[standard]>=0.128.0"
+    "fastapi[standard]>=0.136.0"
 ]
 auth = [
     "pyjwt>=2.10.1",
@@ -80,6 +81,12 @@ lint = { parallel = ["lint:black", "lint:ruff", "lint:mypy", "lint:isort", "lint
 "lint:mypy" = "mypy ./src" # testディレクトリは無視
 "lint:isort" = "isort ."
 "lint:ty" = "ty check src"
+
+# ruff check / ruff format / ty をまとめて実行する
+check = { sequence = ["check:ruff", "check:format", "check:ty"] }
+"check:ruff" = "ruff check . --fix"
+"check:format" = "ruff format ."
+"check:ty" = "ty check src"
 
 start = "uvicorn src.main:app --host 0.0.0.0 --reload"
 production = "uvicorn src.main:app --workers 4"
