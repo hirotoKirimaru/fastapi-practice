@@ -10,6 +10,8 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: write
+  issues: write
 
 jobs:
   build:
@@ -147,6 +149,50 @@ jobs:
       - name: Fail if pytest failed
         if: steps.pytest.outputs.status != '0'
         run: exit 1
+
+      - name: Post pytest log to PR on failure (diagnostic)
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          BODY_FILE=/tmp/pr-comment.md
+          {
+            echo "### :rotating_light: CI diagnostic dump (\`${{ github.sha }}\`)"
+            echo
+            echo "pytest status: \`${{ steps.pytest.outputs.status }}\`"
+            echo
+            echo "<details><summary>pytest log (tail 200)</summary>"
+            echo
+            echo '```'
+            tail -200 /tmp/pytest.log 2>/dev/null || echo "(no pytest log)"
+            echo '```'
+            echo
+            echo "</details>"
+            echo
+            echo "<details><summary>docker compose ps</summary>"
+            echo
+            echo '```'
+            docker compose ps || true
+            echo '```'
+            echo
+            echo "</details>"
+            echo
+            echo "<details><summary>api container logs (tail 120)</summary>"
+            echo
+            echo '```'
+            docker compose logs --tail=120 api 2>&1 || true
+            echo '```'
+            echo
+            echo "</details>"
+          } > "$BODY_FILE"
+          curl -sS -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/comments" \
+            --data @<(jq -Rs '{body: .}' < "$BODY_FILE") \
+            || true
 
       - name: Copy Allure results from container
         if: always()
