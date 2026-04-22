@@ -1,102 +1,100 @@
-x-common:
-  AWS_S3_ACCESS_KEY: &aws_s3_access_key minio
-  AWS_S3_SECRET_KEY: &aws_s3_secret_key minio1234
+x-common-env: &common_env
+  AWS_S3_ACCESS_KEY: minio
+  AWS_S3_SECRET_KEY: minio1234
 
 services:
   api:
-#    image: api:latest
-#    pull_policy: never # bakeで事前実行を必須とする # これはなくてもいい
     build:
       context: .
       target: ${BUILD_TARGET:-dev}
       args:
         - RUNTIME_TAG=${RUNTIME_TAG:-latest}
-#    read_only: true # TODO: これがあると動かない…？
     volumes:
-      #      - .dockervenv:/src/.venv
-      - .:/src
-      - /tmp
+      # アプリ側パスは /app（Dockerfile の WORKDIR と合わせる）
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./alembic:/app/alembic
     environment:
+      <<: *common_env
       ENV: local
       S3_BUCKET: tmp.local
-#      AWS_S3_ACCESS_KEY: *aws_s3_access_key
-#      AWS_S3_SECRET_KEY: *aws_s3_secret_key
-      AWS_S3_ACCESS_KEY: minio
-      AWS_S3_SECRET_KEY: minio1234
-#      KROKER_LOG: debug # debugログ?
     ports:
-      - 8000:8000
+      - "8000:8000"
     networks:
       - development_network
     depends_on:
-      - db
-      - storage
+      db:
+        condition: service_healthy
+      storage:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/docs', timeout=3).status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
   db:
     image: mysql:8.4
-    platform: linux/x86_64  # M1 Macの場合必要
+    # M1 Mac で必要なら上書き: `docker compose --file compose.yml --file compose.arm64.yml up`
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'  # rootアカウントをパスワードなしで作成
-      MYSQL_DATABASE: 'demo'  # 初期データベースとしてdemoを設定
-      TZ: 'Asia/Tokyo'  # タイムゾーンを日本時間に設定
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: demo
+      TZ: Asia/Tokyo
     volumes:
       - mysql_data:/var/lib/mysql
-      # 8.4.3 から だめになった？？？
-#    command: --default-authentication-plugin=mysql_native_password  # MySQL8.0ではデフォルトが"caching_sha2_password"で、ドライバが非対応のため変更
     command: --mysql-native-password=ON
     ports:
-      - 33306:3306  # ホストマシンのポート33306を、docker内のポート3306に接続する
+      - "33306:3306"
     networks:
       - development_network
-  # postgresに切り替えたいときに。
-#  db2:
-#    image: postgres:latest
-#    ports:
-#      - "15432:5432"
-#    container_name: postgres
-#    environment:
-#      POSTGRES_PASSWORD: pass
-#      POSTGRES_USER: user
-#      POSTGRES_DB: database
-#    hostname: postgres
-#    restart: always
-#    networks:
-#      - development_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
   storage:
-    image: minio/minio
+    image: minio/minio:latest
     entrypoint: sh
     command: -c "mkdir -p /data/data-exchange.local /data/tmp.local && /usr/bin/minio server --address :9000 --console-address :9001 /data"
     ports:
-      - "9000:9000" # APIとして
-      - "9001:9001" # consoleとして
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio_data:/data
-#    tmpfs: /data # CI等で高速化する場合
     environment:
-#      MINIO_ACCESS_KEY: *aws_s3_access_key
-#      MINIO_SECRET_KEY: *aws_s3_secret_key
-      MINIO_ROOT_USER: ${AWS_S3_ACCESS_KEY}
-      MINIO_ROOT_PASSWORD: ${AWS_S3_SECRET_KEY}
+      MINIO_ROOT_USER: ${AWS_S3_ACCESS_KEY:-minio}
+      MINIO_ROOT_PASSWORD: ${AWS_S3_SECRET_KEY:-minio1234}
       ENV_TEST: ${CI+AAA}${CI-BBB}
     env_file:
       - docker.env
     networks:
       - development_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   kvs:
-    image: 'redis:latest'
+    image: redis:7-alpine
     volumes:
       - kvs_data:/data
     networks:
       - development_network
+
   mail:
-    image: mailhog/mailhog:latest
+    # MailHog はメンテ停止のため後継の mailpit を推奨（互換 UI/SMTP）
+    image: axllent/mailpit:latest
     ports:
-      - 8025:8025
-      - 1025:1025
-    tmpfs:
-      - /tmp # 元からメモリ展開されるので不要
+      - "8025:8025"   # Web UI
+      - "1025:1025"   # SMTP
     networks:
       - development_network
-  # docker 内networkで localhost:9000 でアクセスさせるために必要
+
+  # docker network 内 localhost:9000 で MinIO にアクセスさせるための中継
   relay:
     image: alpine/socat
     depends_on:
@@ -104,9 +102,11 @@ services:
       - storage
     command: "TCP-LISTEN:9000,fork TCP:storage:9000"
     network_mode: service:api
+
 volumes:
   mysql_data:
   minio_data:
   kvs_data:
+
 networks:
   development_network:

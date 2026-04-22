@@ -1,38 +1,65 @@
 name: CI
 
-on: [push]
+on:
+  push:
+  pull_request:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}  # ワークフロー×ブランチでグループ化
-  cancel-in-progress: true  # 前の実行をキャンセル
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      runtime_tag: ${{ steps.lock.outputs.runtime_tag }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Compute runtime tag from uv.lock
+        id: lock
+        run: |
+          set -euo pipefail
+          LOCK_HASH=$(sha1sum < uv.lock | cut -d' ' -f1)
+          RUNTIME_TAG="python-${LOCK_HASH}"
+          echo "runtime_tag=${RUNTIME_TAG}" >> "$GITHUB_OUTPUT"
+          echo "RUNTIME_TAG=${RUNTIME_TAG}" >> "$GITHUB_ENV"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: build or push
+
+      - name: Build & push dev_runtime (only if tag missing)
         run: |
           set -euxo pipefail
-          export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
-          export RUNTIME_TAG=$LOCK_HASH
-          
-          if ! docker manifest inspect kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG > /dev/null 2>&1; then
-            docker buildx create --name builder --use --platform linux/amd64
-            docker buildx build --builder builder --target dev_runtime -t kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push=true .
+          if docker manifest inspect "kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG}" > /dev/null 2>&1; then
+            echo "Image already exists, skipping push."
+            exit 0
           fi
+          docker buildx build \
+            --target dev_runtime \
+            --tag "kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG}" \
+            --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push=true \
+            --cache-from "type=registry,ref=kirimaru/fastapi-practice_dev-runtime:buildcache" \
+            --cache-to   "type=registry,ref=kirimaru/fastapi-practice_dev-runtime:buildcache,mode=max" \
+            .
 
   test:
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # 30分で停止
+    timeout-minutes: 30
     env:
       BUILD_TARGET: test
+      RUNTIME_TAG: ${{ needs.build.outputs.runtime_tag }}
     steps:
       - uses: actions/checkout@v4
 
@@ -42,17 +69,11 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Pull Docker image
-        run: |
-          LOCK_HASH=$(sha1sum < uv.lock | cut -d' ' -f1)
-          RUNTIME_TAG="python-$LOCK_HASH"
-          echo "RUNTIME_TAG=$RUNTIME_TAG" >> $GITHUB_ENV
-          docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
+      - name: Pull dev_runtime image
+        run: docker pull "kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG}"
 
       - name: Compose up
-        run: |
-          export RUNTIME_TAG=${{ env.RUNTIME_TAG }}
-          docker compose up -d --wait
+        run: docker compose up -d --wait
 
       - name: DB migration
         uses: nick-invision/retry@v3
@@ -60,20 +81,19 @@ jobs:
           timeout_minutes: 5
           max_attempts: 3
           retry_wait_seconds: 10
-          command: docker compose exec api uv run alembic upgrade head
+          command: docker compose exec -T api uv run alembic upgrade head
 
       - name: Run tests
         run: docker compose exec -T api uv run pytest --alluredir=/app/allure-results
-#        run: uv run pytest --alluredir=./allure-results
 
-      # デバッグ
-      - name: Setup tmate session
+      - name: Setup tmate session (on failure)
         uses: mxschmitt/action-tmate@v3
-        if: failure() # 失敗したときだけ接続したい場合
+        if: failure()
+        timeout-minutes: 15
 
       - name: Copy Allure results from container
-        run: |
-          docker cp $(docker compose ps -q api):/app/allure-results ./allure-results
+        if: always()
+        run: docker cp "$(docker compose ps -q api)":/app/allure-results ./allure-results
 
       - name: Build test report
         uses: simple-elf/allure-report-action@v1.13
@@ -84,8 +104,8 @@ jobs:
           allure_results: allure-results
 
       - name: Publish test report
+        if: always() && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
-        if: always()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages

@@ -1,212 +1,75 @@
-# README
-
-```bash
-rye sync
-# activateを実行する
-. .venv/bin/activate
-```
-
-```bash
-# Docker内部でrequirements.lockが作成できない？
-# Windows 等々で行う必要あり
-```
-
-# 自動Linter
-
-違う意図があるので別々に入れておく
-
-
-```bash
-ruff . --fix
-black .
-```
-
-# OpenAPIの定義ファイル
-```bash
-http://localhost:8000/docs
-```
-
 # fastapi-practice
 
-Describe your project here.
+FastAPI / SQLModel / Strawberry GraphQL を題材にした学習用リポジトリ。
+
+## セットアップ
 
 ```bash
-# 開発環境でビルド
-#普通にビルドでoK
-#docker compose build --target development
-# 本番環境でビルド
-#docker compose build --target production
-BUILD_TARGET=development docker compose build
-```
-
-# Rye か uvの使い方
-
-```bash
+# 全依存関係をインストール
 uv sync
 
-# APIサーバーのみ
-uv sync --group api --group auth
-
-# ワーカーのみ
-uv sync --group worker
-
-# 特定の環境を組み合わせる場合
-uv sync --group api --group auth --group aws
-
-# 開発環境では全依存関係をインストール
-uv sync --all-groups
-
-# workerグループを除外
-uv sync --no-group worker
+# 環境変数ファイルを用意
+cp .env.example .env
+# 必要に応じて編集 (GOOGLE_API_KEY 等)
 ```
-```bash
-uv add pytest
-uv add --dev pytest
 
-uv run pytest .
-```
+## 開発
+
 ```bash
-# update
+# 開発サーバ
+uv run poe start
+
+# Lint / Format / TypeCheck
+uv run poe check
+uv run poe lint
+```
+
+## テスト
+
+```bash
+uv run pytest
+```
+
+## Docker
+
+```bash
+# 開発用 (compose で起動)
+docker compose up -d --wait
+
+# Bake で個別ビルド
+docker buildx bake
+```
+
+CI は `uv.lock` のハッシュをタグにして dev_runtime イメージを DockerHub に push し、test ジョブはそのイメージを再利用する。
+
+## 依存関係の更新
+
+```bash
+# 全部最新化
 uv lock --upgrade
+uv sync
 
-# pyprojectの更新
-uv remove fastapi
+# 個別追加 / 削除
 uv add fastapi
-
-
-uv add --group analyze jupyter matplot
-
-#uv lock
-#rye lock --update-all
+uv remove fastapi
+uv add --group analyze jupyter matplotlib
 ```
 
-```bash
-uv python pin 3.13
-#rye pin 3.12.4
-```
+## Python バージョン
 
-# Dev
+`.python-version` で 3.14 を固定。Dockerfile では `python:3.14-slim` を使用する。
+
+## マイグレーション
+
 ```bash
-# 
 uv run alembic upgrade head
-
-# 
 uv run alembic revision -m "description of changes"
 ```
 
-```bash
-# uvのアップデート
-uv self update
+## レポート
 
-# インストール対象の確認
-uv pip list
-```
+- Allure: <https://hirotokirimaru.github.io/fastapi-practice>
 
-```bash
-# TODO pytypeをいい感じに使えるようにしたい
+## 参考
 
-```
-
-```bash
-# rye.tools.scripts
-rye lint
-rye start
-rye production
-
-
-```
-
-# Allureのページ
-- [https://hirotokirimaru.github.io/fastapi-practice]
-
-# 参考にする
-- [https://github.com/tiangolo/full-stack-fastapi-template/tree/master]
-
-# Docker buildxを素振り
-
-```bash
-docker buildx bake
-#docker buildx bake --set BUILD_TARGET=production
-
-# 環境変数を指定する場合
-## .env でよければ指定不要。基本的にアプリと混ざらせたくなかったので、これを分ける
-export $(grep -v '^#' docker.env | xargs) && docker buildx bake
-
-export $(grep -v '^#' docker.env | xargs) && docker buildx bake --set common.target=production
-
-#export $(cat docker.env | xargs) && docker buildx bake api --set common.target=prod_runtime --push --set *.tags="kirimaru/fastapi-practice_prod-runtime:latest,kirimaru/fastapi-practice_prod-runtime:0.0.1"
-# 事前にランタイムだけビルド
-export $(cat docker.env | xargs) && docker buildx bake api --set common.target=prod_runtime --push --set *.tags="kirimaru/fastapi-practice_prod-runtime:0.0.1"
-# 本番ビルド
-export $(cat docker.env | xargs) && docker buildx bake api --set common.target=prod --push --set *.tags="kirimaru/fastapi-practice_prod:0.0.1"
-# 本番起動
-docker run --rm kirimaru/fastapi-practice_prod:0.0.1
-
-# これで一緒にタグ付けできそう
-docker buildx bake --set *.tags="myapp/api:latest,myapp/api:v1.0"
-
-# 動的にやるならこっち
-TAG=v1.0 docker buildx bake
-docker buildx bake --push --set TAG=v1.0
-
-# 指定してビルドしたいとき
-docker buildx bake api worker
-```
-
-
-### CI運用
-```bash
-## 既存のRuntimeイメージからuv.lockを吐き出させる
-docker create --name temp_container kirimaru/fastapi-practice_prod-runtime:0.0.1
-docker cp temp_container:/app/uv.lock ./uv.lock.docker
-docker rm temp_container
-
-## 差分チェック[docker-bake.hcl](docker-bake.hcl)
-diff uv.lock uv.lock.docker
-
-### 差分チェック？
-if [ $? -eq 0 ]; then
-    echo "ファイルに差分はありません"
-elif [ $? -eq 1 ]; then
-    echo "ファイルに差分があります"
-else
-    echo "diffコマンドでエラーが発生しました"
-fi
-```
-
-
-```bash
-
-export LOCK_HASH=python-$(sha1sum < uv.lock | cut -d' ' -f1)
-export RUNTIME_TAG=$LOCK_HASH
-
-docker pull kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG && pull_status=$? || pull_status=$?
-if [ $pull_status -eq 1 ]; then
-  export $(cat docker.env | xargs) && docker buildx bake
-  docker tag api:latest kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
-  docker push kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG
-fi
-
-
-```
-
-
-```bash
-# buildx build を使用する場合
-export DOCKER_BUILDKIT=1
-#docker buildx create --name zstd-builder --use --platform linux/amd64
-docker buildx create --name builder --use --platform linux/amd64
-docker buildx build --builder builder --target dev_runtime -t kirimaru/fastapi-practice_dev-runtime:$RUNTIME_TAG --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push=true .
-```
-
-```bash
-# zstdでビルドされたことを確認する
-# 最新版builderで実行するためにcreateする必要がある
-# ※ --loadを付与したりtype=dockerにすると、なぜかgzipでの圧縮になるようなので、type=imageにしたうえで、push=trueで運用する必要があった
-
-# 圧縮レベル3
-docker buildx imagetools inspect --raw kirimaru/fastapi-practice_dev-runtime:python-97df63af48201968a20c804cdb84e10765e68ee7
-# 圧縮レベル22
-docker buildx imagetools inspect --raw kirimaru/fastapi-practice_dev-runtime:22
-
-```
+- <https://github.com/tiangolo/full-stack-fastapi-template>

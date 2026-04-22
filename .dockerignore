@@ -1,1 +1,38 @@
+# VCS / IDE
+.git
+.github
+.idea
+.vscode
+
+# Python キャッシュ
+__pycache__
+**/__pycache__
+*.pyc
+*.pyo
+.mypy_cache
+.ruff_cache
+.pytest_cache
+.ty_cache
+
+# 仮想環境 / ローカルキャッシュ
 .venv
+.dockervenv
+
+# テスト・解析成果物
+allure-results
+allure-history
+htmlcov
+.coverage
+coverage.xml
+
+# 機密 / ローカル設定
+.env
+.env.*
+!.env.example
+docker.env
+
+# OS / その他
+.DS_Store
+Thumbs.db
+*.log
+analyze

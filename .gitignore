@@ -4,4 +4,15 @@ __pycache__
 .idea
 .dockervenv
 .mypy_cache
+.ruff_cache
+.ty_cache
 allure-results
+allure-history
+.coverage
+coverage.xml
+htmlcov
+
+# ローカル設定 (.env.example は配布する)
+.env
+.env.*
+!.env.example

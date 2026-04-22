@@ -14,7 +14,6 @@ dependencies = [
     "pydantic[email]>=2.12.5",
     "sentry-sdk>=2.48.0",
     "greenlet>=3.3.0",
-    "matplot>=0.1.9",
     "strawberry-graphql[fastapi]>=0.314.3",
 ]
 readme = "README.md"
@@ -53,7 +52,7 @@ dev = [
 ]
 analyze = [
     "jupyter>=1.1.1",
-    "matplot>=0.1.9",
+    "matplotlib>=3.9.0",
 ]
 
 [build-system]
@@ -61,10 +60,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv]
-# 効いてない？？？？
-default-groups = "all"
-# こうしたら選べる
-#default-groups = ["api", "auth", "dev"]
+# uv >= 0.5: "all" 文字列ではなく "all-groups" を使う
+default-groups = ["api", "auth", "worker", "dev", "analyze"]
 
 [tool.hatch.metadata]
 allow-direct-references = true
