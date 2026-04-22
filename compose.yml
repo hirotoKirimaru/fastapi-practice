@@ -18,6 +18,9 @@ services:
       <<: *common_env
       ENV: local
       S3_BUCKET: tmp.local
+      # ローカル / CI 用のダミー値。本番は .env 等で上書きする
+      SECRET: ${SECRET:-dev-secret-change-me}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-dummy-for-local-ci}
     ports:
       - "8000:8000"
     networks:
