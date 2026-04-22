@@ -5,6 +5,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from src.api.main import api_router
+from src.graphql.router import graphql_router
 from src.middleware.sentry import Sentry
 
 Sentry.init_sentry()
@@ -13,6 +14,7 @@ app = FastAPI()
 # app = FastAPI(default_response_class=ORJSONResponse)
 # app.include_router(api_router, prefix="/v1")
 app.include_router(api_router)
+app.include_router(graphql_router, prefix="/graphql")
 
 app.add_middleware(SentryAsgiMiddleware)
 
