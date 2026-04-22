@@ -23,20 +23,11 @@ services:
     networks:
       - development_network
     depends_on:
-      db:
-        condition: service_healthy
-      storage:
-        condition: service_started
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/docs', timeout=3).status==200 else 1)"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 20s
+      - db
+      - storage
 
   db:
     image: mysql:8.4
-    # M1 Mac で必要なら上書き: `docker compose --file compose.yml --file compose.arm64.yml up`
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_DATABASE: demo
@@ -48,12 +39,6 @@ services:
       - "33306:3306"
     networks:
       - development_network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 20s
 
   storage:
     image: minio/minio:latest
@@ -72,11 +57,6 @@ services:
       - docker.env
     networks:
       - development_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   kvs:
     image: redis:7-alpine
@@ -86,7 +66,7 @@ services:
       - development_network
 
   mail:
-    # MailHog はメンテ停止のため後継の mailpit を推奨（互換 UI/SMTP）
+    # MailHog はメンテ停止のため後継の mailpit を使用（互換 UI/SMTP）
     image: axllent/mailpit:latest
     ports:
       - "8025:8025"   # Web UI
