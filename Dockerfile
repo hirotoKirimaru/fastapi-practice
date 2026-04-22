@@ -13,6 +13,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# pre-FROM の ARG はステージ内で使うため再宣言が必要
+ARG UV_VERSION
+
 # uv をバージョン固定で取得
 COPY --from=ghcr.io/astral-sh/uv:${UV_VERSION} /uv /usr/local/bin/uv
 
