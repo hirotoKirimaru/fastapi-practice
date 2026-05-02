@@ -87,6 +87,7 @@ check = { sequence = ["check:ruff", "check:format", "check:ty"] }
 
 start = "uvicorn src.main:app --host 0.0.0.0 --reload"
 production = "uvicorn src.main:app --workers 4"
+pre-start = "python -m src.backend_pre_start"
 
 [tool.mypy]
 allow_redefinition = true
