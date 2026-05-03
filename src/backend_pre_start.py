@@ -1,0 +1,49 @@
+"""Wait for the database to become reachable before starting the app.
+
+Mirrors the pattern from full-stack-fastapi-template's backend_pre_start.py
+but uses the async engine defined in src.api.deps.
+"""
+
+import asyncio
+import logging
+
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncEngine
+from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
+
+from src.api.deps import async_engine
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+MAX_TRIES = 60 * 5  # 5 minutes
+WAIT_SECONDS = 1
+
+
+@retry(
+    stop=stop_after_attempt(MAX_TRIES),
+    wait=wait_fixed(WAIT_SECONDS),
+    before=before_log(logger, logging.INFO),
+    after=after_log(logger, logging.WARNING),
+)
+async def _check(db_engine: AsyncEngine) -> None:
+    try:
+        async with db_engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+    except Exception as e:
+        logger.error(e)
+        raise
+
+
+async def _main() -> None:
+    logger.info("Initializing service")
+    await _check(async_engine)
+    logger.info("Service finished initializing")
+
+
+def main() -> None:
+    asyncio.run(_main())
+
+
+if __name__ == "__main__":
+    main()

@@ -66,6 +66,31 @@ uv run alembic upgrade head
 uv run alembic revision -m "description of changes"
 ```
 
+## DB が立ち上がるのを待つ (pre-start)
+
+`full-stack-fastapi-template` の `backend_pre_start.py` 相当のスクリプトを
+`src/backend_pre_start.py` に用意。tenacity で `SELECT 1` をリトライする。
+
+```bash
+uv run poe pre-start
+```
+
+## フロントエンドサンプル
+
+`frontend/` に最小構成の Vite + React + TypeScript サンプルを置いてある。
+`/health/` を fetch して結果を表示するだけのデモ。
+
+```bash
+cd frontend
+npm install
+cp .env.example .env
+npm run dev   # http://localhost:5173
+```
+
+`docker compose up` でも `frontend` サービスが立ち上がる。
+バックエンドの CORS は `BACKEND_CORS_ORIGINS` / `FRONTEND_HOST` で制御する
+（デフォルトで `http://localhost:5173` を許可済）。
+
 ## レポート
 
 - Allure: <https://hirotokirimaru.github.io/fastapi-practice>
