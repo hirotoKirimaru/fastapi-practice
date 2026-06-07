@@ -21,6 +21,9 @@ services:
       # ローカル / CI 用のダミー値。本番は .env 等で上書きする
       SECRET: ${SECRET:-dev-secret-change-me}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-dummy-for-local-ci}
+      PROJECT_NAME: ${PROJECT_NAME:-fastapi-practice}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      FRONTEND_HOST: ${FRONTEND_HOST:-http://localhost:5173}
     ports:
       - "8000:8000"
     networks:
@@ -85,6 +88,24 @@ services:
       - storage
     command: "TCP-LISTEN:9000,fork TCP:storage:9000"
     network_mode: service:api
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+    ports:
+      - "5173:5173"
+    networks:
+      - development_network
+    depends_on:
+      - api
 
 volumes:
   mysql_data:
