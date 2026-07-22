@@ -1,17 +1,13 @@
-from typing import Any
-
-import google.generativeai as genai
+from google import genai
 
 from src.helper.config import settings
 
 
 class Gemini:
-    _genai: Any
-    _model: Any
+    _client: genai.Client
 
     def __init__(self):
-        self._genai = genai.configure(api_key=settings.GOOGLE_API_KEY)
-        self._model = genai.GenerativeModel("gemini-pro")
+        self._client = genai.Client(api_key=settings.GOOGLE_API_KEY)
 
     async def __aenter__(self):
         return self
@@ -26,4 +22,5 @@ class Gemini:
         :param content:
         :return:
         """
-        return (await self._model.generate_content_async(content)).text
+        response = await self._client.aio.models.generate_content(model="gemini-pro", contents=content)
+        return response.text or ""
