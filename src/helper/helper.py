@@ -1,6 +1,7 @@
 import logging
 import time
 from contextlib import asynccontextmanager
+from typing import AsyncIterator
 
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def session_context(session: AsyncSession) -> None:
+async def session_context(session: AsyncSession) -> AsyncIterator[AsyncSession]:
     try:
         yield session
         await session.commit()
@@ -22,7 +23,7 @@ async def session_context(session: AsyncSession) -> None:
 
 
 @asynccontextmanager
-async def timeit(operation_name: str = "Operation"):
+async def timeit(operation_name: str = "Operation") -> AsyncIterator[None]:
     """
     処理時間を計測し、開始と終了時にログを出力するコンテキストマネージャー
 

@@ -1,4 +1,6 @@
 # import orjson
+from typing import Any
+
 from fastapi import APIRouter
 from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel
@@ -126,7 +128,7 @@ class UserResponseB(BaseModelB):
     metadata: dict[str, str]
 
 
-def generate_deep_response():
+def generate_deep_response() -> dict[str, Any]:
     return UserResponse(
         login="octocat",
         id=1,
@@ -187,11 +189,11 @@ def generate_deep_response():
 
 
 @router.get("/pydantic_only", response_model=UserResponse)
-async def pydantic_only():
+async def pydantic_only() -> UserResponse:
     return UserResponse(**generate_deep_response())
 
 
 @router.get("/pydantic_with_orjson", response_model=UserResponseB)
-async def with_orjson():
+async def with_orjson() -> ORJSONResponse:
     # return UserResponseB(**generate_deep_response())
     return ORJSONResponse(generate_deep_response())

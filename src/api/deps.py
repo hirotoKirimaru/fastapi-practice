@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
@@ -27,7 +27,7 @@ async_session = async_sessionmaker(
 # Base = declarative_base()
 
 
-async def get_db():
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     # async with async_session(autocommit=False, autoflush=False) as session:
     #     session.bind = async_engine
     # async with async_session(
@@ -37,7 +37,7 @@ async def get_db():
         yield session
 
 
-async def get_writer_db():
+async def get_writer_db() -> AsyncGenerator[AsyncSession, None]:
     # async with async_session(autocommit=False, autoflush=False) as session:
     #     session.bind = async_engine
     # async with async_session(
@@ -47,7 +47,7 @@ async def get_writer_db():
         yield session
 
 
-async def get_reader_db():
+async def get_reader_db() -> AsyncGenerator[AsyncSession, None]:
     # async with async_session(autocommit=False, autoflush=False) as session:
     #     session.bind = async_engine
     # async with async_session(

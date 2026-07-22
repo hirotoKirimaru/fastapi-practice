@@ -1,4 +1,4 @@
-from typing import Optional, Sequence
+from typing import Any, Optional, Sequence
 
 from pydantic import EmailStr, NameEmail
 from sqlalchemy import and_, select
@@ -11,14 +11,14 @@ import src.models.task as task_model
 from src.models.user import User
 
 
-async def base_query(task_id: int) -> ColumnElement:
-    return and_(task_model.Done.id == task_id)
+async def base_query(task_id: int) -> ColumnElement[Any]:
+    return and_(task_model.Done.id == task_id)  # type: ignore[arg-type]
 
 
 async def get_done(db: AsyncSession, task_id: int) -> Optional[task_model.Done]:
     criteria = await base_query(task_id)
-    result: Result = await db.execute(select(task_model.Done).where(criteria))
-    done: Row[task_model.Done] | None = result.first()
+    result: Result[Any] = await db.execute(select(task_model.Done).where(criteria))
+    done: Row[Any] | None = result.first()
     return (
         done[0] if done is not None else None
     )  # 要素が一つであってもtupleで返却されるので１つ目の要素を取り出す
@@ -33,7 +33,7 @@ async def find_by_email(
 ) -> User | None:
     query = select(User)
     if partial_match:
-        query = query.where(User.display_email.ilike(f"%{email}%"))
+        query = query.where(User.display_email.ilike(f"%{email}%"))  # type: ignore[attr-defined]
     else:
-        query = query.where(User.display_email == email)
+        query = query.where(User.display_email == email)  # type: ignore[arg-type]
     return (await db.execute(query)).scalars().first()

@@ -14,12 +14,12 @@ class Totp:
     """
 
     @classmethod
-    async def verify(cls, code: str):
+    async def verify(cls, code: str) -> bool:
         totp = await cls.build_totp_instance(SECRET)
-        return totp.verify(code)
+        return bool(totp.verify(code))
 
     @classmethod
-    async def build_totp_instance(cls, secret: str):
+    async def build_totp_instance(cls, secret: str) -> pyotp.TOTP:
         return pyotp.TOTP(secret)
 
     @classmethod
@@ -39,4 +39,4 @@ class Totp:
     @classmethod
     async def create_totp_url(cls) -> str:
         totp = await cls.build_totp_instance(secret=SECRET)
-        return totp.provisioning_uri(name="表示名", issuer_name="きり丸")
+        return str(totp.provisioning_uri(name="表示名", issuer_name="きり丸"))

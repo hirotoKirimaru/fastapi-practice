@@ -20,9 +20,9 @@ def default_param(param: str, result: List[str] = []) -> List[str]:
 
 
 @router.put("/test/array_factory", response_model=CustomArray)
-async def test_array_factory():
-    result = CustomArray()
-    result2 = CustomArray()
+async def test_array_factory() -> CustomArray:
+    result = CustomArray(array=[], array_factory=[])
+    result2 = CustomArray(array=[], array_factory=[])
     # print(result.model_dump())
     # 別にこれでもおんなじものっぽい
     print(result.model_dump(exclude_defaults=True))

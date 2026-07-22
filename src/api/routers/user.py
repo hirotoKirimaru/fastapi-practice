@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("/files", description="ファイルをダウンロードする")
 async def download_files() -> StreamingResponse:
-    return StreamingResponse()
+    return StreamingResponse(content=iter([]))
 
 
 @router.put(
