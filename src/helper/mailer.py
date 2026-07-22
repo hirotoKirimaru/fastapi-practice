@@ -1,7 +1,7 @@
 from email.message import EmailMessage
 from enum import Enum
 from smtplib import SMTP
-from typing import Final, NamedTuple
+from typing import Any, Final, NamedTuple
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, Template
 
@@ -27,12 +27,12 @@ class Mailer:
         template_text = env.get_template(f"{path}.{Mailer.MailExtension.TEXT.value}")
         template_html = env.get_template(f"{path}.{Mailer.MailExtension.HTML.value}")
 
-        return template_text, template_html
+        return cls.Templates(template_text, template_html)
 
     @classmethod
-    def build_body(cls, path: str, params={}) -> Body:
+    def build_body(cls, path: str, params: dict[str, Any] = {}) -> Body:
         text, html = cls.get_templates(path)
-        return text.render(**params), html.render(**params)
+        return cls.Body(text.render(**params), html.render(**params))
 
     class Local:
         # host: Final[str] = "mail"

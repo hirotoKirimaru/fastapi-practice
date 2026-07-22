@@ -1,4 +1,4 @@
-from typing import AsyncGenerator, Optional, Sequence, Tuple
+from typing import Any, AsyncGenerator, Optional, Sequence, Tuple
 
 from sqlalchemy import select
 from sqlalchemy.engine import Result
@@ -22,12 +22,12 @@ async def create_task(
     return task
 
 
-async def get_tasks_with_done(db: AsyncSession) -> Sequence[Row[Tuple[int, str, bool]]]:
-    result: Result = await db.execute(
-        select(
+async def get_tasks_with_done(db: AsyncSession) -> Sequence[Row[Any]]:
+    result: Result[Any] = await db.execute(
+        select(  # type: ignore[call-overload]
             task_model.Task.id,
             task_model.Task.title,
-            task_model.Done.id.is_not(None).label("done"),
+            task_model.Done.id.is_not(None).label("done"),  # type: ignore[attr-defined]
         ).outerjoin(task_model.Done)
     )
     return result.all()
@@ -35,11 +35,11 @@ async def get_tasks_with_done(db: AsyncSession) -> Sequence[Row[Tuple[int, str, 
 
 async def get_tasks_with_done_inner_join(
     db: AsyncSession,
-) -> Sequence[Tuple[int, str, bool]]:
-    query: Select = select(
+) -> Sequence[Row[Any]]:
+    query: Select[Any] = select(  # type: ignore[call-overload]
         task_model.Task.id,
         task_model.Task.title,
-        task_model.Done.id.is_not(None).label("done"),
+        task_model.Done.id.is_not(None).label("done"),  # type: ignore[attr-defined]
     ).join(task_model.Task, task_model.Done.task)
 
     return (await db.execute(query)).all()
@@ -48,10 +48,10 @@ async def get_tasks_with_done_inner_join(
 # async def get_task(db: AsyncSession, task_id: int, criteria: and_ | None = None) -> Optional[task_model.Task]:
 # async def get_task(db: AsyncSession, task_id: int, criteria: Optional[and_ ] = None) -> Optional[task_model.Task]:
 async def get_task(
-    db: AsyncSession, task_id: int, criteria: Optional[ColumnElement] = None
+    db: AsyncSession, task_id: int, criteria: Optional[ColumnElement[Any]] = None
 ) -> Optional[task_model.Task]:
-    result: Result = await db.execute(
-        select(task_model.Task).filter(task_model.Task.id == task_id)
+    result: Result[Any] = await db.execute(
+        select(task_model.Task).filter(task_model.Task.id == task_id)  # type: ignore[arg-type]
     )
     task: Optional[Row[Tuple[task_model.Task]]] = result.first()
     return (

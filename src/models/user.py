@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, ClassVar, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from sqlalchemy import DATETIME, VARCHAR, Column
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlmodel import Field, Relationship
+from sqlmodel._compat import SQLModelConfig
 
 from src.helper.datetime_resolver import DatetimeResolver
 from src.models.base import Base
@@ -17,6 +18,8 @@ if TYPE_CHECKING:
 
 class User(Base, table=True):
     __tablename__ = "users"
+
+    model_config = SQLModelConfig(ignored_types=(hybrid_property,))
 
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(sa_column=Column(VARCHAR(1024)))
@@ -69,12 +72,12 @@ class User(Base, table=True):
         return "削除済ユーザ"
 
     @display_name.inplace.setter
-    def _name__setter(self, name: str) -> None:
-        self.name = name
+    def _name__setter(self, value: str) -> None:
+        self.name = value
 
     @display_name.inplace.expression
     @classmethod
-    def _name_expression(cls):
+    def _name_expression(cls) -> Any:
         return cls.name
 
     @hybrid_property
@@ -83,17 +86,14 @@ class User(Base, table=True):
             return self.email
         return "削除済みEmail"
 
-    @display_email.setter
-    def display_email(self, email: str) -> None:
-        self.email = email
+    @display_email.inplace.setter
+    def _email_setter(self, value: str) -> None:
+        self.email = value
 
-    @display_email.expression
-    def display_email(cls):
+    @display_email.inplace.expression
+    @classmethod
+    def _email_expression(cls) -> Any:
         return cls.email
-
-    # pydanticへのフィールド無視設定
-    display_name: ClassVar = hybrid_property(display_name)
-    display_email: ClassVar = hybrid_property(display_email)
 
 
 class UserProfile(Base, table=True):

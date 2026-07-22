@@ -7,7 +7,7 @@ import boto3  # type: ignore
 class Aws:
     class Storage:
         @classmethod
-        def s3_client(cls):
+        def s3_client(cls) -> Any:
             # breakpoint()
             # if os.getenv("ENV") == "local":
             return boto3.client(
@@ -23,6 +23,6 @@ class Aws:
 
         @classmethod
         # async def file_upload(cls, file: Any, bucket: str, key: str, client=Depends(s3_client)):
-        async def file_upload(cls, file: Any, bucket: str, key: str):
+        async def file_upload(cls, file: Any, bucket: str, key: str) -> None:
             client = cls.s3_client()
             client.upload_fileobj(file, bucket, key)
