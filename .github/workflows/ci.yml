@@ -13,12 +13,18 @@ permissions:
   pull-requests: write
   issues: write
 
+env:
+  IMAGE: kirimaru/fastapi-practice_dev-runtime
+
 jobs:
-  build:
+  # uv.lock の内容から決まるタグを算出し、そのタグが既に registry にあるかを判定する。
+  # 既にあればビルド系のジョブごとスキップされる
+  meta:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
     outputs:
       runtime_tag: ${{ steps.lock.outputs.runtime_tag }}
+      exists: ${{ steps.check.outputs.exists }}
     steps:
       - uses: actions/checkout@v4
 
@@ -37,59 +43,135 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Diagnostics
+      - name: Check whether the runtime image already exists
+        id: check
         run: |
+          set -euo pipefail
+          if docker manifest inspect "${IMAGE}:${RUNTIME_TAG}" > /dev/null 2>&1; then
+            EXISTS=true
+          else
+            EXISTS=false
+          fi
+          echo "exists=${EXISTS}" >> "$GITHUB_OUTPUT"
           {
             echo "## Build diagnostics"
             echo
-            echo "RUNTIME_TAG=\`${RUNTIME_TAG}\`"
-            echo
-            echo "### Versions"
-            echo '```'
-            docker --version
-            docker buildx version
-            echo '```'
-            echo
-            echo "### Manifest inspect (existing tag check)"
-            echo '```'
-            docker manifest inspect "kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG}" 2>&1 | head -20 || echo "(manifest missing → will build)"
-            echo '```'
+            echo "- RUNTIME_TAG: \`${RUNTIME_TAG}\`"
+            echo "- image already exists: \`${EXISTS}\` (true ならビルドはスキップ)"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Build & push dev_runtime (only if tag missing)
+  # amd64 / arm64 をそれぞれネイティブ runner でビルドする。
+  # 以前は amd64 runner 上で QEMU エミュレーションして arm64 を作っていたため、
+  # 200 パッケージ超の uv sync がエミュレーション下で走って非常に遅かった
+  build:
+    needs: meta
+    if: needs.meta.outputs.exists != 'true'
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+            arch: amd64
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
+    env:
+      RUNTIME_TAG: ${{ needs.meta.outputs.runtime_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & push dev_runtime by digest
+        id: build
         run: |
           set -euxo pipefail
-          if docker manifest inspect "kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG}" > /dev/null 2>&1; then
-            echo "Image already exists, skipping push."
-            exit 0
-          fi
-          docker buildx create --name builder --use --platform linux/amd64,linux/arm64
-          # 失敗時に最後の出力を summary に残す
           set +e
-          docker buildx build --builder builder \
+          docker buildx build \
             --progress=plain \
-            --platform linux/amd64,linux/arm64 \
+            --platform "${{ matrix.platform }}" \
             --target dev_runtime \
-            -t "kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG}" \
-            --output type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push=true \
+            --metadata-file /tmp/metadata.json \
+            --output "type=image,name=${IMAGE},oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push-by-digest=true,name-canonical=true,push=true" \
             . 2>&1 | tee /tmp/buildx.log
           STATUS=${PIPESTATUS[0]}
           set -e
-          {
-            echo "### docker buildx build status: ${STATUS}"
-            echo '```'
-            tail -120 /tmp/buildx.log
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-          exit "${STATUS}"
+          if [ "${STATUS}" -ne 0 ]; then
+            {
+              echo "### ${{ matrix.platform }} buildx build failed (status ${STATUS})"
+              echo '```'
+              tail -120 /tmp/buildx.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit "${STATUS}"
+          fi
+          DIGEST=$(jq -r '."containerimage.digest"' /tmp/metadata.json)
+          mkdir -p /tmp/digests
+          touch "/tmp/digests/${DIGEST#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digest-${{ matrix.arch }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  # 各アーキテクチャの digest を 1 つの manifest list にまとめて、
+  # 従来どおり :${RUNTIME_TAG} で multi-arch イメージとして引けるようにする
+  merge:
+    needs: [meta, build]
+    if: needs.meta.outputs.exists != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RUNTIME_TAG: ${{ needs.meta.outputs.runtime_tag }}
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/digests
+          pattern: digest-*
+          merge-multiple: true
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create manifest list & push
+        run: |
+          set -euxo pipefail
+          docker buildx imagetools create -t "${IMAGE}:${RUNTIME_TAG}" \
+            $(printf "${IMAGE}@sha256:%s " $(ls /tmp/digests))
+          docker buildx imagetools inspect "${IMAGE}:${RUNTIME_TAG}"
 
   test:
-    needs: build
+    needs: [meta, build, merge]
+    # build / merge は「イメージが既にある」ときは skip される。
+    # その場合も test は走らせたいので success と skipped の両方を許可する
+    if: |
+      always() &&
+      needs.meta.result == 'success' &&
+      contains(fromJSON('["success", "skipped"]'), needs.build.result) &&
+      contains(fromJSON('["success", "skipped"]'), needs.merge.result)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       BUILD_TARGET: test
-      RUNTIME_TAG: ${{ needs.build.outputs.runtime_tag }}
+      RUNTIME_TAG: ${{ needs.meta.outputs.runtime_tag }}
     steps:
       - uses: actions/checkout@v4
 
@@ -199,16 +281,22 @@ jobs:
         if: always()
         run: docker cp "$(docker compose ps -q api)":/app/allure-results ./allure-results
 
+      # レポート生成は結果の可視化用であって、テストの合否判定ではない
+      # (合否は上の "Fail if pytest failed" が pytest の終了コードで判定している)。
+      # サードパーティ action 側の都合 (2026-08 時点で action のコンテナに xargs が
+      # 無くレポート生成に失敗する) で CI 全体が落ちないよう、非ブロッキングにする
       - name: Build test report
+        id: allure
         uses: simple-elf/allure-report-action@v1.13
         if: always()
+        continue-on-error: true
         with:
           gh_pages: gh-pages
           allure_history: allure-history
           allure_results: allure-results
 
       - name: Publish test report
-        if: always() && github.ref == 'refs/heads/main'
+        if: always() && github.ref == 'refs/heads/main' && steps.allure.outcome == 'success'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
