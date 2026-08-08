@@ -36,3 +36,10 @@ docker.env
 Thumbs.db
 *.log
 analyze
+
+# フロントエンドは frontend/ 側の Dockerfile が context: ./frontend で別に
+# ビルドするので、api イメージのビルドコンテキストには入れない
+# (node_modules がローカルにあると数百 MB 転送することになる)
+frontend
+node_modules
+**/node_modules
