@@ -23,9 +23,7 @@ class CustomAssert:
                 continue
 
             # TODO: エラーメッセージがあんまり綺麗ではないので、いい感じに出力できるようにしたい。
-            assert (
-                value == expected.__dict__[key]
-            ), f"""
+            assert value == expected.__dict__[key], f"""
             比較に失敗しました。
             assertError: 項目名：{key} actual: {value} expected: {expected.__dict__[key]} 
             インスタンスの比較： 
@@ -55,9 +53,7 @@ class CustomAssert:
                 continue
 
             # TODO: エラーメッセージがあんまり綺麗ではないので、いい感じに出力できるようにしたい。
-            assert (
-                value == expected.__dict__[key]
-            ), f"""
+            assert value == expected.__dict__[key], f"""
             比較に失敗しました。
             assertError: 項目名：{key} actual: {value} expected: {expected.__dict__[key]} 
             インスタンスの比較： 

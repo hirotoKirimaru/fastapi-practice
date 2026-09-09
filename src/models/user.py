@@ -24,9 +24,7 @@ class User(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(sa_column=Column(VARCHAR(1024)))
     email: str = Field(sa_column=Column(VARCHAR(1024)))
-    soft_destroyed_at: datetime | None = Field(
-        default=None, sa_column=Column(DATETIME)
-    )
+    soft_destroyed_at: datetime | None = Field(default=None, sa_column=Column(DATETIME))
     # UTCDateTime型を使うことで取得時にSQLを得られる
     # soft_destroyed_at: Optional[datetime] = Field(
     #     default=None, sa_column=Column(UTCDateTime)

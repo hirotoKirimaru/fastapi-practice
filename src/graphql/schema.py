@@ -84,9 +84,7 @@ class UserCreateInput:
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    async def create_user(
-        self, info: strawberry.Info, input: UserCreateInput
-    ) -> User:
+    async def create_user(self, info: strawberry.Info, input: UserCreateInput) -> User:
         session: AsyncSession = info.context["session"]
         user = UserModel(
             name=input.name,

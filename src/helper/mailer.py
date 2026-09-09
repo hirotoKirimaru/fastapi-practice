@@ -7,7 +7,6 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, Template
 
 
 class Mailer:
-
     class Body(NamedTuple):
         text: str
         html: str

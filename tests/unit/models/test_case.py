@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 
 class TestCase:
-
     def get_mailer_class(self, env):
         match env:
             case "local":

@@ -105,7 +105,6 @@ class TestTask:
             """
 
             class Test1_1:
-
                 async def test_add_expunge(self, db):
                     # Given
                     task1 = Task(title="ダミー1")

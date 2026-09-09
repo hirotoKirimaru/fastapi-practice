@@ -30,5 +30,7 @@ class Gemini:
         :param content:
         :return:
         """
-        response = await self._client.aio.models.generate_content(model="gemini-pro", contents=content)
+        response = await self._client.aio.models.generate_content(
+            model="gemini-pro", contents=content
+        )
         return response.text or ""

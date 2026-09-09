@@ -37,7 +37,6 @@ dev = [
     "pytest-asyncio>=0.26.0",
     "aiosqlite>=0.22.1",
     "pytest-mock>=3.15.1",
-    "black>=25.12.0",
     "pytest-check>=2.6.2",
     "mypy>=1.19.1",
     "testcontainers>=4.1.1",
@@ -45,7 +44,6 @@ dev = [
     "alembic>=1.13.1",
     "allure-pytest>=2.13.5",
     "types-passlib>=1.7.7.20240327",
-    "isort>=5.13.2",
     "ty>=0.0.8",
     "tuna>=0.5.11",
     "poethepoet>=0.39.0",
@@ -75,12 +73,6 @@ packages = ["src"]
 # 暗黙のデフォルトに任せると ruff を上げるたびに指摘が増減するため、
 # このリポジトリで意図的に許容している書き方をここに明示しておく。
 # ------------------------------------------------------------------------------
-# isort 単体と ruff の I001（ruff 0.16 でデフォルト入り）は、プロファイル未指定だと
-# 並べ方が食い違い、poe lint を回すたびに import 行が往復してしまう。
-# black 互換プロファイルを明示して両者の結果を一致させる。
-[tool.isort]
-profile = "black"
-
 [tool.ruff.lint.flake8-bugbear]
 # FastAPI は Depends() / File() / Body() / Security() を引数のデフォルト値に置くのが
 # 公式の書き方。B008 の指摘どおりに直すと DI が壊れるので対象から外す。
@@ -113,11 +105,12 @@ extend-immutable-calls = [
 
 [tool.poe.tasks]
 hello = "echo 'hello, poe!'"
-lint = { parallel = ["lint:black", "lint:ruff", "lint:mypy", "lint:isort", "lint:ty" ] }
-"lint:black" = "black ."
+# import の並べ替え(I)も整形も ruff が持っているので、black / isort は使わない。
+# 併用すると同じ行を互いに書き換え合って poe lint のたびに差分が出る。
+lint = { sequence = ["lint:ruff", "lint:format", "lint:mypy", "lint:ty" ] }
 "lint:ruff" = "ruff check . --fix"
+"lint:format" = "ruff format ."
 "lint:mypy" = "mypy ./src" # testディレクトリは無視
-"lint:isort" = "isort ."
 "lint:ty" = "ty check src"
 
 # ruff check / ruff format / ty をまとめて実行する

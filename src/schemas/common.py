@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 
 class CustomEmailStr(EmailStr):
-
     @classmethod
     def validate_half_and_full_email(cls, value: str) -> str:
         lower_value = value.lower()
