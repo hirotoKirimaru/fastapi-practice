@@ -71,7 +71,6 @@ class Test:
         # {'aaa': <IntInheritColumn.ID: 1>, 'bbb': <CsvHeaderColumn.NAME: 2>, 'ccc': <StrInherit.ADMIN: 'ADMIN'>}
         print(actual.model_dump_json())
         # '{"aaa":1,"bbb":2,"ccc":"ADMIN"}'
-        pass
 
 
 class TestDummyUser:

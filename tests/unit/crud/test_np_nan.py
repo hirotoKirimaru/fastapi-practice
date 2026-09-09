@@ -6,7 +6,6 @@ from src.models.user import User
 
 
 class TestNpNan:
-
     async def test_01(self, db: AsyncSession) -> None:
         """
         TODO: 昔はこれでエラーになることがあった

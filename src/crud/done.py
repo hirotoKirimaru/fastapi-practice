@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.engine import Result
@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import src.models.task as task_model
 
 
-async def get_done(db: AsyncSession, task_id: int) -> Optional[task_model.Done]:
+async def get_done(db: AsyncSession, task_id: int) -> task_model.Done | None:
     result: Result[Any] = await db.execute(
         select(task_model.Done).filter(task_model.Done.id == task_id)  # type: ignore[arg-type]
     )

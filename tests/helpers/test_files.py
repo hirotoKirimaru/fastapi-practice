@@ -1,6 +1,6 @@
 import tempfile
+from collections.abc import AsyncGenerator
 from io import StringIO
-from typing import AsyncGenerator
 
 import polars
 

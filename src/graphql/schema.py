@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 import strawberry
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,8 +20,8 @@ class User:
     id: int
     name: str
     email: str
-    organization_id: Optional[int] = None
-    birth_day: Optional[datetime] = None
+    organization_id: int | None = None
+    birth_day: datetime | None = None
 
 
 @strawberry.type
@@ -49,7 +48,7 @@ class Query:
         ]
 
     @strawberry.field
-    async def user(self, info: strawberry.Info, id: int) -> Optional[User]:
+    async def user(self, info: strawberry.Info, id: int) -> User | None:
         session: AsyncSession = info.context["session"]
         result = await session.execute(select(UserModel).where(UserModel.id == id))
         u = result.scalar_one_or_none()
@@ -79,15 +78,13 @@ class Query:
 class UserCreateInput:
     name: str
     email: str
-    organization_id: Optional[int] = None
+    organization_id: int | None = None
 
 
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    async def create_user(
-        self, info: strawberry.Info, input: UserCreateInput
-    ) -> User:
+    async def create_user(self, info: strawberry.Info, input: UserCreateInput) -> User:
         session: AsyncSession = info.context["session"]
         user = UserModel(
             name=input.name,

@@ -1,8 +1,8 @@
-from typing import Annotated, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 # ASYNC_DB_URL = "mysql+aiomysql://root@db:3306/demo?charset=utf8"
 
@@ -27,7 +27,7 @@ async_session = async_sessionmaker(
 # Base = declarative_base()
 
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
+async def get_db() -> AsyncGenerator[AsyncSession]:
     # async with async_session(autocommit=False, autoflush=False) as session:
     #     session.bind = async_engine
     # async with async_session(
@@ -37,7 +37,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-async def get_writer_db() -> AsyncGenerator[AsyncSession, None]:
+async def get_writer_db() -> AsyncGenerator[AsyncSession]:
     # async with async_session(autocommit=False, autoflush=False) as session:
     #     session.bind = async_engine
     # async with async_session(
@@ -47,7 +47,7 @@ async def get_writer_db() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-async def get_reader_db() -> AsyncGenerator[AsyncSession, None]:
+async def get_reader_db() -> AsyncGenerator[AsyncSession]:
     # async with async_session(autocommit=False, autoflush=False) as session:
     #     session.bind = async_engine
     # async with async_session(

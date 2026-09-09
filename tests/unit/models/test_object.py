@@ -4,7 +4,7 @@ class Hoge:
         self.name = name
 
 
-class Fuga(object):
+class Fuga:
     def __init__(self, name: str):
         super().__init__()
         self.name = name

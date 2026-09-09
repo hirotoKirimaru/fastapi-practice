@@ -1,11 +1,9 @@
-from typing import List
-
 from pydantic import BaseModel
 
 
 class Error(BaseModel):
     reason: str
-    indexes: List[int] = []
+    indexes: list[int] = []
 
 
 # TODO: こんなことしなくてもいいらしい
@@ -18,7 +16,7 @@ class NonEmptyList(list):
 
 class TestNonEmptyList:
     async def test_01(self):
-        error_lists: List[Error] = []
+        error_lists: list[Error] = []
         error_lists.extend([Error(reason="A", indexes=[1, 2, 3]), Error(reason="B")])
         error_lists.extend([])
         error_lists.extend([Error(reason="C")])

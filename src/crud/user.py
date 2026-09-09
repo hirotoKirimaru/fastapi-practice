@@ -1,4 +1,5 @@
-from typing import Any, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from pydantic import EmailStr, NameEmail
 from sqlalchemy import and_, select
@@ -15,7 +16,7 @@ async def base_query(task_id: int) -> ColumnElement[Any]:
     return and_(task_model.Done.id == task_id)  # type: ignore[arg-type]
 
 
-async def get_done(db: AsyncSession, task_id: int) -> Optional[task_model.Done]:
+async def get_done(db: AsyncSession, task_id: int) -> task_model.Done | None:
     criteria = await base_query(task_id)
     result: Result[Any] = await db.execute(select(task_model.Done).where(criteria))
     done: Row[Any] | None = result.first()

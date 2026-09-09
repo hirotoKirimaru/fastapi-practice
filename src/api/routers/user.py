@@ -24,8 +24,9 @@ async def register_by_users(db: SessionWriterDep, file: UploadFile = File(...)) 
         try:
             df = polars.read_csv(contents)
             print(df)
+        # NOTE: polars が送出する例外は多岐にわたるため、意図的に広く捕捉して 400 に変換する
         except Exception as e:
             raise HTTPException(
                 status_code=400, detail=f"ファイルの読み込みに失敗しました: {e}"
-            )
+            ) from e
     return True

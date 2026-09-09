@@ -9,6 +9,7 @@ from testcontainers.minio import MinioContainer
 
 from src.helper.aws import Aws
 
+
 # NOTE: GitHub Actionsのファイルが古い疑惑
 class TestAws:
     @pytest.mark.skip("GitHub Actions上だと動かない")

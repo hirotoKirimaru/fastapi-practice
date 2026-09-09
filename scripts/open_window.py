@@ -1,5 +1,3 @@
-#!bin/python
-
 ## TODO: これでOSのWindowが開くはずだが、WSL上だとよくわからん
 
 

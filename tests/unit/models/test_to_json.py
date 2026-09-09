@@ -19,7 +19,6 @@ class Pattern2Enum(str, Enum):
 
 
 class TestToJson:
-
     class CustomModel(BaseModel):
         id: str
         value: str

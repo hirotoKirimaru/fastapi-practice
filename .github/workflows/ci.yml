@@ -199,9 +199,13 @@ jobs:
         if: always()
         run: docker cp "$(docker compose ps -q api)":/app/allure-results ./allure-results
 
+      # レポート生成はテストの合否判定ではない（判定は上の "Fail if pytest failed"）。
+      # アクションのコンテナ内に xargs が無くレポート生成が落ちる事象があり、
+      # pytest が全て通っていてもジョブが失敗していたため、ここでは CI を落とさない。
       - name: Build test report
-        uses: simple-elf/allure-report-action@v1.13
+        uses: simple-elf/allure-report-action@v1.15
         if: always()
+        continue-on-error: true
         with:
           gh_pages: gh-pages
           allure_history: allure-history

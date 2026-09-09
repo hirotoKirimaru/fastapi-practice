@@ -4,7 +4,7 @@ from datetime import date
 class CustomAssert:
     @staticmethod
     def shallow_equal(
-        actual, expected, ignore_column_list=["id", "created_at", "updated_at"]
+        actual, expected, ignore_column_list=("id", "created_at", "updated_at")
     ) -> None:
         """
         DBの値を比較するための項目。
@@ -23,9 +23,7 @@ class CustomAssert:
                 continue
 
             # TODO: エラーメッセージがあんまり綺麗ではないので、いい感じに出力できるようにしたい。
-            assert (
-                value == expected.__dict__[key]
-            ), f"""
+            assert value == expected.__dict__[key], f"""
             比較に失敗しました。
             assertError: 項目名：{key} actual: {value} expected: {expected.__dict__[key]} 
             インスタンスの比較： 
@@ -37,7 +35,7 @@ class CustomAssert:
 
     @staticmethod
     def deep_equal(
-        actual, expected, ignore_column_list=["id", "created_at", "updated_at"]
+        actual, expected, ignore_column_list=("id", "created_at", "updated_at")
     ) -> None:
         """
         DBの値を比較するための項目。
@@ -55,9 +53,7 @@ class CustomAssert:
                 continue
 
             # TODO: エラーメッセージがあんまり綺麗ではないので、いい感じに出力できるようにしたい。
-            assert (
-                value == expected.__dict__[key]
-            ), f"""
+            assert value == expected.__dict__[key], f"""
             比較に失敗しました。
             assertError: 項目名：{key} actual: {value} expected: {expected.__dict__[key]} 
             インスタンスの比較： 

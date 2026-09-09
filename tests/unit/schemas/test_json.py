@@ -1,12 +1,12 @@
 import json
-from typing import Annotated, Any, Dict, List
+from typing import Annotated, Any
 
 import pytest
 from pydantic import BaseModel, Field, Json, ValidationError
 from sqlalchemy import JSON
 
 JsonField = Annotated[
-    Json[Any] | Dict[str, Any] | List[Any],
+    Json[Any] | dict[str, Any] | list[Any],
     Field(
         description="JSON文字列、辞書、リスト、またはNoneを受け取るために使用するフィールドです。",
         default=None,

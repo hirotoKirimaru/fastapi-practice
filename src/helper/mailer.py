@@ -7,7 +7,6 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, Template
 
 
 class Mailer:
-
     class Body(NamedTuple):
         text: str
         html: str
@@ -30,7 +29,8 @@ class Mailer:
         return cls.Templates(template_text, template_html)
 
     @classmethod
-    def build_body(cls, path: str, params: dict[str, Any] = {}) -> Body:
+    def build_body(cls, path: str, params: dict[str, Any] | None = None) -> Body:
+        params = params or {}
         text, html = cls.get_templates(path)
         return cls.Body(text.render(**params), html.render(**params))
 
@@ -63,5 +63,5 @@ class Mailer:
                 with SMTP(host=cls.host, port=cls.port) as smtp:
                     smtp.send_message(msg)
             except Exception as e:
-                print(f"Failed to send email. Error {str(e)}")
-                raise e
+                print(f"Failed to send email. Error {e!s}")
+                raise

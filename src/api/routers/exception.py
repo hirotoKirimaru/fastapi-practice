@@ -1,4 +1,4 @@
-from typing import Annotated, Any, List
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Body
 from fastapi.responses import JSONResponse
@@ -16,7 +16,7 @@ class ExceptionInput(BaseModel):
 class ErrorMessage(CustomModel):
     reason: str
     indexes: Annotated[
-        List[int], Field(description="エラーが発生したインデックスのリスト")
+        list[int], Field(description="エラーが発生したインデックスのリスト")
     ]
 
 
@@ -25,7 +25,7 @@ class ExceptionResponse(CustomModel):
         str, Field(description="Exception detail", examples=["File Invalid"])
     ]
     error_lists: Annotated[
-        List[ErrorMessage],
+        list[ErrorMessage],
         Field(
             description="Exception details",
             examples=[{"reason": "Not Found", "indexes": [1, 2, 3]}],
