@@ -1,11 +1,11 @@
-from typing import Annotated, Any, Dict, List
+from typing import Annotated, Any
 
 from pydantic import Field, Json
 
 from src.schemas.base import CustomModel
 
 JsonField = Annotated[
-    Json[Any] | Dict[str, Any] | List[Any] | None,
+    Json[Any] | dict[str, Any] | list[Any] | None,
     Field(
         description="JSON文字列、辞書、リスト、またはNoneを受け取るために使用するフィールドです。",
         default=None,

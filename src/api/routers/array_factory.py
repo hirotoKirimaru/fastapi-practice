@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import APIRouter
 from pydantic import Field
@@ -10,11 +10,11 @@ router = APIRouter()
 
 class CustomArray(CustomModel):
     # TODO: 実はどっちでもちゃんと安全に処理できる
-    array: Annotated[List[str], Field(default=[])]
-    array_factory: Annotated[List[str], Field(default_factory=list)]
+    array: Annotated[list[str], Field(default=[])]
+    array_factory: Annotated[list[str], Field(default_factory=list)]
 
 
-def default_param(param: str, result: List[str] = []) -> List[str]:
+def default_param(param: str, result: list[str] = []) -> list[str]:
     result.append(param)
     return result
 

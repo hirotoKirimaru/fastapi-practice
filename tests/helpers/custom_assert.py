@@ -4,7 +4,7 @@ from datetime import date
 class CustomAssert:
     @staticmethod
     def shallow_equal(
-        actual, expected, ignore_column_list=["id", "created_at", "updated_at"]
+        actual, expected, ignore_column_list=("id", "created_at", "updated_at")
     ) -> None:
         """
         DBの値を比較するための項目。
@@ -37,7 +37,7 @@ class CustomAssert:
 
     @staticmethod
     def deep_equal(
-        actual, expected, ignore_column_list=["id", "created_at", "updated_at"]
+        actual, expected, ignore_column_list=("id", "created_at", "updated_at")
     ) -> None:
         """
         DBの値を比較するための項目。

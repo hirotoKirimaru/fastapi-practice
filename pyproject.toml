@@ -70,6 +70,47 @@ allow-direct-references = true
 packages = ["src"]
 
 
+# ------------------------------------------------------------------------------
+# ruff 0.16 でデフォルトのルールセットが大きく拡張された（UP/B/DTZ/PYI など）。
+# 暗黙のデフォルトに任せると ruff を上げるたびに指摘が増減するため、
+# このリポジトリで意図的に許容している書き方をここに明示しておく。
+# ------------------------------------------------------------------------------
+# isort 単体と ruff の I001（ruff 0.16 でデフォルト入り）は、プロファイル未指定だと
+# 並べ方が食い違い、poe lint を回すたびに import 行が往復してしまう。
+# black 互換プロファイルを明示して両者の結果を一致させる。
+[tool.isort]
+profile = "black"
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI は Depends() / File() / Body() / Security() を引数のデフォルト値に置くのが
+# 公式の書き方。B008 の指摘どおりに直すと DI が壊れるので対象から外す。
+extend-immutable-calls = [
+    "fastapi.Body",
+    "fastapi.Depends",
+    "fastapi.File",
+    "fastapi.Security",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# (1) 「その書き方をするとどうなるか」を実演すること自体が目的のコード。
+#     指摘どおりに直すと題材そのものが消えるため除外する。
+"src/api/routers/array_factory.py" = ["B006"]      # ミュータブルなデフォルト引数の挙動確認
+"src/api/routers/exception.py" = ["TRY002"]        # 未処理例外時のレスポンス確認用エンドポイント
+"tests/unit/models/test_default_parameter.py" = ["B006"]   # 同上（docstring で「ダメ」と明記済み）
+"tests/unit/test_raise_error.py" = ["B018", "BLE001"]      # 1/0 で送出させる例外連鎖の確認
+"tests/unit/models/test_for_pythonista.py" = ["PERF402"]   # for ループと内包表記の速度比較が主題
+"tests/unit/models/test_nested.py" = ["PLR0133"]           # 常に真の比較を意図的に書いている
+"tests/unit/decolator/test_decolator.py" = ["PLR0133"]     # 同上
+# (2) naive datetime（tzinfo なし）を扱うこと自体がテスト対象、
+#     あるいは DB のカラムが naive なためテストデータも naive で揃える必要がある。
+"tests/unit/schemas/test_datetime_serialize.py" = ["B015", "DTZ001"]
+"tests/unit/helper/test_datetime_resolver.py" = ["DTZ001"]
+"tests/unit/crud/test_user.py" = ["DTZ005"]
+"tests/helpers/tests/test_custom_assert.py" = ["DTZ011"]
+# (3) テスト内の同期ファイル I/O。実行時間に影響しないため許容する。
+"tests/helpers/test_aws.py" = ["ASYNC230", "DTZ005"]
+"tests/helpers/test_files.py" = ["ASYNC230"]
+
 [tool.poe.tasks]
 hello = "echo 'hello, poe!'"
 lint = { parallel = ["lint:black", "lint:ruff", "lint:mypy", "lint:isort", "lint:ty" ] }

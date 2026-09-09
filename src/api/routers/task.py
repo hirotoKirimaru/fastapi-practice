@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
@@ -10,7 +10,7 @@ from src.api.deps import SessionWriterDep
 router = APIRouter()
 
 
-@router.get("", response_model=List[task_schema.Task])
+@router.get("", response_model=list[task_schema.Task])
 async def list_tasks(db: SessionWriterDep) -> Any:
     return await task_crud.get_tasks_with_done(db)
 

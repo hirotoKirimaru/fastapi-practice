@@ -1,4 +1,5 @@
-from typing import Annotated, Any, Awaitable, Callable
+from collections.abc import Awaitable, Callable
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, File, Security, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -70,7 +71,6 @@ async def csv_validation(
     """
     具体的なチェック処理
     """
-    pass
 
 
 FileValidated = Annotated[None, Depends(CsvFileValidator(csv_validation))]

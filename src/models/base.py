@@ -1,10 +1,9 @@
 import datetime
-from typing import Any
+from typing import Any, override
 
 from sqlalchemy import DATETIME, TypeDecorator
 from sqlalchemy.engine import Dialect
 from sqlmodel import SQLModel
-from typing_extensions import override
 
 from src.helper.datetime_resolver import DatetimeResolver
 

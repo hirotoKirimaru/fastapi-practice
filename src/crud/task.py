@@ -1,4 +1,5 @@
-from typing import Any, AsyncGenerator, Optional, Sequence, Tuple
+from collections.abc import AsyncGenerator, Sequence
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.engine import Result
@@ -48,12 +49,12 @@ async def get_tasks_with_done_inner_join(
 # async def get_task(db: AsyncSession, task_id: int, criteria: and_ | None = None) -> Optional[task_model.Task]:
 # async def get_task(db: AsyncSession, task_id: int, criteria: Optional[and_ ] = None) -> Optional[task_model.Task]:
 async def get_task(
-    db: AsyncSession, task_id: int, criteria: Optional[ColumnElement[Any]] = None
-) -> Optional[task_model.Task]:
+    db: AsyncSession, task_id: int, criteria: ColumnElement[Any] | None = None
+) -> task_model.Task | None:
     result: Result[Any] = await db.execute(
         select(task_model.Task).filter(task_model.Task.id == task_id)  # type: ignore[arg-type]
     )
-    task: Optional[Row[Tuple[task_model.Task]]] = result.first()
+    task: Row[tuple[task_model.Task]] | None = result.first()
     return (
         task[0] if task is not None else None
     )  # 要素が一つであってもtupleで返却されるので１つ目の要素を取り出す
@@ -74,6 +75,6 @@ async def delete_task(db: AsyncSession, original: task_model.Task) -> None:
     await db.commit()
 
 
-async def create_csv() -> AsyncGenerator[bytes, None]:
+async def create_csv() -> AsyncGenerator[bytes]:
     for i in range(100):
         yield Csvs.create_row_data(data=[i], first=i == 0)

@@ -1,7 +1,6 @@
 import datetime
 import random
 import time
-from typing import Dict
 
 import pytest
 
@@ -40,7 +39,7 @@ def test_02():
         start = time.perf_counter()
 
         a = [x for x in range(max)]
-        b: Dict[int, int] = {x: x for x in a}
+        b: dict[int, int] = {x: x for x in a}
 
         for x in range(search_times):
             b.get(random.randrange(max))
@@ -90,7 +89,7 @@ def test_04():
         start = time.perf_counter()
 
         a = [User(user_id=str(x)) for x in range(max)]
-        b: Dict[str, User] = {x.user_id: x for x in a}
+        b: dict[str, User] = {x.user_id: x for x in a}
 
         for x in range(search_times):
             b.get(str(random.randrange(max)), User(user_id="XXXX"))

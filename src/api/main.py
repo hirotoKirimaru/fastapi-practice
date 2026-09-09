@@ -1,10 +1,19 @@
-# -*- coding: utf-8 -*-
 
 from fastapi import APIRouter
 
-from src.api.routers import (array_factory, dependency_injection, done,
-                             exception, generate_api, healthcheck,
-                             notification, pydantic, questions, task, user)
+from src.api.routers import (
+    array_factory,
+    dependency_injection,
+    done,
+    exception,
+    generate_api,
+    healthcheck,
+    notification,
+    pydantic,
+    questions,
+    task,
+    user,
+)
 
 api_router = APIRouter()
 

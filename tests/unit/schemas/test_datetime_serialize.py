@@ -4,8 +4,7 @@ from typing import Annotated
 from zoneinfo import ZoneInfo
 
 import pytest
-from pydantic import (AfterValidator, BaseModel, PlainSerializer,
-                      field_serializer)
+from pydantic import AfterValidator, BaseModel, PlainSerializer, field_serializer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

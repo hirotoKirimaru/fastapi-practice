@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from sqlalchemy import DATETIME, VARCHAR, Column
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -21,17 +21,17 @@ class User(Base, table=True):
 
     model_config = SQLModelConfig(ignored_types=(hybrid_property,))
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     name: str = Field(sa_column=Column(VARCHAR(1024)))
     email: str = Field(sa_column=Column(VARCHAR(1024)))
-    soft_destroyed_at: Optional[datetime] = Field(
+    soft_destroyed_at: datetime | None = Field(
         default=None, sa_column=Column(DATETIME)
     )
     # UTCDateTime型を使うことで取得時にSQLを得られる
     # soft_destroyed_at: Optional[datetime] = Field(
     #     default=None, sa_column=Column(UTCDateTime)
     # )
-    organization_id: Optional[int] = Field(default=None, foreign_key="organizations.id")
+    organization_id: int | None = Field(default=None, foreign_key="organizations.id")
     organization: Optional["Organization"] = Relationship()
     organization2: Optional["Organization"] = Relationship(
         sa_relationship_kwargs={"lazy": "joined"}
@@ -42,10 +42,10 @@ class User(Base, table=True):
     organization4: Optional["Organization"] = Relationship(
         sa_relationship_kwargs={"lazy": "immediate"}
     )
-    birth_day: Optional[datetime] = Field(default=None, sa_column=Column(DATETIME))
-    salt: Optional[str] = Field(default=None, sa_column=Column(VARCHAR(255)))
+    birth_day: datetime | None = Field(default=None, sa_column=Column(DATETIME))
+    salt: str | None = Field(default=None, sa_column=Column(VARCHAR(255)))
 
-    posts: List["Post"] = Relationship()
+    posts: list["Post"] = Relationship()
 
     @property
     def age(self) -> int:
@@ -99,5 +99,5 @@ class User(Base, table=True):
 class UserProfile(Base, table=True):
     __tablename__ = "user_profiles"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
+    id: int | None = Field(default=None, primary_key=True)
+    user_id: int | None = Field(default=None, foreign_key="users.id")

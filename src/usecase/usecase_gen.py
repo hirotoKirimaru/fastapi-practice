@@ -1,4 +1,5 @@
-from typing import Any
+from types import TracebackType
+from typing import Self
 
 from google import genai
 
@@ -11,10 +12,15 @@ class Gemini:
     def __init__(self) -> None:
         self._client = genai.Client(api_key=settings.GOOGLE_API_KEY)
 
-    async def __aenter__(self) -> "Gemini":
+    async def __aenter__(self) -> Self:
         return self
 
-    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         pass
         # await self.client.close()  # or whatever method you use to release your client resources
 
