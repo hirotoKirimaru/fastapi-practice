@@ -13,7 +13,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # uv をバージョン固定で取得
-COPY --from=ghcr.io/astral-sh/uv:0.8.17 /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.12.17 /uv /usr/local/bin/uv
 
 # 1. 開発用ランタイムのビルド
 FROM base AS dev_runtime

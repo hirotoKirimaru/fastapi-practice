@@ -4,53 +4,53 @@ version = "0.1.0"
 description = "Add your description here"
 dependencies = [
     "aiomysql>=0.3.2",
-    "polars>=1.36.1",
-    "boto3>=1.42.18",
-    "pydantic-settings>=2.12.0",
+    "polars>=1.44.2",
+    "boto3>=1.43.98",
+    "pydantic-settings>=2.15.0",
     "passlib>=1.7.4",
-    "tenacity>=9.1.2",
-    "google-genai>=1.0.0",
-    "sqlmodel>=0.0.31",
-    "pydantic[email]>=2.12.5",
-    "sentry-sdk>=2.48.0",
-    "greenlet>=3.3.0",
-    "strawberry-graphql[fastapi]>=0.314.3",
+    "tenacity>=9.1.4",
+    "google-genai>=2.24.0",
+    "sqlmodel>=0.0.42",
+    "pydantic[email]>=2.13.5",
+    "sentry-sdk>=2.69.2",
+    "greenlet>=3.5.6",
+    "strawberry-graphql[fastapi]>=0.327.7",
 ]
 readme = "README.md"
 requires-python = ">= 3.13"
 
 [dependency-groups]
 api = [
-    "fastapi[standard]>=0.136.0"
+    "fastapi[standard]>=0.141.1"
 ]
 auth = [
-    "pyjwt>=2.10.1",
-    "pyotp>=2.9.0",
+    "pyjwt>=2.14.0",
+    "pyotp>=2.10.0",
 ]
 
 worker = [
-    "celery>=5.6.1",
+    "celery>=5.6.3",
 ]
 
 dev = [
-    "ruff>=0.14.7",
-    "pytest-asyncio>=0.26.0",
+    "ruff>=0.16.8",
+    "pytest-asyncio>=1.4.0",
     "aiosqlite>=0.22.1",
     "pytest-mock>=3.15.1",
-    "pytest-check>=2.6.2",
-    "mypy>=1.19.1",
-    "testcontainers>=4.1.1",
-    "minio>=7.2.5",
-    "alembic>=1.13.1",
-    "allure-pytest>=2.13.5",
-    "types-passlib>=1.7.7.20240327",
-    "ty>=0.0.8",
-    "tuna>=0.5.11",
-    "poethepoet>=0.39.0",
+    "pytest-check>=2.9.1",
+    "mypy>=2.3.1",
+    "testcontainers>=4.15.0",
+    "minio>=7.2.20",
+    "alembic>=1.20.0",
+    "allure-pytest>=2.16.1",
+    "types-passlib>=1.7.7.20260211",
+    "ty>=0.0.82",
+    "tuna>=0.5.15",
+    "poethepoet>=0.48.0",
 ]
 analyze = [
     "jupyter>=1.1.1",
-    "matplotlib>=3.9.0",
+    "matplotlib>=3.11.2",
 ]
 
 [build-system]
