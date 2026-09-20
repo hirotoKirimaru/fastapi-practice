@@ -17,8 +17,11 @@ class TestAws:
         # https://github.com/testcontainers/testcontainers-python/blob/c9c6f92348299a2cc04988af8d69a53a23a7c7d5/modules/minio/testcontainers/minio/__init__.py#L45
         #         image: str = "minio/minio:RELEASE.2022-12-02T19-19-22Z",
         # なぜか、変に古いバージョンで固定されている
+        # compose.yml と同じく quay.io を使う（Docker Hub の minio/minio は引けなくなった）
         config = MinioContainer(
-            access_key="minio", secret_key="minio1234", image="minio/minio"
+            access_key="minio",
+            secret_key="minio1234",
+            image="quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z",
         )
         # for _ in create_minio_container():
         with config as minio:
