@@ -1,5 +1,5 @@
 # Minimal dev image. For production, build static assets and serve via nginx.
-FROM node:22-alpine AS dev
+FROM node:24-alpine AS dev
 
 WORKDIR /app
 
