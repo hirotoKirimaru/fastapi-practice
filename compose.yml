@@ -47,7 +47,11 @@ services:
       - development_network
 
   storage:
-    image: minio/minio:latest
+    # Docker Hub の minio/minio が引けなくなった（匿名 pull が denied、リポジトリ自体が 404）ため、
+    # MinIO 公式の配布先である quay.io に切り替える。
+    # また latest が消えたのが今回の原因なので、タグは RELEASE を固定する
+    # （quay.io の latest も中身はこの RELEASE と同一）。
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
     entrypoint: sh
     command: -c "mkdir -p /data/data-exchange.local /data/tmp.local && /usr/bin/minio server --address :9000 --console-address :9001 /data"
     ports:
