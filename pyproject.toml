@@ -47,6 +47,9 @@ dev = [
     "ty>=0.0.82",
     "tuna>=0.5.15",
     "poethepoet>=0.48.0",
+    # tests/unit/crud/test_np_nan.py が直接 import する。
+    # 以前は analyze グループの matplotlib 経由で入っていたが、明示的に宣言する
+    "numpy>=2.5.3",
 ]
 analyze = [
     "jupyter>=1.1.1",
