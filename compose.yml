@@ -94,6 +94,11 @@ services:
     network_mode: service:api
 
   frontend:
+    # バックエンドだけ動かしたいときに巻き込まれないよう profile に入れる。
+    # .env に COMPOSE_PROFILES=frontend があれば従来どおり `docker compose up` で
+    # 一緒に起動する (.env.example に入れてある)。profile 無しでも
+    # `docker compose up frontend` と名指しすれば起動する
+    profiles: ["frontend"]
     build:
       context: ./frontend
       target: dev

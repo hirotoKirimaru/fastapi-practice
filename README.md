@@ -89,7 +89,10 @@ cp .env.example .env
 npm run dev   # http://localhost:5173
 ```
 
-`docker compose up` でも `frontend` サービスが立ち上がる。
+`frontend` は compose の profile に入れてある。`.env.example` に
+`COMPOSE_PROFILES=frontend` があるので、`cp .env.example .env` してあれば
+`docker compose up` で一緒に立ち上がる（`docker compose up frontend` と
+名指しすれば `.env` が無くても起動する）。
 バックエンドの CORS は `BACKEND_CORS_ORIGINS` / `FRONTEND_HOST` で制御する
 （デフォルトで `http://localhost:5173` を許可済）。
 

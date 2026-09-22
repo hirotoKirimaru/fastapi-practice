@@ -199,10 +199,11 @@ jobs:
 
       # frontend は api とは別物 (frontend/Dockerfile を context: ./frontend で
       # ビルドする Vite の開発サーバ) で、バックエンドのテストからは一切触らない。
-      # それでも `up` が毎回 npm install からビルドしていて 12 秒使っていたため、
-      # CI で必要なサービスだけを名指しで起動する
+      # それでも `up` が毎回 npm install からビルドしていて 12 秒使っていた。
+      # compose.yml 側で profile に入れてあり、CI には .env が無い
+      # (= COMPOSE_PROFILES が未設定) ので、ここでは何も指定しなくても起動しない
       - name: Compose up
-        run: docker compose up -d --wait api db storage kvs mail relay
+        run: docker compose up -d --wait
 
       - name: DB migration
         uses: nick-fields/retry@v4
