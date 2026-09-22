@@ -41,6 +41,8 @@ docker buildx bake
 ```
 
 CI は `uv.lock` のハッシュをタグにして dev_runtime イメージを DockerHub に push し、test ジョブはそのイメージを再利用する。
+CI では `compose.ci.yml` を重ねて DB を使い捨て前提（tmpfs・binlog 無効・healthcheck あり）にし、
+テストに使わない `frontend` は起動しない。ローカルの `docker compose up` の挙動は変えていない。
 
 ## 依存関係の更新
 

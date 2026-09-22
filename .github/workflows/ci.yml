@@ -1,7 +1,10 @@
 name: CI
 
 on:
+  # PR のあるブランチへ push すると push と pull_request の両方が発火して、
+  # 同じ commit を 2 回ビルドしていた。push は main だけにして PR 側へ寄せる
   push:
+    branches: [main]
   pull_request:
 
 concurrency:
@@ -149,8 +152,8 @@ jobs:
           pattern: digest-*
           merge-multiple: true
 
-      - uses: docker/setup-buildx-action@v4
-
+      # imagetools は registry の API を叩くだけで builder を必要としない。
+      # runner に最初から入っている buildx で足りるので setup-buildx は省く
       - name: Login to DockerHub
         uses: docker/login-action@v4
         with:
@@ -178,6 +181,10 @@ jobs:
     env:
       BUILD_TARGET: test
       RUNTIME_TAG: ${{ needs.meta.outputs.runtime_tag }}
+      # この先の docker compose 呼び出し全てに CI 用オーバーライドを効かせる。
+      # ステップごとに -f を並べると付け忘れで設定が効かない事故が起きるため、
+      # 環境変数で一度だけ指定する
+      COMPOSE_FILE: compose.yml:compose.ci.yml
     steps:
       - uses: actions/checkout@v7
 
@@ -190,8 +197,12 @@ jobs:
       - name: Pull dev_runtime image
         run: docker pull "${IMAGE}:${RUNTIME_TAG}"
 
+      # frontend は api とは別物 (frontend/Dockerfile を context: ./frontend で
+      # ビルドする Vite の開発サーバ) で、バックエンドのテストからは一切触らない。
+      # それでも `up` が毎回 npm install からビルドしていて 12 秒使っていたため、
+      # CI で必要なサービスだけを名指しで起動する
       - name: Compose up
-        run: docker compose up -d --wait
+        run: docker compose up -d --wait api db storage kvs mail relay
 
       - name: DB migration
         uses: nick-fields/retry@v4
@@ -287,13 +298,43 @@ jobs:
         if: always()
         run: docker cp "$(docker compose ps -q api)":/app/allure-results ./allure-results
 
-      # レポート生成はテストの合否判定ではない（判定は上の "Fail if pytest failed"）。
-      # アクションのコンテナ内に xargs が無くレポート生成が落ちる事象があり、
-      # pytest が全て通っていてもジョブが失敗していたため、ここでは CI を落とさない。
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: allure-results
+          path: allure-results
+          if-no-files-found: warn
+          retention-days: 1
+
+  # Allure レポートの生成と公開。
+  #
+  # test ジョブに置いていたときは、simple-elf/allure-report-action が Docker action の
+  # ため GitHub がジョブ冒頭でそのイメージをビルドしており、ステップの `if:` に関係なく
+  # 毎回 27 秒かかっていた。公開するのは main のときだけなので、PR ではこの 27 秒が
+  # まるごと無駄になる。ジョブを分けて main でだけ動かす。
+  #
+  # レポート生成はテストの合否判定ではない（判定は test ジョブの "Fail if pytest failed"）。
+  # アクションのコンテナ内に xargs が無くレポート生成が落ちる事象があったため、
+  # ここは CI を落とさない。
+  report:
+    needs: test
+    if: always() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download Allure results
+        uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: allure-results
+          path: allure-results
+
       - name: Build test report
         id: allure
         uses: simple-elf/allure-report-action@v1.15
-        if: always()
         continue-on-error: true
         with:
           gh_pages: gh-pages
@@ -301,7 +342,7 @@ jobs:
           allure_results: allure-results
 
       - name: Publish test report
-        if: always() && github.ref == 'refs/heads/main' && steps.allure.outcome == 'success'
+        if: steps.allure.outcome == 'success'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

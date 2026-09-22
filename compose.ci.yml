@@ -1,0 +1,31 @@
+# CI 専用のオーバーライド。
+#   docker compose -f compose.yml -f compose.ci.yml up -d --wait ...
+# ローカル開発の compose.yml には手を入れず、CI でだけ効かせたい設定をここに置く。
+# CI の DB は「マイグレーションが通ることの確認」にしか使っておらず
+# (テスト本体は tests/conftest.py のとおりオンメモリ SQLite)、
+# ジョブごとに使い捨てなので、永続性と引き換えに起動と書き込みを速くする。
+services:
+  db:
+    # ここでの command はベース側 (compose.yml) を置き換えるので、
+    # 元から付けていた --mysql-native-password=ON も書いておく必要がある
+    command: >
+      --mysql-native-password=ON
+      --skip-log-bin
+      --performance-schema=OFF
+      --innodb-flush-log-at-trx-commit=0
+      --innodb-doublewrite=0
+    # 名前付きボリューム (mysql_data) をこの tmpfs で置き換える。
+    # compose のマージはコンテナ側のパスをキーにするので、同じ
+    # /var/lib/mysql を指定すればベース側の定義と差し替わる
+    volumes:
+      - type: tmpfs
+        target: /var/lib/mysql
+    # healthcheck があると `up --wait` が「起動した」ではなく
+    # 「接続を受け付けられる」まで待つ。後段の alembic のリトライが
+    # 空振りしなくなる
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
