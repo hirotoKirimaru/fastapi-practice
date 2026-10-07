@@ -1,6 +1,6 @@
 import logging
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import HTTPException
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def session_context(session: AsyncSession) -> AsyncIterator[AsyncSession]:
+async def session_context(session: AsyncSession) -> AsyncGenerator[AsyncSession]:
     try:
         yield session
         await session.commit()
@@ -23,7 +23,7 @@ async def session_context(session: AsyncSession) -> AsyncIterator[AsyncSession]:
 
 
 @asynccontextmanager
-async def timeit(operation_name: str = "Operation") -> AsyncIterator[None]:
+async def timeit(operation_name: str = "Operation") -> AsyncGenerator[None]:
     """
     処理時間を計測し、開始と終了時にログを出力するコンテキストマネージャー
 

@@ -43,7 +43,8 @@ async def get_tasks_with_done_inner_join(
         task_model.Done.id.is_not(None).label("done"),  # type: ignore[attr-defined]
     ).join(task_model.Task, task_model.Done.task)
 
-    return (await db.execute(query)).all()
+    result: Result[Any] = await db.execute(query)
+    return result.all()
 
 
 # async def get_task(db: AsyncSession, task_id: int, criteria: and_ | None = None) -> Optional[task_model.Task]:
@@ -54,7 +55,10 @@ async def get_task(
     result: Result[Any] = await db.execute(
         select(task_model.Task).filter(task_model.Task.id == task_id)  # type: ignore[arg-type]
     )
-    task: Row[tuple[task_model.Task]] | None = result.first()
+    # SQLAlchemy 2.1 で Row は PEP 646 の可変長ジェネリック
+    # (Row[Unpack[_Ts]]) になったため、列の型を直に並べる。
+    # 以前の Row[tuple[Task]] は「tuple[Task] という1列を持つ行」の意味になる
+    task: Row[task_model.Task] | None = result.first()
     return (
         task[0] if task is not None else None
     )  # 要素が一つであってもtupleで返却されるので１つ目の要素を取り出す

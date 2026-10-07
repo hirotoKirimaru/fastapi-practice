@@ -44,6 +44,16 @@ CI は `uv.lock` のハッシュをタグにして dev_runtime イメージを D
 CI では `compose.ci.yml` を重ねて DB を使い捨て前提（tmpfs・binlog 無効・healthcheck あり）にし、
 テストに使わない `frontend` は起動しない。ローカルの `docker compose up` の挙動は変えていない。
 
+## ストレージ (S3)
+
+MinIO の公開イメージが Docker Hub と quay.io の両方から無くなったため、`storage` は
+S3 互換モックの [adobe/s3mock](https://github.com/adobe/S3Mock) を使う。
+
+- ホストからのエンドポイントは `http://localhost:9090`（MinIO 時代の 9000 から変更）
+- コンテナ内のアプリからは従来どおり `localhost:9000`。`relay` (socat) が 9000 で受けて 9090 へ渡す
+- バケットは起動時に `COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS` で作られる
+- **MinIO のコンソール UI (`:9001`) は無くなった**
+
 ## 依存関係の更新
 
 ```bash
