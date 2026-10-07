@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 from sqlalchemy import and_, func, select
-from sqlalchemy.exc import MissingGreenlet
+from sqlalchemy.exc import MissingGreenlet, StatementError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import Select
@@ -212,8 +212,13 @@ class TestUserRelationShip:
 
         query: Select = select(User).where(User.id == 1)
         result = (await db.execute(query)).scalars().first()
-        with pytest.raises(MissingGreenlet):
+        # SQLAlchemy 2.1 から、遅延ロードの I/O 失敗は StatementError に
+        # 包まれて送出されるようになった（2.0 では MissingGreenlet が直接出ていた）。
+        # 確認したいのは「非同期コンテキスト外の遅延ロードが MissingGreenlet で
+        # 失敗すること」なので、orig を見て中身が変わっていないことを確かめる
+        with pytest.raises(StatementError) as exc_info:
             _ = result.organization
+        assert isinstance(exc_info.value.orig, MissingGreenlet)
 
     async def test_02(self, db: AsyncSession):
         user1 = User(id=1, name="11", email="a@example.com", organization_id=1)
