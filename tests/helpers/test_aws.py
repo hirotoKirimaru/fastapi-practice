@@ -1,62 +1,65 @@
 import os
+import socket
 import tempfile
-from datetime import datetime
+import uuid
 from io import StringIO
 
 import polars
 import pytest
-from testcontainers.minio import MinioContainer
 
 from src.helper.aws import Aws
 
+# compose の storage (adobe/s3mock) に作られるバケット
+# （COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS で起動時に作られる）
+BUCKET = "tmp.local"
 
-# NOTE: GitHub Actionsのファイルが古い疑惑
+
+def _storage_reachable() -> bool:
+    """アプリが見ている S3 のエンドポイントに TCP で届くかどうか。
+
+    compose を起動していないローカルでは届かないので、その場合は skip する。
+    api コンテナ内（CI もここ）では relay (socat) が localhost:9000 で受けて
+    S3Mock の 9090 へ渡すので届く。
+    """
+    host, _, port = os.getenv("S3_URL", "localhost:9000").partition(":")
+    try:
+        with socket.create_connection((host, int(port or "80")), timeout=1):
+            return True
+    except (OSError, ValueError):
+        return False
+
+
+# 以前は testcontainers の MinioContainer で MinIO を起動していたが、
+#   1. MinIO の公開イメージが Docker Hub と quay.io の両方から無くなり、
+#      MinioContainer が引けるイメージが存在しなくなった
+#   2. そもそも CI では pytest を api コンテナ内で実行しており、docker socket を
+#      渡していないので testcontainers は動かせない（これが元の skip 理由）
+# という2つの理由で成立しなくなった。compose で既に立っている storage を使う形に
+# 変え、CI でも実際に走るようにしている。
 class TestAws:
-    @pytest.mark.skip("GitHub Actions上だと動かない")
-    async def test_01(self):
-        # https://github.com/testcontainers/testcontainers-python/blob/c9c6f92348299a2cc04988af8d69a53a23a7c7d5/modules/minio/testcontainers/minio/__init__.py#L45
-        #         image: str = "minio/minio:RELEASE.2022-12-02T19-19-22Z",
-        # なぜか、変に古いバージョンで固定されている
-        # ⚠️ このテストは現状動かせない。MinIO の公開イメージが Docker Hub と
-        # quay.io の両方から無くなった（どちらも匿名 pull が unauthorized）ため、
-        # testcontainers の MinioContainer が引けるイメージが存在しない。
-        # compose.yml 側は adobe/s3mock に移したので、このテストを生かすなら
-        # MinioContainer ではなく S3Mock を起動する形に書き換える必要がある。
-        # （元から skip 中のため CI には影響しない）
-        config = MinioContainer(
-            access_key="minio",
-            secret_key="minio1234",
-        )
-        # for _ in create_minio_container():
-        with config as minio:
-            minio_client = minio.get_client()
-            minio_client.make_bucket("tmp.local")
-            # 接続情報の上書き
-            os.environ["S3_URL"] = minio.get_config()["endpoint"]
+    @pytest.mark.skipif(
+        not _storage_reachable(),
+        reason="S3 のエンドポイントに届かない（docker compose up を実行していない）",
+    )
+    async def test_01(self) -> None:
+        csv_data = """
+        氏名,メールアドレス
+        ユーザ1,test1@example.com
+        ユーザ2,test2@example.com
+        """
+        key = f"test-aws-{uuid.uuid4().hex}"
 
-            csv_data = """
-            氏名,メールアドレス
-            ユーザ1,test1@example.com
-            ユーザ2,test2@example.com
-            """
-            # bucket = os.getenv("S3_BUCKET")
-            bucket = "tmp.local"
-            key = datetime.now().strftime("%Y%m%d%H%M%S")
-            await TestAwsHelper.upload_s3(csv_data=csv_data, bucket=bucket, key=key)
+        await TestAwsHelper.upload_s3(csv_data=csv_data, bucket=BUCKET, key=key)
 
-            minio_data = minio_client.get_object(bucket, key).data
+        # 読み出しもアプリ自身のクライアントで行う。boto3 の設定（endpoint_url や
+        # addressing style）が S3Mock と噛み合っているかまで含めて確認したいため
+        client = Aws.Storage.s3_client()
+        stored = client.get_object(Bucket=BUCKET, Key=key)["Body"].read()
 
-            minio_csv = polars.read_csv(StringIO(minio_data.decode("utf-8")))
-            original_csv = polars.read_csv(StringIO(csv_data))
+        stored_csv = polars.read_csv(StringIO(stored.decode("utf-8")))
+        original_csv = polars.read_csv(StringIO(csv_data))
 
-            # csv_data2222 = """
-            # 氏名,メールアドレス
-            # ユーザ1,test1@example.com
-            # """
-            # original_csv2222 = polars.read_csv(StringIO(csv_data2222))
-            # breakpoint()
-
-            assert minio_csv.equals(original_csv)
+        assert stored_csv.equals(original_csv)
 
 
 class TestAwsHelper:
