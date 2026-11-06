@@ -181,10 +181,11 @@ jobs:
     env:
       BUILD_TARGET: test
       RUNTIME_TAG: ${{ needs.meta.outputs.runtime_tag }}
-      # この先の docker compose 呼び出し全てに CI 用オーバーライドを効かせる。
+      # この先の docker compose 呼び出し全てで CI 専用の compose を使う。
+      # compose.yml には重ねず単体で使う（永続化なし・ポート公開なし・テストに要るサービスだけ）。
       # ステップごとに -f を並べると付け忘れで設定が効かない事故が起きるため、
       # 環境変数で一度だけ指定する
-      COMPOSE_FILE: compose.yml:compose.ci.yml
+      COMPOSE_FILE: compose.ci.yml
     steps:
       - uses: actions/checkout@v7
 
@@ -197,11 +198,8 @@ jobs:
       - name: Pull dev_runtime image
         run: docker pull "${IMAGE}:${RUNTIME_TAG}"
 
-      # frontend は api とは別物 (frontend/Dockerfile を context: ./frontend で
-      # ビルドする Vite の開発サーバ) で、バックエンドのテストからは一切触らない。
-      # それでも `up` が毎回 npm install からビルドしていて 12 秒使っていた。
-      # compose.yml 側で profile に入れてあり、CI には .env が無い
-      # (= COMPOSE_PROFILES が未設定) ので、ここでは何も指定しなくても起動しない
+      # compose.ci.yml には api / db / storage / relay しか無い。
+      # frontend・kvs・mail はテストから触らないので最初から定義していない
       - name: Compose up
         run: docker compose up -d --wait
 
