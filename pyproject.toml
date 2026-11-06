@@ -4,24 +4,24 @@ version = "0.1.0"
 description = "Add your description here"
 dependencies = [
     "aiomysql>=0.3.2",
-    "polars>=2.0.0",
-    "boto3>=1.43.110",
-    "pydantic-settings>=2.15.0",
+    "polars>=2.1.0",
+    "boto3>=1.43.125",
+    "pydantic-settings>=2.16.2",
     "passlib>=1.7.4",
     "tenacity>=9.1.4",
-    "google-genai>=2.29.0",
+    "google-genai>=3.0.0",
     "sqlmodel>=0.0.48",
-    "pydantic[email]>=2.14.0",
-    "sentry-sdk>=2.71.0",
+    "pydantic[email]>=2.14.3",
+    "sentry-sdk>=2.74.0",
     "greenlet>=3.5.6",
-    "strawberry-graphql[fastapi]>=0.332.0",
+    "strawberry-graphql[fastapi]>=0.340.0",
 ]
 readme = "README.md"
-requires-python = ">= 3.13"
+requires-python = ">= 3.14"
 
 [dependency-groups]
 api = [
-    "fastapi[standard]>=0.143.0"
+    "fastapi[standard]>=0.162.0"
 ]
 auth = [
     "pyjwt>=2.15.1",
@@ -29,25 +29,25 @@ auth = [
 ]
 
 worker = [
-    "celery>=5.6.3",
+    "celery>=5.7.0",
 ]
 
 dev = [
-    "ruff>=0.16.10",
-    "pytest-asyncio>=1.4.0",
+    "ruff>=0.17.4",
+    "pytest-asyncio>=1.4.1.post1",
     "aiosqlite>=0.22.1",
-    "pytest-mock>=3.16.0",
-    "pytest-check>=2.9.1",
-    "mypy>=2.4.0",
-    "alembic>=1.20.0",
+    "pytest-mock>=3.17.0",
+    "pytest-check>=3.0.3",
+    "mypy>=2.4.1",
+    "alembic>=1.20.1",
     "allure-pytest>=2.16.2",
     "types-passlib>=1.7.7.20260211",
-    "ty>=0.0.85",
+    "ty>=0.0.99",
     "tuna>=0.5.15",
-    "poethepoet>=0.48.0",
+    "poethepoet>=0.49.0",
     # tests/unit/crud/test_np_nan.py が直接 import する。
     # 以前は analyze グループの matplotlib 経由で入っていたが、明示的に宣言する
-    "numpy>=2.5.3",
+    "numpy>=2.5.4",
 ]
 analyze = [
     "jupyter>=1.1.1",
@@ -100,7 +100,12 @@ extend-immutable-calls = [
 "tests/unit/helper/test_datetime_resolver.py" = ["DTZ001"]
 "tests/unit/crud/test_user.py" = ["DTZ005"]
 "tests/helpers/tests/test_custom_assert.py" = ["DTZ011"]
-# (3) テスト内の同期ファイル I/O。実行時間に影響しないため許容する。
+# (3) SQLModel の Relationship は、循環 import を避けて TYPE_CHECKING 下でしか import
+#     していないモデルを文字列の前方参照（"Post" / Optional["User"]）で指している。
+#     requires-python を 3.14 に上げると UP037 / UP045 が引用符を外させにくるが、
+#     外すと SQLModel / pydantic がクラス定義時に名前を解決できなくなるので対象から外す。
+"src/models/*.py" = ["UP037", "UP045"]
+# (4) テスト内の同期ファイル I/O。実行時間に影響しないため許容する。
 "tests/helpers/test_aws.py" = ["ASYNC230", "DTZ005"]
 "tests/helpers/test_files.py" = ["ASYNC230"]
 
