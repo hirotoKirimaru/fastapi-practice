@@ -1,31 +1,75 @@
-# CI 専用のオーバーライド。
-#   docker compose -f compose.yml -f compose.ci.yml up -d --wait ...
-# ローカル開発の compose.yml には手を入れず、CI でだけ効かせたい設定をここに置く。
-# CI の DB は「マイグレーションが通ることの確認」にしか使っておらず
-# (テスト本体は tests/conftest.py のとおりオンメモリ SQLite)、
-# ジョブごとに使い捨てなので、永続性と引き換えに起動と書き込みを速くする。
+# CI 専用の compose（compose.yml に重ねるオーバーライドではなく、これ単体で完結する）。
+#   COMPOSE_FILE=compose.ci.yml docker compose up -d --wait
+#
+# ローカル開発用の compose.yml とは目的が違うので、共有しない:
+#   - テストが使うサービスだけ（api / db / storage / relay）。kvs・mail・frontend は起動しない
+#   - 永続化しない。名前付きボリュームは 1 つも作らず、DB は tmpfs、S3 モックはコンテナ内の一時領域。
+#     ジョブごとに使い捨てなので、永続性と引き換えに起動と書き込みを速くする
+#   - ホストへのポート公開をしない（テストは `docker compose exec` でコンテナ内から叩く）
+#   - ソースのバインドマウントをしない。test イメージに COPY 済みの src / tests をそのまま使うので、
+#     「CI で検証したもの＝イメージに入っているもの」になる
+#
+# テスト本体は tests/conftest.py のとおりオンメモリ SQLite。
+# MySQL は「マイグレーションが通ること」の確認に、S3 モックは tests/helpers/test_aws.py に使う。
+
 services:
+  api:
+    build:
+      context: .
+      target: ${BUILD_TARGET:-test}
+      args:
+        - RUNTIME_TAG=${RUNTIME_TAG:-latest}
+    environment:
+      AWS_S3_ACCESS_KEY: minio
+      AWS_S3_SECRET_KEY: minio1234
+      ENV: local
+      S3_BUCKET: tmp.local
+      SECRET: dev-secret-change-me
+      GOOGLE_API_KEY: dummy-for-local-ci
+      PROJECT_NAME: fastapi-practice
+      BACKEND_CORS_ORIGINS: http://localhost:5173
+      FRONTEND_HOST: http://localhost:5173
+    depends_on:
+      db:
+        condition: service_healthy
+      storage:
+        condition: service_started
+
   db:
-    # ここでの command はベース側 (compose.yml) を置き換えるので、
-    # 元から付けていた --mysql-native-password=ON も書いておく必要がある
+    image: mysql:8.4
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: demo
+      TZ: Asia/Tokyo
     command: >
       --mysql-native-password=ON
       --skip-log-bin
       --performance-schema=OFF
       --innodb-flush-log-at-trx-commit=0
       --innodb-doublewrite=0
-    # 名前付きボリューム (mysql_data) をこの tmpfs で置き換える。
-    # compose のマージはコンテナ側のパスをキーにするので、同じ
-    # /var/lib/mysql を指定すればベース側の定義と差し替わる
-    volumes:
-      - type: tmpfs
-        target: /var/lib/mysql
+    tmpfs:
+      - /var/lib/mysql
     # healthcheck があると `up --wait` が「起動した」ではなく
-    # 「接続を受け付けられる」まで待つ。後段の alembic のリトライが
-    # 空振りしなくなる
+    # 「接続を受け付けられる」まで待つ。後段の alembic のリトライが空振りしなくなる
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
       interval: 2s
       timeout: 5s
       retries: 30
       start_period: 5s
+
+  storage:
+    image: adobe/s3mock:5.2.3
+    environment:
+      COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: data-exchange.local,tmp.local
+      # ルートを指定しなければコンテナ内の一時ディレクトリに置かれる。終了時に消してよい
+      COM_ADOBE_TESTING_S3MOCK_STORE_RETAIN_FILES_ON_EXIT: "false"
+
+  # api コンテナ内の localhost:9000 を S3 モックの 9090 へ中継する（compose.yml と同じ役割）
+  relay:
+    image: alpine/socat:1.8.1.3
+    depends_on:
+      - api
+      - storage
+    command: "TCP-LISTEN:9000,fork TCP:storage:9090"
+    network_mode: service:api

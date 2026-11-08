@@ -25,7 +25,7 @@ def _storage_reachable() -> bool:
     try:
         with socket.create_connection((host, int(port or "80")), timeout=1):
             return True
-    except (OSError, ValueError):
+    except OSError, ValueError:
         return False
 
 

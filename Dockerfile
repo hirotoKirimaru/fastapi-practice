@@ -2,7 +2,7 @@
 ARG RUNTIME_TAG=latest
 
 # ベースイメージ
-FROM python:3.13-slim AS base
+FROM python:3.14-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -19,7 +19,7 @@ ENV UV_NO_SYNC=1
 WORKDIR /app
 
 # uv をバージョン固定で取得
-COPY --from=ghcr.io/astral-sh/uv:0.12.24 /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.13.7 /uv /usr/local/bin/uv
 
 # 1. 開発用ランタイムのビルド
 FROM base AS dev_runtime
