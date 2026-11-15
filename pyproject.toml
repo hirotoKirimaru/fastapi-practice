@@ -17,7 +17,7 @@ dependencies = [
     "strawberry-graphql[fastapi]>=0.341.2",
 ]
 readme = "README.md"
-requires-python = ">= 3.14"
+requires-python = ">= 3.15"
 
 [dependency-groups]
 api = [
@@ -102,7 +102,7 @@ extend-immutable-calls = [
 "tests/helpers/tests/test_custom_assert.py" = ["DTZ011"]
 # (3) SQLModel の Relationship は、循環 import を避けて TYPE_CHECKING 下でしか import
 #     していないモデルを文字列の前方参照（"Post" / Optional["User"]）で指している。
-#     requires-python を 3.14 に上げると UP037 / UP045 が引用符を外させにくるが、
+#     requires-python を 3.14 以上にすると UP037 / UP045 が引用符を外させにくるが、
 #     外すと SQLModel / pydantic がクラス定義時に名前を解決できなくなるので対象から外す。
 "src/models/*.py" = ["UP037", "UP045"]
 # (4) テスト内の同期ファイル I/O。実行時間に影響しないため許容する。
