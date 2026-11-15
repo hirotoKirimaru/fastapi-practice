@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import and_, func, select
 from sqlalchemy.exc import MissingGreenlet, StatementError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, lazyload
 from sqlalchemy.sql import Select
 
 import src.crud.user
@@ -14,6 +14,20 @@ from src.models.organization import Organization
 from src.models.user import User
 
 
+@pytest.fixture
+async def organization_1(db: AsyncSession) -> Organization:
+    """users.organization_id の外部キー先。PostgreSQL は外部キーを強制するので先に作っておく
+    （SQLite は既定で外部キーを検査しないため、以前は無くても通っていた）"""
+    organization = Organization(id=1)
+    db.add(organization)
+    await db.commit()
+    # セッションの identity map に残すと、テスト側の遅延ロードが DB へ行かずに済んでしまい
+    # 「非同期の外での遅延ロードは失敗する」ことを確かめるテストが成り立たなくなる
+    db.expunge(organization)
+    return organization
+
+
+@pytest.mark.usefixtures("organization_1")
 class TestUser:
     class TestDefault:
         async def test_01(self, db: AsyncSession) -> None:
@@ -205,12 +219,16 @@ class TestUser:
 
 
 class TestUserRelationShip:
+    @pytest.mark.usefixtures("organization_1")
     async def test_01(self, db: AsyncSession):
         user1 = User(id=1, name="11", email="a@example.com", organization_id=1)
         db.add(user1)
         await db.commit()
 
-        query: Select = select(User).where(User.id == 1)
+        # User には lazy="joined" の organization2 もあり、普通に select すると組織が JOIN で
+        # identity map に載ってしまい、organization の遅延ロードが DB へ行かずに済む。
+        # 「遅延ロードが I/O を要する」状況を作るため、このクエリだけ全リレーションを遅延ロードにする
+        query: Select = select(User).options(lazyload("*")).where(User.id == 1)
         result = (await db.execute(query)).scalars().first()
         # SQLAlchemy 2.1 から、遅延ロードの I/O 失敗は StatementError に
         # 包まれて送出されるようになった（2.0 では MissingGreenlet が直接出ていた）。

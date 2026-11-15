@@ -40,9 +40,10 @@ services:
   db:
     image: postgres:18-alpine
     environment:
-      # ローカル開発用の固定値。アプリ側の既定の DATABASE_URL（src/helper/config.py）と揃えてある
+      # ローカル開発用なのでパスワードなしで受け付ける（MySQL 時代の MYSQL_ALLOW_EMPTY_PASSWORD と同じ扱い）。
+      # アプリ側の既定の DATABASE_URL（src/helper/config.py）と揃えてある
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_DB: demo
       TZ: Asia/Tokyo
     volumes:

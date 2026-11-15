@@ -23,19 +23,21 @@ async def test_done_flag(async_client):
     assert response.status_code == starlette.status.HTTP_200_OK
     response_obj = response.json()
     assert response_obj["title"] == "テストタスク2"
+    # ID は DB の連番で決まる（テストごとにロールバックしても連番は戻らない）ので、返ってきた値を使う
+    task_id = response_obj["id"]
 
     # 完了フラグを立てる
-    response = await async_client.put("/tasks/1/done")
+    response = await async_client.put(f"/tasks/{task_id}/done")
     assert response.status_code == starlette.status.HTTP_200_OK
 
     # 既に完了フラグが立っているので400を返却
-    response = await async_client.put("/tasks/1/done")
+    response = await async_client.put(f"/tasks/{task_id}/done")
     assert response.status_code == starlette.status.HTTP_400_BAD_REQUEST
 
     # 完了フラグを外す
-    response = await async_client.delete("/tasks/1/done")
+    response = await async_client.delete(f"/tasks/{task_id}/done")
     assert response.status_code == starlette.status.HTTP_200_OK
 
     # 既に完了フラグが外れているので404を返却
-    response = await async_client.delete("/tasks/1/done")
+    response = await async_client.delete(f"/tasks/{task_id}/done")
     assert response.status_code == starlette.status.HTTP_404_NOT_FOUND

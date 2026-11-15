@@ -9,8 +9,8 @@
 #   - ソースのバインドマウントをしない。test イメージに COPY 済みの src / tests をそのまま使うので、
 #     「CI で検証したもの＝イメージに入っているもの」になる
 #
-# テスト本体は tests/conftest.py のとおりオンメモリ SQLite。
-# PostgreSQL は「マイグレーションが通ること」の確認に、S3 モックは tests/helpers/test_aws.py に使う。
+# PostgreSQL はテスト本体（tests/conftest.py がテスト用 DB を作ってマイグレーションを当てる）と
+# 「マイグレーションが通り、モデルとずれていないこと」の確認に、S3 モックは tests/helpers/test_aws.py に使う。
 
 name: fastapi-practice
 
@@ -41,7 +41,8 @@ services:
     image: postgres:18-alpine
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      # 使い捨てなのでパスワードなし
+      POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_DB: demo
       TZ: Asia/Tokyo
     # ジョブごとに捨てる DB なので、クラッシュやレプリケーションへの備えは全部切って速さを取る。

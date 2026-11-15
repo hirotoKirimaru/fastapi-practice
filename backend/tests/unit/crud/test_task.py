@@ -43,7 +43,11 @@ class TestTaskCascade:
 
     async def test_delete_by_delete_query(self, db: AsyncSession) -> None:
         """
-        直接Taskをdeleteクエリで削除しても、子のDoneは削除されないこと。
+        直接Taskをdeleteクエリで削除すると、ORM の cascade は効かないが、
+        DB 側の外部キー（ON DELETE CASCADE）で子のDoneも削除されること。
+
+        以前は「子のDoneは削除されない」としていたが、それは外部キーを強制しない
+        SQLite でテストしていたため。PostgreSQL では DB が消す。
         """
         task1 = Task(id=1, title="Test1")
         task2 = Task(id=2, title="Test1")
@@ -74,12 +78,12 @@ class TestTaskCascade:
         # THEN
         query: select = select(Done)
         actual = (await db.execute(query)).scalars().all()
-        assert {1, 2, 3} == {x.id for x in actual}
+        assert {2, 3} == {x.id for x in actual}
 
-    # NOTE: アプリ上で実行するときはこれは動かない
-    async def _test_delete_at_db(self, db: AsyncSession) -> None:
+    async def test_delete_at_db(self, db: AsyncSession) -> None:
         """
-        Taskを削除したときに子テーブルのDoneも削除すること。
+        生の SQL で Task を削除しても、DB 側の ON DELETE CASCADE で子のDoneも削除されること。
+        （SQLite では外部キーが効かず動かなかったので無効化していた）
         """
         task1 = Task(id=1, title="Test1")
         task2 = Task(id=2, title="Test1")
@@ -97,7 +101,8 @@ class TestTaskCascade:
         # WHEN
         print("XXXXXX")
         delete_statement = text("DELETE FROM tasks WHERE id = :id")
-        await db.execute(delete_statement, {"id": task1.id})
+        # commit 後の task1 は期限切れで、属性を読むと同期の文脈で DB へ行ってしまうので値で渡す
+        await db.execute(delete_statement, {"id": 1})
         await db.commit()
         print("XXXXXX")
 

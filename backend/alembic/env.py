@@ -21,10 +21,29 @@ if config.config_file_name is not None:
 # target_metadata = None
 target_metadata = SQLModel.metadata
 
-# 接続先はアプリと同じ設定（DATABASE_URL）から取る。alembic.ini には書かない
+# autogenerate / alembic check がモデルと DB を比べられるよう、全モデルを読み込んで
+# SQLModel.metadata に登録する（読み込まないと「全テーブルを消す」差分に見えてしまう）
+import src.models.minors
+import src.models.organization
+import src.models.post
+import src.models.task
+import src.models.user  # noqa: F401
 from src.helper.config import settings
 
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# 接続先は既定でアプリと同じ設定（DATABASE_URL）から取る。alembic.ini には書かない。
+# テスト（tests/conftest.py）はテスト用 DB の URL を先に入れてから呼ぶので、その場合は上書きしない
+if not config.get_main_option("sqlalchemy.url"):
+    config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+
+# マイグレーションにだけ存在し、モデルを持たないテーブル。
+# relation_timelines は部分ユニークインデックスの題材として DB 側だけで定義している
+MIGRATION_ONLY_TABLES = {"relation_timelines"}
+
+
+def include_object(obj, name, type_, reflected, compare_to):  # type: ignore[no-untyped-def]
+    # テーブルを比較対象から外せば、その列・インデックス・制約も比べられない
+    return not (type_ == "table" and name in MIGRATION_ONLY_TABLES)
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -68,6 +87,7 @@ def run_migrations_online() -> None:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
+            include_object=include_object,
         )
 
         with context.begin_transaction():

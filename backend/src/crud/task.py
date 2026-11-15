@@ -29,7 +29,10 @@ async def get_tasks_with_done(db: AsyncSession) -> Sequence[Row[Any]]:
             task_model.Task.id,
             task_model.Task.title,
             task_model.Done.id.is_not(None).label("done"),  # type: ignore[attr-defined]
-        ).outerjoin(task_model.Done)
+        )
+        .outerjoin(task_model.Done)
+        # ORDER BY が無いと PostgreSQL は返す順番を保証しない（SQLite はたまたま挿入順だった）
+        .order_by(task_model.Task.id)
     )
     return result.all()
 
@@ -37,11 +40,15 @@ async def get_tasks_with_done(db: AsyncSession) -> Sequence[Row[Any]]:
 async def get_tasks_with_done_inner_join(
     db: AsyncSession,
 ) -> Sequence[Row[Any]]:
-    query: Select[Any] = select(  # type: ignore[call-overload]
-        task_model.Task.id,
-        task_model.Task.title,
-        task_model.Done.id.is_not(None).label("done"),  # type: ignore[attr-defined]
-    ).join(task_model.Task, task_model.Done.task)
+    query: Select[Any] = (
+        select(  # type: ignore[call-overload]
+            task_model.Task.id,
+            task_model.Task.title,
+            task_model.Done.id.is_not(None).label("done"),  # type: ignore[attr-defined]
+        )
+        .join(task_model.Task, task_model.Done.task)
+        .order_by(task_model.Task.id)
+    )
 
     result: Result[Any] = await db.execute(query)
     return result.all()
