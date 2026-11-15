@@ -1,11 +1,10 @@
 from sqlalchemy import create_engine
 
+from src.helper.config import settings
 from src.models.task import Base
 from src.models.user import Base as Base2
 
-DB_URL = "mysql+pymysql://root@localhost:33306/demo?charset=utf8"
-# DB_URL = "mysql+pymysql://root@db:3306/demo?charset=utf8"
-engine = create_engine(DB_URL, echo=True)
+engine = create_engine(settings.DATABASE_URL, echo=True)
 
 
 def reset_database() -> None:

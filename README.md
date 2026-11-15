@@ -67,6 +67,15 @@ CI では `infra/compose.yml` を使わず、CI 専用の `infra/compose.ci.yml`
 binlog 無効・healthcheck あり）。ポート公開とソースのバインドマウントもしない。
 ローカルの `docker compose up` の挙動は変えていない。
 
+## DB (PostgreSQL)
+
+`infra/compose.yml` の `db` は `postgres:18-alpine`。ドライバは psycopg 3 で、アプリ（非同期）と
+alembic / `migrate_db.py`（同期）の両方が同じ設定 `DATABASE_URL` を使う。
+
+- コンテナ内の既定: `postgresql+psycopg://postgres:postgres@db:5432/demo`（`src/helper/config.py`）
+- ホストから: `postgresql+psycopg://postgres:postgres@localhost:35432/demo`（`backend/.env.example`）
+- テスト本体は従来どおりオンメモリの SQLite。PostgreSQL は CI のマイグレーション確認に使う
+
 ## ストレージ (S3)
 
 MinIO の公開イメージが Docker Hub と quay.io の両方から無くなったため、`storage` は

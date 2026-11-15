@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Optional
 
-from sqlalchemy import DATETIME, VARCHAR, Column
+from sqlalchemy import VARCHAR, Column, DateTime
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlmodel import Field, Relationship
 from sqlmodel._compat import SQLModelConfig
@@ -24,7 +24,7 @@ class User(Base, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(sa_column=Column(VARCHAR(1024)))
     email: str = Field(sa_column=Column(VARCHAR(1024)))
-    soft_destroyed_at: datetime | None = Field(default=None, sa_column=Column(DATETIME))
+    soft_destroyed_at: datetime | None = Field(default=None, sa_column=Column(DateTime))
     # UTCDateTime型を使うことで取得時にSQLを得られる
     # soft_destroyed_at: Optional[datetime] = Field(
     #     default=None, sa_column=Column(UTCDateTime)
@@ -40,7 +40,7 @@ class User(Base, table=True):
     organization4: Optional["Organization"] = Relationship(
         sa_relationship_kwargs={"lazy": "immediate"}
     )
-    birth_day: datetime | None = Field(default=None, sa_column=Column(DATETIME))
+    birth_day: datetime | None = Field(default=None, sa_column=Column(DateTime))
     salt: str | None = Field(default=None, sa_column=Column(VARCHAR(255)))
 
     posts: list["Post"] = Relationship()

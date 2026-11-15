@@ -1,7 +1,7 @@
 import datetime
 from typing import Any, override
 
-from sqlalchemy import DATETIME, TypeDecorator
+from sqlalchemy import DateTime, TypeDecorator
 from sqlalchemy.engine import Dialect
 from sqlmodel import SQLModel
 
@@ -17,7 +17,7 @@ class Base(SQLModel):
 
 
 class UTCDateTime(TypeDecorator[datetime.datetime]):
-    impl = DATETIME
+    impl = DateTime
 
     @override
     def process_result_value(
