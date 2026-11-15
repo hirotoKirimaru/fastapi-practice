@@ -13,6 +13,7 @@ from sqlmodel import col
 
 from src.helper.config import settings
 from src.models.user import UserProfile
+from src.worker import names
 from src.worker.celery_app import celery_app
 
 
@@ -26,6 +27,7 @@ engine_factory: Callable[[], Engine] = _default_engine
 
 
 @celery_app.task(
+    name=names.CREATE_USER_PROFILE,
     bind=True,
     autoretry_for=(ConnectionError,),
     retry_backoff=True,

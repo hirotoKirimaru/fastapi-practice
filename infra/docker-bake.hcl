@@ -78,6 +78,8 @@ target "api" {
 
 target "worker" {
   inherits = ["common"]
+  // BUILD_TARGET に関係なく、Dockerfile の worker ステージ（FastAPI を含まない）を作る
+  target = "worker"
 
   context = "backend"
   tags = ["worker:latest"]

@@ -90,7 +90,7 @@ alembic / `migrate_db.py`（同期）の両方が同じ設定 `DATABASE_URL` を
 
 重い処理は Celery の worker に投げる。ブローカーと結果の保存先は Valkey（Redis 互換。`infra/compose.yml` の `kvs`）。
 Celery 側は Redis 用のトランスポートのまま（`redis://`）で使える。
-worker のイメージは api と同じで、compose の `worker` サービスが起動コマンドだけ変えて動かす。
+worker は Dockerfile の `worker` ステージのイメージで動かす（FastAPI などの API の依存は入らない）。
 
 ```bash
 docker compose -f infra/compose.yml up -d --wait db kvs worker api
@@ -99,6 +99,15 @@ curl localhost:8000/jobs/<task_id>                  # => {"status": "SUCCESS", "
 ```
 
 - 設定: `src/worker/celery_app.py`、タスク: `src/worker/tasks.py`（タスクは同期関数で書く）
+- 依存の分け方（`backend/pyproject.toml`）:
+  - 共通（`[project].dependencies`）: API と worker の両方が使うものだけ（設定・モデル・DB ドライバ・`celery[redis]`）
+  - `api` グループ: FastAPI など API のプロセスだけが使うもの。worker のイメージには入れない
+  - `worker` グループ: worker だけが使うもの
+  - API はタスクの実装を import せず、`celery_app.send_task(names.XXX, args=...)` で名前を使って投入する
+    （タスク名は `src/worker/names.py`）。投入にも Celery の形式でメッセージを組み立てるクライアントが
+    要るので、`celery` 自体は共通の依存
+  - worker のイメージは Dockerfile の `worker` ステージ（共通 + worker グループだけ・非 root）
+  - この境界は `tests/unit/test_dependency_boundaries.py` が確かめる（崩すとテストが落ちる）
 - 並列数: 既定は CPU コア数（prefork = プロセス並列なので CPU を使う処理でも GIL に縛られない）。
   `WORKER_CONCURRENCY=8 docker compose ...` で変えられる。I/O 待ちが多い処理なら多めにする
 - `-O fair` と prefetch（既定 4、`CELERY_WORKER_PREFETCH_MULTIPLIER`）: 短いタスクが大量なら prefetch を増やす、

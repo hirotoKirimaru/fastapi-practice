@@ -707,21 +707,13 @@ wheels = [
 name = "fastapi-practice"
 version = "0.1.0"
 source = { editable = "." }
-default-groups = ["analyze", "api", "auth", "dev"]
+default-groups = ["analyze", "api", "auth", "dev", "worker"]
 dependencies = [
-    { name = "boto3" },
     { name = "celery", extra = ["redis"] },
-    { name = "google-genai" },
-    { name = "greenlet" },
-    { name = "passlib" },
-    { name = "polars" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pydantic", extra = ["email"] },
     { name = "pydantic-settings" },
-    { name = "sentry-sdk" },
     { name = "sqlmodel" },
-    { name = "strawberry-graphql", extra = ["fastapi"] },
-    { name = "tenacity" },
 ]
 
 [package.dev-dependencies]
@@ -730,7 +722,15 @@ analyze = [
     { name = "matplotlib" },
 ]
 api = [
+    { name = "boto3" },
     { name = "fastapi", extra = ["standard"] },
+    { name = "google-genai" },
+    { name = "greenlet" },
+    { name = "passlib" },
+    { name = "polars" },
+    { name = "sentry-sdk" },
+    { name = "strawberry-graphql", extra = ["fastapi"] },
+    { name = "tenacity" },
 ]
 auth = [
     { name = "pyjwt" },
@@ -753,19 +753,11 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "boto3", specifier = ">=1.44.1" },
     { name = "celery", extras = ["redis"], specifier = ">=5.7.0" },
-    { name = "google-genai", specifier = ">=3.2.0" },
-    { name = "greenlet", specifier = ">=3.5.6" },
-    { name = "passlib", specifier = ">=1.7.4" },
-    { name = "polars", specifier = ">=2.1.0" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.8" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.14.3" },
     { name = "pydantic-settings", specifier = ">=2.16.2" },
-    { name = "sentry-sdk", specifier = ">=2.74.0" },
     { name = "sqlmodel", specifier = ">=0.0.49" },
-    { name = "strawberry-graphql", extras = ["fastapi"], specifier = ">=0.341.2" },
-    { name = "tenacity", specifier = ">=9.1.4" },
 ]
 
 [package.metadata.requires-dev]
@@ -773,7 +765,17 @@ analyze = [
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "matplotlib", specifier = ">=3.11.2" },
 ]
-api = [{ name = "fastapi", extras = ["standard"], specifier = ">=0.162.5" }]
+api = [
+    { name = "boto3", specifier = ">=1.44.1" },
+    { name = "fastapi", extras = ["standard"], specifier = ">=0.162.5" },
+    { name = "google-genai", specifier = ">=3.2.0" },
+    { name = "greenlet", specifier = ">=3.5.6" },
+    { name = "passlib", specifier = ">=1.7.4" },
+    { name = "polars", specifier = ">=2.1.0" },
+    { name = "sentry-sdk", specifier = ">=2.74.0" },
+    { name = "strawberry-graphql", extras = ["fastapi"], specifier = ">=0.341.2" },
+    { name = "tenacity", specifier = ">=9.1.4" },
+]
 auth = [
     { name = "pyjwt", specifier = ">=2.15.1" },
     { name = "pyotp", specifier = ">=2.10.0" },
@@ -792,6 +794,7 @@ dev = [
     { name = "ty", specifier = ">=0.0.101" },
     { name = "types-passlib", specifier = ">=1.7.7.20260211" },
 ]
+worker = []
 
 [[package]]
 name = "fastar"
