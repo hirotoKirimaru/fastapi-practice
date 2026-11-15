@@ -71,7 +71,7 @@ uv add --group analyze jupyter matplotlib
 
 ## Python バージョン
 
-`.python-version` で 3.14 を固定。Dockerfile では `python:3.14-slim` を使用する。
+`.python-version` で 3.15 を固定。Dockerfile では `python:3.15-slim` を使用する。
 
 ## マイグレーション
 

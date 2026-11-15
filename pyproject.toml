@@ -5,27 +5,27 @@ description = "Add your description here"
 dependencies = [
     "aiomysql>=0.3.2",
     "polars>=2.1.0",
-    "boto3>=1.43.125",
-    "pydantic-settings>=2.16.2",
+    "boto3>=1.44.3",
+    "pydantic-settings>=2.16.3",
     "passlib>=1.7.4",
     "tenacity>=9.1.4",
-    "google-genai>=3.0.0",
-    "sqlmodel>=0.0.48",
+    "google-genai>=3.3.0",
+    "sqlmodel>=0.0.50",
     "pydantic[email]>=2.14.3",
-    "sentry-sdk>=2.74.0",
+    "sentry-sdk>=2.75.0",
     "greenlet>=3.5.6",
-    "strawberry-graphql[fastapi]>=0.340.0",
+    "strawberry-graphql[fastapi]>=0.341.2",
 ]
 readme = "README.md"
-requires-python = ">= 3.14"
+requires-python = ">= 3.15"
 
 [dependency-groups]
 api = [
-    "fastapi[standard]>=0.162.0"
+    "fastapi[standard]>=0.163.0"
 ]
 auth = [
     "pyjwt>=2.15.1",
-    "pyotp>=2.10.0",
+    "pyotp>=2.11.2",
 ]
 
 worker = [
@@ -33,8 +33,8 @@ worker = [
 ]
 
 dev = [
-    "ruff>=0.17.4",
-    "pytest-asyncio>=1.4.1.post1",
+    "ruff>=0.17.5",
+    "pytest-asyncio>=1.5.0",
     "aiosqlite>=0.22.1",
     "pytest-mock>=3.17.0",
     "pytest-check>=3.0.3",
@@ -42,7 +42,7 @@ dev = [
     "alembic>=1.20.1",
     "allure-pytest>=2.16.2",
     "types-passlib>=1.7.7.20260211",
-    "ty>=0.0.99",
+    "ty>=0.0.104",
     "tuna>=0.5.15",
     "poethepoet>=0.49.0",
     # tests/unit/crud/test_np_nan.py が直接 import する。
@@ -102,7 +102,7 @@ extend-immutable-calls = [
 "tests/helpers/tests/test_custom_assert.py" = ["DTZ011"]
 # (3) SQLModel の Relationship は、循環 import を避けて TYPE_CHECKING 下でしか import
 #     していないモデルを文字列の前方参照（"Post" / Optional["User"]）で指している。
-#     requires-python を 3.14 に上げると UP037 / UP045 が引用符を外させにくるが、
+#     requires-python を 3.14 以上にすると UP037 / UP045 が引用符を外させにくるが、
 #     外すと SQLModel / pydantic がクラス定義時に名前を解決できなくなるので対象から外す。
 "src/models/*.py" = ["UP037", "UP045"]
 # (4) テスト内の同期ファイル I/O。実行時間に影響しないため許容する。

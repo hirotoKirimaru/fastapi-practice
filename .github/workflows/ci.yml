@@ -23,7 +23,7 @@ jobs:
   # uv.lock の内容から決まるタグを算出し、そのタグが既に registry にあるかを判定する。
   # 既にあればビルド系のジョブごとスキップされる
   meta:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 5
     outputs:
       runtime_tag: ${{ steps.lock.outputs.runtime_tag }}
@@ -80,6 +80,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # amd64 イメージは amd64 ネイティブでビルドする（QEMU を避ける）ため、ここだけは x64 runner のまま
           - platform: linux/amd64
             runner: ubuntu-latest
             arch: amd64
@@ -140,7 +141,7 @@ jobs:
   merge:
     needs: [meta, build]
     if: needs.meta.outputs.exists != 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 10
     env:
       RUNTIME_TAG: ${{ needs.meta.outputs.runtime_tag }}
@@ -176,7 +177,7 @@ jobs:
       needs.meta.result == 'success' &&
       contains(fromJSON('["success", "skipped"]'), needs.build.result) &&
       contains(fromJSON('["success", "skipped"]'), needs.merge.result)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
     env:
       BUILD_TARGET: test
@@ -319,7 +320,7 @@ jobs:
   report:
     needs: test
     if: always() && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
