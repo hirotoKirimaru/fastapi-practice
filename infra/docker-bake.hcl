@@ -29,7 +29,7 @@ variable "PLATFORMS" {
 }
 
 group "default" {
-  targets = ["api", "worker"]
+  targets = ["api"]
 }
 
 // BUILD_TARGETだけを切り替えたいがための継承
@@ -76,12 +76,3 @@ target "api" {
   })
 }
 
-target "worker" {
-  inherits = ["common"]
-
-  context = "backend"
-  tags = ["worker:latest"]
-  args = merge(common_args, {
-    SERVICE_NAME = "worker"
-  })
-}

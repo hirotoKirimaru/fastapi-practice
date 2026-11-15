@@ -15,16 +15,19 @@ from pathlib import Path
 import pytest
 import pytest_asyncio
 from alembic.config import Config
+from dbos import DBOS
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import URL, create_engine, make_url, text
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
 from alembic import command
 from src.api.deps import get_db, get_reader_db, get_writer_db
 from src.helper.config import settings
 from src.main import app
+from src.workflows import onboarding
+from src.workflows.runtime import dbos_config
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 
@@ -63,7 +66,9 @@ def _drop_database(url: URL) -> None:
         url.set(database="postgres"), isolation_level="AUTOCOMMIT", poolclass=NullPool
     )
     with admin.connect() as conn:
-        conn.execute(text(f'DROP DATABASE IF EXISTS "{url.database}" WITH (FORCE)'))
+        # DBOS がテスト中に作るシステム DB（<テスト DB>_dbos_sys）も一緒に消す
+        for name in (url.database, f"{url.database}_dbos_sys"):
+            conn.execute(text(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)'))
     admin.dispose()
 
 
@@ -118,6 +123,36 @@ async def async_client(db: AsyncSession) -> AsyncGenerator[AsyncClient]:
         yield client
 
     app.dependency_overrides.clear()
+
+
+@pytest_asyncio.fixture
+async def dbos_runtime(
+    migrated_database_url: URL, monkeypatch: pytest.MonkeyPatch
+) -> AsyncGenerator[async_sessionmaker[AsyncSession]]:
+    """DBOS をテスト用 DB に向けて起動する。
+
+    ワークフローのステップは自分でセッションを開いて commit するので、`db` fixture の
+    ロールバックの外で書き込む。ここで作った行はテストの最後に消す。
+    """
+    url = migrated_database_url.render_as_string(hide_password=False)
+    DBOS.destroy()
+    DBOS(config=dbos_config(url, name="fastapi-practice-test"))
+    DBOS.reset_system_database()
+    DBOS.launch()
+
+    engine = create_async_engine(migrated_database_url, poolclass=NullPool)
+    factory = async_sessionmaker(engine, expire_on_commit=False)
+    monkeypatch.setattr(onboarding, "session_factory", factory)
+
+    yield factory
+
+    # DBOS.destroy() はイベントループの既定スレッドプールまで止めるので、その後は
+    # DB へつなげなくなる（名前解決にスレッドを使う）。後始末の削除は先に済ませる
+    async with engine.begin() as conn:
+        await conn.execute(text("DELETE FROM user_profiles"))
+        await conn.execute(text("DELETE FROM users"))
+    await engine.dispose()
+    DBOS.destroy()
 
 
 # anyio で asyncio だけでテストする

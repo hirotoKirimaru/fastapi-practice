@@ -12,6 +12,7 @@ from src.api.routers import (
     questions,
     task,
     user,
+    workflow,
 )
 
 api_router = APIRouter()
@@ -29,3 +30,4 @@ api_router.include_router(dependency_injection.router, prefix="/di", tags=["di"]
 api_router.include_router(array_factory.router, prefix="/array", tags=["array"])
 api_router.include_router(questions.router, prefix="/questions", tags=["questions"])
 api_router.include_router(pydantic.router, prefix="/pydantic", tags=["pydantic"])
+api_router.include_router(workflow.router, prefix="/workflows", tags=["workflows"])

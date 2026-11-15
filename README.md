@@ -86,6 +86,21 @@ alembic / `migrate_db.py`（同期）の両方が同じ設定 `DATABASE_URL` を
 - ローカル / CI の DB はパスワードなし（`POSTGRES_HOST_AUTH_METHOD=trust`）。本番では `DATABASE_URL` を環境変数で渡す
 - テストも PostgreSQL で動かす（上の「テスト」を参照）
 
+## バックグラウンド処理 (DBOS)
+
+途中で落ちても続きから再開できる処理（durable workflow）には [DBOS](https://github.com/dbos-inc/dbos-transact-py) を使う。
+Celery のようなブローカー（Redis / RabbitMQ）や専用ワーカーは要らず、**アプリと同じプロセスで動き、
+進み具合を同じ PostgreSQL サーバーの `<DB名>_dbos_sys` に記録する**。外部サービスへの接続は無い（セルフホスト）。
+
+- 書き方: 副作用（DB・外部 API）は `@DBOS.step()`、手順のつなぎを `@DBOS.workflow()` に書く
+- 起動: `src/main.py` の lifespan で `DBOS.launch()`。起動時に、前回途中で止まったワークフローを再開する
+- サンプル: `src/workflows/onboarding.py`（プロフィール作成 → ようこそ通知）
+  - `POST /workflows/onboarding/{user_id}` で開始。同じユーザーで何度呼んでも 1 回しか実行されない
+  - `GET /workflows/{workflow_id}` で状態（`PENDING` / `SUCCESS` / `ERROR` など）
+- ⚠️ uvicorn を複数プロセスで動かすときは、プロセスごとに executor_id を分ける必要がある
+
+起動ログに出る「DBOS Conductor」の URL は任意の管理画面（外部サービス）の案内で、使わなくても動作は変わらない。
+
 ## ストレージ (S3)
 
 MinIO の公開イメージが Docker Hub と quay.io の両方から無くなったため、`storage` は

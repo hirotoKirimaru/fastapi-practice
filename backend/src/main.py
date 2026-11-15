@@ -1,3 +1,7 @@
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+
+from dbos import DBOS
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.routing import APIRoute
@@ -10,6 +14,7 @@ from src.api.main import api_router
 from src.graphql.router import graphql_router
 from src.helper.config import settings
 from src.middleware.sentry import Sentry
+from src.workflows.runtime import dbos_config
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
@@ -20,7 +25,18 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 
 Sentry.init_sentry()
 
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
+    # DBOS はアプリと同じプロセスで動く。起動時に、前回落ちて途中のワークフローがあれば再開する
+    DBOS(config=dbos_config())
+    DBOS.launch()
+    yield
+    DBOS.destroy()
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     generate_unique_id_function=custom_generate_unique_id,
