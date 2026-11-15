@@ -22,5 +22,6 @@ npm run dev   # http://localhost:5173
 
 ## Docker Compose
 
-ルートの `compose.yml` に `frontend` サービスがあり、`docker compose up` だけで
-バックエンド + DB + frontend (5173 番) がまとめて立ち上がる。
+`infra/compose.yml` に `frontend` サービスがあり、リポジトリ直下で
+`docker compose -f infra/compose.yml up` するとバックエンド + DB + frontend (5173 番) がまとめて立ち上がる
+（frontend は profile に入っているので `infra/.env` に `COMPOSE_PROFILES=frontend` が必要）。

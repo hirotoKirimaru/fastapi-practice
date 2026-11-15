@@ -37,9 +37,7 @@ Thumbs.db
 *.log
 analyze
 
-# フロントエンドは frontend/ 側の Dockerfile が context: ./frontend で別に
-# ビルドするので、api イメージのビルドコンテキストには入れない
-# (node_modules がローカルにあると数百 MB 転送することになる)
-frontend
+# ビルドコンテキストは backend/ なので frontend/ や infra/ はそもそも含まれない。
+# backend 内にうっかり node_modules ができた場合だけ除外しておく
 node_modules
 **/node_modules

@@ -1,5 +1,5 @@
 # CI 専用の compose（compose.yml に重ねるオーバーライドではなく、これ単体で完結する）。
-#   COMPOSE_FILE=compose.ci.yml docker compose up -d --wait
+#   COMPOSE_FILE=infra/compose.ci.yml docker compose up -d --wait   （リポジトリ直下から）
 #
 # ローカル開発用の compose.yml とは目的が違うので、共有しない:
 #   - テストが使うサービスだけ（api / db / storage / relay）。kvs・mail・frontend は起動しない
@@ -12,10 +12,12 @@
 # テスト本体は tests/conftest.py のとおりオンメモリ SQLite。
 # MySQL は「マイグレーションが通ること」の確認に、S3 モックは tests/helpers/test_aws.py に使う。
 
+name: fastapi-practice
+
 services:
   api:
     build:
-      context: .
+      context: ../backend
       target: ${BUILD_TARGET:-test}
       args:
         - RUNTIME_TAG=${RUNTIME_TAG:-latest}
