@@ -44,11 +44,18 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: demo
       TZ: Asia/Tokyo
-    # 使い捨てなので耐久性のための書き込みを切る（クラッシュ時の保護は要らない）
+    # ジョブごとに捨てる DB なので、クラッシュやレプリケーションへの備えは全部切って速さを取る。
+    # 本番では絶対に使わない設定（電源断やクラッシュでデータが壊れる・消える）。
     command: >
       -c fsync=off
       -c synchronous_commit=off
       -c full_page_writes=off
+      -c wal_level=minimal
+      -c max_wal_senders=0
+      -c checkpoint_timeout=1d
+      -c max_wal_size=4GB
+      -c autovacuum=off
+      -c jit=off
     tmpfs:
       - /var/lib/postgresql
     # healthcheck があると `up --wait` が「起動した」ではなく
