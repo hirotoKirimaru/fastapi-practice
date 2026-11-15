@@ -1,8 +1,10 @@
 from typing import Any
 
-import polars
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
+
+# PEP 810 の遅延 import。CSV を読むエンドポイントが呼ばれるまで polars を読み込まない
+lazy import polars
 
 from src.api.deps import SessionWriterDep
 from src.helper.helper import session_context

@@ -1,7 +1,7 @@
 from io import StringIO
 from typing import Any
 
-import polars
+lazy import polars  # PEP 810: 使うまで読み込まない
 
 
 class Csvs:

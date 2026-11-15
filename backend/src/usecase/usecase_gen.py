@@ -1,7 +1,9 @@
 from types import TracebackType
 from typing import Self
 
-from google import genai
+# PEP 810（Python 3.15）の遅延 import。google.genai は import だけで約 0.35 秒かかるが、
+# 使うのは生成 API を叩いたときだけなので、アプリの起動時には読み込まない
+lazy from google import genai
 
 from src.helper.config import settings
 
