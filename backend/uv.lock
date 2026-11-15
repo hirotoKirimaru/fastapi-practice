@@ -281,6 +281,11 @@ wheels = [
     { url = "https://pypi.flatt.tech/files/packages/e9/cf/cd7fcb9d8f5a21fa420ddf19ee96969e36820182275a731abdf4260ed86a/celery-5.7.0-py3-none-any.whl", hash = "sha256:18310a9c919f9029e4735367484d93e6a25cdfd30afdc474622cc263d9b35f6e", size = 519594, upload-time = "2026-11-05T15:14:17.649Z" },
 ]
 
+[package.optional-dependencies]
+redis = [
+    { name = "kombu", extra = ["redis"] },
+]
+
 [[package]]
 name = "certifi"
 version = "2026.10.23"
@@ -702,9 +707,10 @@ wheels = [
 name = "fastapi-practice"
 version = "0.1.0"
 source = { editable = "." }
-default-groups = ["analyze", "api", "auth", "dev", "worker"]
+default-groups = ["analyze", "api", "auth", "dev"]
 dependencies = [
     { name = "boto3" },
+    { name = "celery", extra = ["redis"] },
     { name = "google-genai" },
     { name = "greenlet" },
     { name = "passlib" },
@@ -744,13 +750,11 @@ dev = [
     { name = "ty" },
     { name = "types-passlib" },
 ]
-worker = [
-    { name = "celery" },
-]
 
 [package.metadata]
 requires-dist = [
     { name = "boto3", specifier = ">=1.44.1" },
+    { name = "celery", extras = ["redis"], specifier = ">=5.7.0" },
     { name = "google-genai", specifier = ">=3.2.0" },
     { name = "greenlet", specifier = ">=3.5.6" },
     { name = "passlib", specifier = ">=1.7.4" },
@@ -788,7 +792,6 @@ dev = [
     { name = "ty", specifier = ">=0.0.101" },
     { name = "types-passlib", specifier = ">=1.7.7.20260211" },
 ]
-worker = [{ name = "celery", specifier = ">=5.7.0" }]
 
 [[package]]
 name = "fastar"
@@ -1530,6 +1533,12 @@ dependencies = [
 sdist = { url = "https://pypi.flatt.tech/files/packages/57/31/3e632ebce43c684dcc6eead4660b33307e6153be87e33c14e1ed9875deff/kombu-5.7.0.tar.gz", hash = "sha256:31e62fdfd2381caa3422f8e02b84a491d9a2180ddda74507b57f4cb1e1c2c2c9", size = 627051, upload-time = "2026-11-03T05:58:33.446Z" }
 wheels = [
     { url = "https://pypi.flatt.tech/files/packages/84/20/f73d8e0bff9708b0f2337220be1b5d7ebd738bc3a89b63cf44d257157014/kombu-5.7.0-py3-none-any.whl", hash = "sha256:dede73bff4c89175be382c4203d2f167cf7017c384396ec75c36a1b5678f1587", size = 266635, upload-time = "2026-11-03T05:58:31.475Z" },
+]
+
+[package.optional-dependencies]
+redis = [
+    { name = "packaging" },
+    { name = "redis" },
 ]
 
 [[package]]
@@ -2462,6 +2471,15 @@ wheels = [
     { url = "https://pypi.flatt.tech/files/packages/fd/25/e5b3e6a066b59840cdc0ea6de8244b1a50b5f237edc7b7adc0e085973708/pyzmq-27.3.0-cp315-cp315t-win32.whl", hash = "sha256:39b9ff1fbab854ccbc53da0e79cb6b78b61b470fb7c191b89aa034825ea9a883", size = 596443, upload-time = "2026-11-04T00:30:20.811Z" },
     { url = "https://pypi.flatt.tech/files/packages/3f/c8/20ecc504500aeaab0440a4c8487a3c1cd32f4ac38f3e92482f1671fcaeca/pyzmq-27.3.0-cp315-cp315t-win_amd64.whl", hash = "sha256:3b850eaa955ae7edb926fe266600e57da818255d1f6ee9c3d8049967aa4a22cc", size = 684767, upload-time = "2026-11-04T00:30:22.784Z" },
     { url = "https://pypi.flatt.tech/files/packages/e8/5d/33c528d9b7ee074d0807e3af1a23a3e50bfdbe28cbc178e99f0466c13648/pyzmq-27.3.0-cp315-cp315t-win_arm64.whl", hash = "sha256:f0b9d192b285a9d38e390e762011f2672432742a301859b6c8cb4fab5f10f687", size = 594143, upload-time = "2026-11-04T00:30:24.33Z" },
+]
+
+[[package]]
+name = "redis"
+version = "8.1.0"
+source = { registry = "https://pypi.flatt.tech/simple/" }
+sdist = { url = "https://pypi.flatt.tech/files/packages/a8/99/604f0b666d4c616d891cf77ebb9db6bb21601344c051aebf1b72b9ff915f/redis-8.1.0.tar.gz", hash = "sha256:6e1a19beef9225c83efd689c7e6b7da2d5215b1f42cd13b7fc3714d0a09c7b25", size = 5254356, upload-time = "2026-07-30T08:51:00.269Z" }
+wheels = [
+    { url = "https://pypi.flatt.tech/files/packages/66/9d/c5731f6e3608663d4d3656fd8d3aecee8b509c3082818f5a13eae925baea/redis-8.1.0-py3-none-any.whl", hash = "sha256:a4fe1aac3d3b3cc791d4b3d5931c5a956045dc951ee74d1c913ee3ac4d2ee9fb", size = 560618, upload-time = "2026-07-30T08:50:58.497Z" },
 ]
 
 [[package]]

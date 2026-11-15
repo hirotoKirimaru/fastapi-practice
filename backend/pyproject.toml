@@ -15,6 +15,8 @@ dependencies = [
     "pydantic[email]>=2.14.3",
     "sentry-sdk>=2.74.0",
     "greenlet>=3.5.6",
+    # バックグラウンド処理。API はジョブを投入するだけだが import はするので本体の依存に置く
+    "celery[redis]>=5.7.0",
     "strawberry-graphql[fastapi]>=0.341.2",
 ]
 requires-python = ">= 3.15"
@@ -28,9 +30,6 @@ auth = [
     "pyotp>=2.10.0",
 ]
 
-worker = [
-    "celery>=5.7.0",
-]
 
 dev = [
     "ruff>=0.17.4",
@@ -68,7 +67,7 @@ build-backend = "hatchling.build"
 
 [tool.uv]
 # uv >= 0.5: "all" 文字列ではなく "all-groups" を使う
-default-groups = ["api", "auth", "worker", "dev", "analyze"]
+default-groups = ["api", "auth", "dev", "analyze"]
 
 
 # Takumi Guard（GMO Flatt Security）の PyPI プロキシを既定のインデックスにし、既知の悪性パッケージを

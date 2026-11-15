@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     # （ローカル / CI の DB はパスワードなし。本番では環境変数で上書きする）
     DATABASE_URL: str = "postgresql+psycopg://postgres@db:5432/demo"
 
+    # Celery のブローカーと結果の保存先。既定値は infra/compose.yml の kvs（Valkey。Redis 互換なので redis://）
+    CELERY_BROKER_URL: str = "redis://kvs:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://kvs:6379/1"
+
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     FRONTEND_HOST: str = "http://localhost:5173"
