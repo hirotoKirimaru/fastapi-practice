@@ -31,7 +31,7 @@ ARG UV_GROUPS="--no-default-groups --group api --group auth --group worker --gro
 
 # 依存の解決だけを先に済ませてレイヤを分ける。
 # src/tests を触っただけでは 200 パッケージの再インストールが走らなくなる
-COPY README.md pyproject.toml .python-version uv.lock ./
+COPY pyproject.toml .python-version uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project ${UV_GROUPS}
 
@@ -65,7 +65,7 @@ FROM base AS prod_runtime
 # グループだけを明示する
 ARG UV_GROUPS="--no-default-groups --group api --group auth --group worker"
 
-COPY README.md pyproject.toml .python-version uv.lock ./
+COPY pyproject.toml .python-version uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project ${UV_GROUPS}
 

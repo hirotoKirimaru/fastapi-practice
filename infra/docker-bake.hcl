@@ -1,3 +1,6 @@
+// リポジトリ直下から実行する: docker buildx bake -f infra/docker-bake.hcl
+// （context のパスは bake を実行したディレクトリからの相対で解決される）
+
 variable "BUILD_TARGET" {
   default = "dev"
 }
@@ -62,7 +65,7 @@ variable "common_args" {
 
 target "api" {
   inherits = ["common"]
-  context = "."
+  context = "backend"
   tags = [
     "api:latest",
 //     "kirimaru/fastapi-practice_prod-runtime:latest"
@@ -76,7 +79,7 @@ target "api" {
 target "worker" {
   inherits = ["common"]
 
-  context = "."
+  context = "backend"
   tags = ["worker:latest"]
   args = merge(common_args, {
     SERVICE_NAME = "worker"

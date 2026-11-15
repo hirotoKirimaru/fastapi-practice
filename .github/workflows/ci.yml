@@ -35,7 +35,7 @@ jobs:
         id: lock
         run: |
           set -euo pipefail
-          LOCK_HASH=$(sha1sum < uv.lock | cut -d' ' -f1)
+          LOCK_HASH=$(sha1sum < backend/uv.lock | cut -d' ' -f1)
           RUNTIME_TAG="python-${LOCK_HASH}"
           echo "runtime_tag=${RUNTIME_TAG}" >> "$GITHUB_OUTPUT"
           echo "RUNTIME_TAG=${RUNTIME_TAG}" >> "$GITHUB_ENV"
@@ -112,7 +112,7 @@ jobs:
             --target dev_runtime \
             --metadata-file /tmp/metadata.json \
             --output "type=image,name=${IMAGE},oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push-by-digest=true,name-canonical=true,push=true" \
-            . 2>&1 | tee /tmp/buildx.log
+            backend 2>&1 | tee /tmp/buildx.log
           STATUS=${PIPESTATUS[0]}
           set -e
           if [ "${STATUS}" -ne 0 ]; then
@@ -183,10 +183,10 @@ jobs:
       BUILD_TARGET: test
       RUNTIME_TAG: ${{ needs.meta.outputs.runtime_tag }}
       # この先の docker compose 呼び出し全てで CI 専用の compose を使う。
-      # compose.yml には重ねず単体で使う（永続化なし・ポート公開なし・テストに要るサービスだけ）。
+      # infra/compose.yml には重ねず単体で使う（永続化なし・ポート公開なし・テストに要るサービスだけ）。
       # ステップごとに -f を並べると付け忘れで設定が効かない事故が起きるため、
       # 環境変数で一度だけ指定する
-      COMPOSE_FILE: compose.ci.yml
+      COMPOSE_FILE: infra/compose.ci.yml
     steps:
       - uses: actions/checkout@v7
 
@@ -199,7 +199,7 @@ jobs:
       - name: Pull dev_runtime image
         run: docker pull "${IMAGE}:${RUNTIME_TAG}"
 
-      # compose.ci.yml には api / db / storage / relay しか無い。
+      # infra/compose.ci.yml には api / db / storage / relay しか無い。
       # frontend・kvs・mail はテストから触らないので最初から定義していない
       - name: Compose up
         run: docker compose up -d --wait

@@ -2,20 +2,36 @@
 
 FastAPI / SQLModel / Strawberry GraphQL を題材にした学習用リポジトリ。
 
+## ディレクトリ構成
+
+| ディレクトリ | 中身 |
+|---|---|
+| `backend/` | FastAPI アプリ（`src/`）、テスト、alembic、`pyproject.toml` / `uv.lock`、Dockerfile |
+| `frontend/` | Vite + React + TypeScript のサンプルと、その Dockerfile |
+| `infra/` | compose（ローカル開発用 `compose.yml` / CI 専用 `compose.ci.yml`）と `docker-bake.hcl` |
+
+Python のコマンド（uv / poe / pytest / alembic）は `backend/` で、compose と bake はリポジトリ直下から実行する。
+
 ## セットアップ
 
 ```bash
+cd backend
+
 # 全依存関係をインストール
 uv sync
 
-# 環境変数ファイルを用意
+# 環境変数ファイルを用意（backend で直接動かすとき用）
 cp .env.example .env
 # 必要に応じて編集 (GOOGLE_API_KEY 等)
 ```
 
+compose で動かすときは `cp infra/.env.example infra/.env` を使う（compose は `infra/.env` を読む）。
+
 ## 開発
 
 ```bash
+cd backend
+
 # 開発サーバ
 uv run poe start
 
@@ -27,21 +43,26 @@ uv run poe lint
 ## テスト
 
 ```bash
+cd backend
 uv run pytest
 ```
 
 ## Docker
 
 ```bash
-# 開発用 (compose で起動)
-docker compose up -d --wait
+# 開発用 (compose で起動。リポジトリ直下から)
+docker compose -f infra/compose.yml up -d --wait
 
 # Bake で個別ビルド
-docker buildx bake
+docker buildx bake -f infra/docker-bake.hcl
 ```
 
-CI は `uv.lock` のハッシュをタグにして dev_runtime イメージを DockerHub に push し、test ジョブはそのイメージを再利用する。
-CI では `compose.yml` を使わず、CI 専用の `compose.ci.yml` を単体で使う（`COMPOSE_FILE=compose.ci.yml`）。
+毎回 `-f` を付けたくなければ `export COMPOSE_FILE=infra/compose.yml` しておく。
+compose のプロジェクト名は `name: fastapi-practice` で固定してあるので、
+コンテナ名やボリューム名は以前（直下に compose.yml があったとき）と変わらない。
+
+CI は `backend/uv.lock` のハッシュをタグにして dev_runtime イメージを DockerHub に push し、test ジョブはそのイメージを再利用する。
+CI では `infra/compose.yml` を使わず、CI 専用の `infra/compose.ci.yml` を単体で使う（`COMPOSE_FILE=infra/compose.ci.yml`）。
 テストに要る api / db / storage / relay だけを起動し、永続化はしない（名前付きボリューム無し・DB は tmpfs・
 binlog 無効・healthcheck あり）。ポート公開とソースのバインドマウントもしない。
 ローカルの `docker compose up` の挙動は変えていない。
@@ -59,6 +80,8 @@ S3 互換モックの [adobe/s3mock](https://github.com/adobe/S3Mock) を使う�
 ## 依存関係の更新
 
 ```bash
+cd backend
+
 # 全部最新化
 uv lock --upgrade
 uv sync
@@ -71,11 +94,12 @@ uv add --group analyze jupyter matplotlib
 
 ## Python バージョン
 
-`.python-version` で 3.15 を固定。Dockerfile では `python:3.15-slim` を使用する。
+`backend/.python-version` で 3.15 を固定。`backend/Dockerfile` では `python:3.15-slim` を使用する。
 
 ## マイグレーション
 
 ```bash
+cd backend
 uv run alembic upgrade head
 uv run alembic revision -m "description of changes"
 ```
@@ -83,7 +107,7 @@ uv run alembic revision -m "description of changes"
 ## DB が立ち上がるのを待つ (pre-start)
 
 `full-stack-fastapi-template` の `backend_pre_start.py` 相当のスクリプトを
-`src/backend_pre_start.py` に用意。tenacity で `SELECT 1` をリトライする。
+`backend/src/backend_pre_start.py` に用意（`backend/` で実行する）。tenacity で `SELECT 1` をリトライする。
 
 ```bash
 uv run poe pre-start
@@ -101,9 +125,9 @@ cp .env.example .env
 npm run dev   # http://localhost:5173
 ```
 
-`frontend` は compose の profile に入れてある。`.env.example` に
-`COMPOSE_PROFILES=frontend` があるので、`cp .env.example .env` してあれば
-`docker compose up` で一緒に立ち上がる（`docker compose up frontend` と
+`frontend` は compose の profile に入れてある。`infra/.env.example` に
+`COMPOSE_PROFILES=frontend` があるので、`cp infra/.env.example infra/.env` してあれば
+`docker compose -f infra/compose.yml up` で一緒に立ち上がる（`docker compose -f infra/compose.yml up frontend` と
 名指しすれば `.env` が無くても起動する）。
 バックエンドの CORS は `BACKEND_CORS_ORIGINS` / `FRONTEND_HOST` で制御する
 （デフォルトで `http://localhost:5173` を許可済）。
