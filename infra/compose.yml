@@ -36,6 +36,31 @@ services:
     depends_on:
       - db
       - storage
+      - kvs
+
+  # Celery の worker。イメージは api と同じで、起動コマンドだけ違う。
+  # 並列数は既定で CPU コア数。WORKER_CONCURRENCY で変えられる（I/O 待ちが多いなら多めに）
+  worker:
+    build:
+      context: ../backend
+      target: ${BUILD_TARGET:-dev}
+      args:
+        - RUNTIME_TAG=${RUNTIME_TAG:-latest}
+    # $$ は compose の展開を避けてコンテナ内のシェルに渡すため（空なら --concurrency を付けない）
+    command: >
+      sh -c 'exec uv run celery -A src.worker.celery_app worker
+      --loglevel=INFO -O fair $${WORKER_CONCURRENCY:+--concurrency=$$WORKER_CONCURRENCY}'
+    volumes:
+      - ../backend/src:/app/src
+    environment:
+      ENV: local
+      # 空なら celery の既定（CPU コア数）
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-}
+    networks:
+      - development_network
+    depends_on:
+      - db
+      - kvs
 
   db:
     image: postgres:18-alpine
@@ -87,7 +112,8 @@ services:
       - development_network
 
   kvs:
-    image: redis:7-alpine
+    # Redis 互換の Valkey（Linux Foundation 配下の OSS フォーク）。Celery からは redis:// のまま使える
+    image: valkey/valkey:9-alpine
     volumes:
       - kvs_data:/data
     networks:

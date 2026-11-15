@@ -86,6 +86,28 @@ alembic / `migrate_db.py`（同期）の両方が同じ設定 `DATABASE_URL` を
 - ローカル / CI の DB はパスワードなし（`POSTGRES_HOST_AUTH_METHOD=trust`）。本番では `DATABASE_URL` を環境変数で渡す
 - テストも PostgreSQL で動かす（上の「テスト」を参照）
 
+## バックグラウンド処理 (Celery)
+
+重い処理は Celery の worker に投げる。ブローカーと結果の保存先は Valkey（Redis 互換。`infra/compose.yml` の `kvs`）。
+Celery 側は Redis 用のトランスポートのまま（`redis://`）で使える。
+worker のイメージは api と同じで、compose の `worker` サービスが起動コマンドだけ変えて動かす。
+
+```bash
+docker compose -f infra/compose.yml up -d --wait db kvs worker api
+curl -X POST localhost:8000/jobs/user-profiles/1   # => {"task_id": "..."}
+curl localhost:8000/jobs/<task_id>                  # => {"status": "SUCCESS", "result": ...}
+```
+
+- 設定: `src/worker/celery_app.py`、タスク: `src/worker/tasks.py`（タスクは同期関数で書く）
+- 並列数: 既定は CPU コア数（prefork = プロセス並列なので CPU を使う処理でも GIL に縛られない）。
+  `WORKER_CONCURRENCY=8 docker compose ...` で変えられる。I/O 待ちが多い処理なら多めにする
+- `-O fair` と prefetch（既定 4、`CELERY_WORKER_PREFETCH_MULTIPLIER`）: 短いタスクが大量なら prefetch を増やす、
+  長いタスクが混じるなら 1 にすると偏りが減る
+- `task_acks_late`: 処理後に ack するので、worker が落ちてもタスクは再配送される。
+  その代わりタスクは 2 回実行されても壊れないように書く（サンプルは既存のプロフィールがあれば作らない）
+- 目安: 4 並列・DB 書き込みありのサンプルタスクで約 400 件/秒（Valkey 経由、手元計測）
+- テストは Valkey を使わず、メモリのブローカーで本物の worker をスレッドで動かす（`tests/conftest.py`）
+
 ## ストレージ (S3)
 
 MinIO の公開イメージが Docker Hub と quay.io の両方から無くなったため、`storage` は

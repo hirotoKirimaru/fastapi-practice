@@ -12,9 +12,15 @@ import os
 from collections.abc import AsyncGenerator, Iterator
 from pathlib import Path
 
+# Celery はテストでは Valkey を使わず、プロセス内のメモリをブローカー / 結果の保存先にする。
+# src を import する前（＝設定が読まれる前）に入れておく必要がある
+os.environ.setdefault("CELERY_BROKER_URL", "memory://")
+os.environ.setdefault("CELERY_RESULT_BACKEND", "cache+memory://")
+
 import pytest
 import pytest_asyncio
 from alembic.config import Config
+from celery.contrib.testing.worker import start_worker
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import URL, create_engine, make_url, text
 from sqlalchemy.exc import OperationalError
@@ -25,6 +31,8 @@ from alembic import command
 from src.api.deps import get_db, get_reader_db, get_writer_db
 from src.helper.config import settings
 from src.main import app
+from src.worker import tasks
+from src.worker.celery_app import celery_app
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 
@@ -118,6 +126,31 @@ async def async_client(db: AsyncSession) -> AsyncGenerator[AsyncClient]:
         yield client
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture(scope="session")
+def _celery_worker_thread(migrated_database_url: URL) -> Iterator[None]:
+    """本物の Celery worker をスレッドで 1 つ起動する（ブローカーはメモリ）。起動・停止に数秒かかるのでセッションで共有"""
+    engine = create_engine(migrated_database_url, poolclass=NullPool)
+    original = tasks.engine_factory
+    tasks.engine_factory = lambda: engine
+    with start_worker(celery_app, pool="solo", perform_ping_check=False):
+        yield
+    tasks.engine_factory = original
+    engine.dispose()
+
+
+@pytest.fixture
+def celery_worker(_celery_worker_thread: None) -> Iterator[None]:
+    """worker 経由でタスクを動かすテスト用。
+
+    タスクは自分で接続を開いて commit するので `db` fixture のロールバックの外で書き込む。
+    ここで作った行はテストの最後に消す。
+    """
+    yield
+    with tasks.engine_factory().begin() as conn:
+        conn.execute(text("DELETE FROM user_profiles"))
+        conn.execute(text("DELETE FROM users"))
 
 
 # anyio で asyncio だけでテストする

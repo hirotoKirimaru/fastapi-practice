@@ -27,7 +27,7 @@ FROM base AS dev_runtime
 # analyze グループ(jupyter/matplotlib 系 80 パッケージ)は src/tests から一切
 # 使っていないので、このイメージには入れない。ローカルで notebook を触るときは
 # ホスト側で `uv sync --group analyze` する
-ARG UV_GROUPS="--no-default-groups --group api --group auth --group worker --group dev"
+ARG UV_GROUPS="--no-default-groups --group api --group auth --group dev"
 
 # 依存の解決だけを先に済ませてレイヤを分ける。
 # src/tests を触っただけでは 200 パッケージの再インストールが走らなくなる
@@ -63,7 +63,7 @@ FROM base AS prod_runtime
 # `--no-dev` は dev グループしか外さないため、default-groups に入っている
 # analyze(jupyter/matplotlib) が本番イメージにまで載っていた。必要な
 # グループだけを明示する
-ARG UV_GROUPS="--no-default-groups --group api --group auth --group worker"
+ARG UV_GROUPS="--no-default-groups --group api --group auth"
 
 COPY pyproject.toml .python-version uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
