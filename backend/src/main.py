@@ -39,7 +39,9 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(graphql_router, prefix="/graphql")
 
 if settings.SENTRY_DSN and settings.ENV != "local":
-    app.add_middleware(SentryAsgiMiddleware)
+    # sentry の SentryAsgiMiddleware はコンストラクタに追加の引数を持つため、starlette の
+    # _MiddlewareFactory 型（引数の並びを ParamSpec で厳密に照合する）と一致しない。実行時は問題ない
+    app.add_middleware(SentryAsgiMiddleware)  # pyrefly: ignore[bad-argument-type]
 
 
 @app.exception_handler(Exception)

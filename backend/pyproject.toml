@@ -38,7 +38,6 @@ dev = [
     "aiosqlite>=0.22.1",
     "pytest-mock>=3.17.0",
     "pytest-check>=3.0.3",
-    "mypy>=2.4.1",
     "alembic>=1.20.1",
     "allure-pytest>=2.16.2",
     "types-passlib>=1.7.7.20260211",
@@ -48,11 +47,21 @@ dev = [
     # tests/unit/crud/test_np_nan.py が直接 import する。
     # 以前は analyze グループの matplotlib 経由で入っていたが、明示的に宣言する
     "numpy>=2.5.4",
+    "pyrefly>=1.4.1",
 ]
 analyze = [
     "jupyter>=1.1.1",
     "matplotlib>=3.11.2",
 ]
+
+[tool.pyrefly.errors]
+unannotated-return = "error"
+no-any-return = "error"
+redundant-cast = "warn"
+implicit-any = "error"
+method-assign = "error"
+redefinition = "ignore"
+implicit-any-parameter = "error"
 
 [build-system]
 requires = ["hatchling"]
@@ -121,10 +130,10 @@ extend-immutable-calls = [
 hello = "echo 'hello, poe!'"
 # import の並べ替え(I)も整形も ruff が持っているので、black / isort は使わない。
 # 併用すると同じ行を互いに書き換え合って poe lint のたびに差分が出る。
-lint = { sequence = ["lint:ruff", "lint:format", "lint:mypy", "lint:ty" ] }
+lint = { sequence = ["lint:ruff", "lint:format", "lint:pyrefly", "lint:ty" ] }
 "lint:ruff" = "ruff check . --fix"
 "lint:format" = "ruff format ."
-"lint:mypy" = "mypy ./src" # testディレクトリは無視
+"lint:pyrefly" = "pyrefly check"  # 対象は [tool.pyrefly] の project-includes（src のみ・tests は見ない）
 "lint:ty" = "ty check src"
 
 # ruff check / ruff format / ty をまとめて実行する
@@ -137,30 +146,12 @@ start = "uvicorn src.main:app --host 0.0.0.0 --reload"
 production = "uvicorn src.main:app --workers 4"
 pre-start = "python -m src.backend_pre_start"
 
-[tool.mypy]
-allow_redefinition = true
-allow_untyped_globals = false
-check_untyped_defs = true
-color_output = true
-disallow_incomplete_defs = true
-disallow_subclassing_any = false
-disallow_untyped_calls = false
-disallow_untyped_decorators = false
-disallow_untyped_defs = true
-error_summary = true
-ignore_missing_imports = true
-implicit_reexport = true
-namespace_packages = true
-no_implicit_optional = true
-pretty = true
-show_column_numbers = true
-show_error_codes = true
-show_error_context = true
-show_traceback = true
-strict = true
-warn_no_return = true
-warn_redundant_casts = true
-warn_return_any = true
-warn_unreachable = true
-warn_unused_configs = true
-warn_unused_ignores = false
+
+[tool.pyrefly]
+# 型チェックは pyrefly（mypy から移行）と ty の 2 本立て。
+# preset / 各設定は `pyrefly init` が旧 [tool.mypy] の設定から引き継いだもの（legacy = mypy に近い挙動）
+project-includes = ["src"]
+preset = "legacy"
+ignore-missing-imports = ["*"]
+check-unannotated-defs = true
+infer-return-types = "never"
