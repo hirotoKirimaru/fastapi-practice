@@ -27,7 +27,7 @@ def upgrade() -> None:
         sa.Column("name", sa.String(1024)),
         sa.Column("email", sa.String(1024)),
         sa.Column("organization_id", sa.Integer),
-        sa.Column("soft_destroyed_at", sa.DATETIME),
+        sa.Column("soft_destroyed_at", sa.DateTime),
         # sa.Column("user_name", sa.String(50), nullable=False),
     )
     op.create_table(
@@ -71,31 +71,35 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("user_id_1", sa.Integer, ForeignKey("users.id")),
         sa.Column("user_id_2", sa.Integer, ForeignKey("users.id")),
-        sa.Column("start_at", sa.DATETIME),
-        sa.Column("end_at", sa.DATETIME),
+        sa.Column("start_at", sa.DateTime),
+        sa.Column("end_at", sa.DateTime),
         sa.UniqueConstraint(
             "user_id_1", "user_id_2", "start_at", "end_at", name="uq_user_ids_start_end"
         ),
     )
-    # 仮想カラムを追加
-    op.execute(
-        """
-    ALTER TABLE relation_timelines 
-    ADD COLUMN end_at_flag TINYINT AS (IF(end_at IS NULL, 1, null)) VIRTUAL
-    """
-    )
 
-    # ユニークインデックスを追加
+    # 「同じ2人の、終わっていない（end_at が NULL の）関係は1つだけ」を保証する。
+    # MySQL には部分インデックスが無いので、以前は end_at_flag という仮想カラム
+    # （end_at が NULL なら 1、そうでなければ NULL）を作ってそこにユニークインデックスを張っていた。
+    # PostgreSQL は WHERE 付きのユニークインデックスで同じことが直接書ける。
     op.create_index(
         "uq_user_ids_start_end_flag",
         "relation_timelines",
-        ["user_id_1", "user_id_2", "end_at_flag"],
+        ["user_id_1", "user_id_2"],
         unique=True,
+        postgresql_where=sa.text("end_at IS NULL"),
     )
 
 
 def downgrade() -> None:
-    op.drop_table("users")
-    op.drop_table("organizations")
-    op.drop_table("tasks")
+    # 外部キーで参照される側を後に消す（以前は posts / relation_timelines を消し忘れ、
+    # users を posts より先に消そうとしていたため、PostgreSQL では downgrade が通らなかった）
+    op.drop_table("relation_timelines")
     op.drop_table("dones")
+    op.drop_table("tasks")
+    op.drop_table("posts")
+    op.drop_constraint(
+        "fk_users_organization_id_organizations", "users", type_="foreignkey"
+    )
+    op.drop_table("organizations")
+    op.drop_table("users")

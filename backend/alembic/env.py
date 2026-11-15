@@ -21,6 +21,11 @@ if config.config_file_name is not None:
 # target_metadata = None
 target_metadata = SQLModel.metadata
 
+# 接続先はアプリと同じ設定（DATABASE_URL）から取る。alembic.ini には書かない
+from src.helper.config import settings
+
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")

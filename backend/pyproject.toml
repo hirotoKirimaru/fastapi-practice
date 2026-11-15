@@ -3,7 +3,8 @@ name = "fastapi-practice"
 version = "0.1.0"
 description = "Add your description here"
 dependencies = [
-    "aiomysql>=0.3.2",
+    # PostgreSQL ドライバ。同期（alembic / migrate_db）と非同期（アプリ）の両方をこれ1つで賄う
+    "psycopg[binary]>=3.3.8",
     "polars>=2.1.0",
     "boto3>=1.44.1",
     "pydantic-settings>=2.16.2",

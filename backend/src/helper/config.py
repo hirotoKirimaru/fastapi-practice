@@ -32,6 +32,11 @@ class Settings(BaseSettings):
     SECRET: str = secrets.token_urlsafe(32)
     GOOGLE_API_KEY: str = ""
 
+    # SQLAlchemy の接続先。ドライバは psycopg 3 で、同期・非同期のどちらの engine にも同じ URL を渡せる。
+    # 既定値は infra/compose.yml の db サービス（コンテナ内から見た host / port）。
+    # ホストから直接つなぐときは postgresql+psycopg://postgres:postgres@localhost:35432/demo
+    DATABASE_URL: str = "postgresql+psycopg://postgres:postgres@db:5432/demo"
+
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     FRONTEND_HOST: str = "http://localhost:5173"

@@ -4,14 +4,9 @@ from typing import Annotated
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-# ASYNC_DB_URL = "mysql+aiomysql://root@db:3306/demo?charset=utf8"
+from src.helper.config import settings
 
-# 非同期のテストのために、aiomysqlを使用する
-# ASYNC_DB_URL = "mysql+aiomysql://root@localhost:33306/demo?charset=utf8"
-# ASYNC_DB_URL = "mysql+pymysql://root@localhost:33306/demo?charset=utf8"
-ASYNC_DB_URL = "mysql+aiomysql://root@db:3306/demo?charset=utf8"
-
-async_engine = create_async_engine(ASYNC_DB_URL, echo=True)
+async_engine = create_async_engine(settings.DATABASE_URL, echo=True)
 # async_session = sessionmaker(
 #     autocommit=False, autoflush=False, bind=async_engine, class_=AsyncSession
 # )

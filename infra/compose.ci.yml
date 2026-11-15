@@ -10,7 +10,7 @@
 #     「CI で検証したもの＝イメージに入っているもの」になる
 #
 # テスト本体は tests/conftest.py のとおりオンメモリ SQLite。
-# MySQL は「マイグレーションが通ること」の確認に、S3 モックは tests/helpers/test_aws.py に使う。
+# PostgreSQL は「マイグレーションが通ること」の確認に、S3 モックは tests/helpers/test_aws.py に使う。
 
 name: fastapi-practice
 
@@ -38,23 +38,23 @@ services:
         condition: service_started
 
   db:
-    image: mysql:8.4
+    image: postgres:18-alpine
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      MYSQL_DATABASE: demo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: demo
       TZ: Asia/Tokyo
+    # 使い捨てなので耐久性のための書き込みを切る（クラッシュ時の保護は要らない）
     command: >
-      --mysql-native-password=ON
-      --skip-log-bin
-      --performance-schema=OFF
-      --innodb-flush-log-at-trx-commit=0
-      --innodb-doublewrite=0
+      -c fsync=off
+      -c synchronous_commit=off
+      -c full_page_writes=off
     tmpfs:
-      - /var/lib/mysql
+      - /var/lib/postgresql
     # healthcheck があると `up --wait` が「起動した」ではなく
     # 「接続を受け付けられる」まで待つ。後段の alembic のリトライが空振りしなくなる
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "demo"]
       interval: 2s
       timeout: 5s
       retries: 30
