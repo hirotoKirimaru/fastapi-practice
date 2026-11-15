@@ -18,13 +18,14 @@ class TestTask:
 
             await db.commit()
             await db.refresh(task1)
+            task1_id = task1.id
 
             # WHEN
             actual = await src.crud.task.get_tasks_with_done(db)
 
             # THEN
             assert len(actual) == 1
-            assert actual == [(1, "ダミー1", False)]
+            assert actual == [(task1_id, "ダミー1", False)]
 
         @pytest.mark.asyncio
         async def test_get_multiple(self, db):
@@ -37,13 +38,17 @@ class TestTask:
             await db.commit()
             await db.refresh(task1)
             await db.refresh(task2)
+            task1_id, task2_id = task1.id, task2.id
 
             # WHEN
             actual = await src.crud.task.get_tasks_with_done(db)
 
             # THEN
             assert len(actual) == 2
-            assert actual == [(1, "ダミー1", False), (2, "ダミー2", False)]
+            assert actual == [
+                (task1_id, "ダミー1", False),
+                (task2_id, "ダミー2", False),
+            ]
 
     class TestGetTasksWithDoneInnerJoin:
         @pytest.mark.asyncio
@@ -54,8 +59,10 @@ class TestTask:
 
             await db.commit()
             await db.refresh(task1)
+            # 次の commit で task1 は期限切れになり、属性を読むと同期の文脈で DB へ行ってしまうので退避
+            task1_id = task1.id
 
-            done1 = Done(id=task1.id)
+            done1 = Done(id=task1_id)
             db.add(done1)
 
             await db.commit()
@@ -66,7 +73,7 @@ class TestTask:
 
             # THEN
             assert len(actual) == 1
-            assert actual == [(1, "ダミー1", True)]
+            assert actual == [(task1_id, "ダミー1", True)]
 
         @pytest.mark.asyncio
         async def test_get_multiple(self, db):
@@ -79,9 +86,10 @@ class TestTask:
             await db.commit()
             await db.refresh(task1)
             await db.refresh(task2)
+            task1_id, task2_id = task1.id, task2.id
 
-            done1 = Done(id=task1.id)
-            done2 = Done(id=task2.id)
+            done1 = Done(id=task1_id)
+            done2 = Done(id=task2_id)
             db.add(done1)
             db.add(done2)
 
@@ -94,7 +102,7 @@ class TestTask:
 
             # THEN
             assert len(actual) == 2
-            assert actual == [(1, "ダミー1", True), (2, "ダミー2", True)]
+            assert actual == [(task1_id, "ダミー1", True), (task2_id, "ダミー2", True)]
 
         class TestExpunge:
             """

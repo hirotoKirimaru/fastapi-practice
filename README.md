@@ -42,10 +42,19 @@ uv run poe lint
 
 ## テスト
 
+テストは本番と同じ PostgreSQL で動かし、スキーマは alembic のマイグレーションで作る
+（`tests/conftest.py`）。`DATABASE_URL` の DB 名に `_test` を付けた DB をテストのたびに作り直し、
+各テストはトランザクションをロールバックして後始末する。先に DB を起動しておく。
+
 ```bash
+docker compose -f infra/compose.yml up -d --wait db
 cd backend
+cp .env.example .env   # DATABASE_URL をホスト（localhost:35432）向けにする
 uv run pytest
 ```
+
+モデルを変えたら `uv run alembic revision --autogenerate -m "..."` でマイグレーションを作る。
+ずれていると CI の `alembic check` で落ちる。
 
 ## Docker
 
@@ -72,9 +81,10 @@ binlog 無効・healthcheck あり）。ポート公開とソースのバイン�
 `infra/compose.yml` の `db` は `postgres:18-alpine`。ドライバは psycopg 3 で、アプリ（非同期）と
 alembic / `migrate_db.py`（同期）の両方が同じ設定 `DATABASE_URL` を使う。
 
-- コンテナ内の既定: `postgresql+psycopg://postgres:postgres@db:5432/demo`（`src/helper/config.py`）
-- ホストから: `postgresql+psycopg://postgres:postgres@localhost:35432/demo`（`backend/.env.example`）
-- テスト本体は従来どおりオンメモリの SQLite。PostgreSQL は CI のマイグレーション確認に使う
+- コンテナ内の既定: `postgresql+psycopg://postgres@db:5432/demo`（`src/helper/config.py`）
+- ホストから: `postgresql+psycopg://postgres@localhost:35432/demo`（`backend/.env.example`）
+- ローカル / CI の DB はパスワードなし（`POSTGRES_HOST_AUTH_METHOD=trust`）。本番では `DATABASE_URL` を環境変数で渡す
+- テストも PostgreSQL で動かす（上の「テスト」を参照）
 
 ## ストレージ (S3)
 

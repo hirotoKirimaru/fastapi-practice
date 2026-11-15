@@ -212,6 +212,11 @@ jobs:
           retry_wait_seconds: 10
           command: docker compose exec -T api uv run alembic upgrade head
 
+      # モデルとマイグレーションのずれを検出する。モデルを変えたのにマイグレーションを
+      # 足し忘れると、ここで「New upgrade operations detected」として落ちる
+      - name: Check models match migrations
+        run: docker compose exec -T api uv run alembic check
+
       - name: Run tests
         id: pytest
         run: |

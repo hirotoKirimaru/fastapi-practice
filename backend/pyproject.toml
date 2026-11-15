@@ -35,7 +35,6 @@ worker = [
 dev = [
     "ruff>=0.17.4",
     "pytest-asyncio>=1.4.1.post1",
-    "aiosqlite>=0.22.1",
     "pytest-mock>=3.17.0",
     "pytest-check>=3.0.3",
     "alembic>=1.20.1",
