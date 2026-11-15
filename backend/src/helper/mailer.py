@@ -1,5 +1,5 @@
 from email.message import EmailMessage
-from enum import Enum
+from enum import StrEnum
 from smtplib import SMTP
 from typing import Any, Final, NamedTuple
 
@@ -15,7 +15,7 @@ class Mailer:
         text: Template
         html: Template
 
-    class MailExtension(str, Enum):
+    class MailExtension(StrEnum):
         TEXT = "txt"
         HTML = "html"
 
