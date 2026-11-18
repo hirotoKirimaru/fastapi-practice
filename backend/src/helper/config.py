@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     # ホストから直接つなぐときは postgresql+psycopg://postgres@localhost:35432/demo
     # （ローカル / CI の DB はパスワードなし。本番では環境変数で上書きする）
     DATABASE_URL: str = "postgresql+psycopg://postgres@db:5432/demo"
+    # 発行した SQL をすべて標準出力に出す（学習用に既定で有効）。
+    # ログレベルとは無関係に出るので、並列テストなど出力を絞りたいときは SQL_ECHO=false にする
+    SQL_ECHO: bool = True
 
     # Celery のブローカーと結果の保存先。既定値は infra/compose.yml の kvs（Valkey。Redis 互換なので redis://）
     CELERY_BROKER_URL: str = "redis://kvs:6379/0"

@@ -39,9 +39,15 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 def _test_database_url() -> URL:
     if url := os.environ.get("TEST_DATABASE_URL"):
-        return make_url(url)
-    url = make_url(settings.DATABASE_URL)
-    return url.set(database=f"{url.database}_test")
+        url = make_url(url)
+    else:
+        url = make_url(settings.DATABASE_URL)
+        url = url.set(database=f"{url.database}_test")
+    # pytest-xdist で並列に動かすと、ワーカーごとに別の DB を使う（demo_test_gw0, demo_test_gw1 ...）。
+    # 同じ DB を各ワーカーが作り直し合うと壊れるため
+    if worker := os.environ.get("PYTEST_XDIST_WORKER"):
+        url = url.set(database=f"{url.database}_{worker}")
+    return url
 
 
 def _recreate_database(url: URL) -> None:

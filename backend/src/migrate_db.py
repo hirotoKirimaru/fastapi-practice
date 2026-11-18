@@ -4,7 +4,7 @@ from src.helper.config import settings
 from src.models.task import Base
 from src.models.user import Base as Base2
 
-engine = create_engine(settings.DATABASE_URL, echo=True)
+engine = create_engine(settings.DATABASE_URL, echo=settings.SQL_ECHO)
 
 
 def reset_database() -> None:

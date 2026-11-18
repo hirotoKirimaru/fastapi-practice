@@ -50,8 +50,20 @@ uv run poe lint
 docker compose -f infra/compose.yml up -d --wait db
 cd backend
 cp .env.example .env   # DATABASE_URL をホスト（localhost:35432）向けにする
-uv run pytest
+uv run poe test        # 並列で全テスト -> 失敗したものだけ直列・DEBUG で再実行
+uv run pytest          # 直列でそのまま流す場合
 ```
+
+`poe test`（`scripts/test.sh`）は 2 段階で動く。
+
+1. pytest-xdist で並列に全テスト。捕捉するログは CRITICAL だけ、SQL の echo（`SQL_ECHO`）も切って
+   メモリと出力を抑える。並列数は `PYTEST_WORKERS`（既定 `auto`、`0` で直列）
+2. 失敗があれば、失敗したテストだけを直列で再実行し、DEBUG ログまで表示する
+
+並列のときはワーカーごとに別のテスト用 DB（`demo_test_gw0` など）を作る。
+手元の 4 コアでの目安は、直列 約 14 秒・316MB に対して並列（4）約 12 秒・1.1GB。
+テストの数が少なく、アプリの import（約 3 秒）と Celery の worker の停止（約 4 秒）が大半を占めるため、
+並列化で縮むのは 2 秒ほど。メモリを優先するなら `PYTEST_WORKERS=0` にする。
 
 モデルを変えたら `uv run alembic revision --autogenerate -m "..."` でマイグレーションを作る。
 ずれていると CI の `alembic check` で落ちる。

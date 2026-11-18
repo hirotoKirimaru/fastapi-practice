@@ -182,8 +182,9 @@ jobs:
       - name: Check models match migrations
         run: uv run alembic check
 
+      # 並列（ログは CRITICAL だけ）で全テスト -> 失敗したものだけ直列・DEBUG で再実行（scripts/test.sh）
       - name: Run tests
-        run: uv run pytest --alluredir=allure-results
+        run: bash scripts/test.sh
 
       - name: Upload Allure results
         if: always()
