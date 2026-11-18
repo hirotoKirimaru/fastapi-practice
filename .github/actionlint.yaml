@@ -1,0 +1,5 @@
+# actionlint（1.7.12 時点）の既知ラベル一覧に ubuntu-26.04 系がまだ無いため、使っているものを足す。
+# GitHub 側では提供済み（https://github.com/actions/runner-images の README の表に ubuntu-26.04-arm がある）
+self-hosted-runner:
+  labels:
+    - ubuntu-26.04-arm

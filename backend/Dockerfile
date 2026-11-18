@@ -67,8 +67,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen ${UV_GROUPS}
 
 # 5. 本番用ランタイム
-ARG RUNTIME_TAG
-FROM kirimaru/fastapi-practice_prod-runtime:${RUNTIME_TAG} AS prod
+# 以前は kirimaru/fastapi-practice_prod-runtime:${RUNTIME_TAG} から作っていたが、その image を
+# ビルドして push している所がどこにも無く、このステージはビルドできなかった。同じ Dockerfile の
+# prod_runtime ステージから作る
+FROM prod_runtime AS prod
 
 COPY src /app/src
 

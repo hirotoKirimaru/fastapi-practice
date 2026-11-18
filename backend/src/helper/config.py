@@ -29,7 +29,10 @@ class Settings(BaseSettings):
     ENV: Literal["local", "staging", "prod"] = "local"
     PROJECT_NAME: str = "fastapi-practice"
     API_V1_STR: str = ""
-    SECRET: str = secrets.token_urlsafe(32)
+    # JWT の署名鍵。全プロセスで同じ値でないと、あるプロセスが発行したトークンを別のプロセスが
+    # 受け付けない（--workers 4 や再起動で壊れる）。以前は既定値がプロセスごとの乱数だったので、
+    # ENV が local 以外で未設定ならエラーにする。local だけは未設定でも乱数で起動する（警告あり）
+    SECRET: str = ""
     GOOGLE_API_KEY: str = ""
 
     # SQLAlchemy の接続先。ドライバは psycopg 3 で、同期・非同期のどちらの engine にも同じ URL を渡せる。
@@ -97,6 +100,17 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:
+        if not self.SECRET:
+            if self.ENV != "local":
+                raise ValueError(
+                    "SECRET が設定されていません。全プロセスで同じ値を環境変数で渡してください"
+                )
+            warnings.warn(
+                "SECRET が未設定なので乱数を使います。プロセスごとに値が変わるため、"
+                "複数プロセスや再起動をまたいでトークンは使えません",
+                stacklevel=1,
+            )
+            self.SECRET = secrets.token_urlsafe(32)
         self._check_default_secret("SECRET", self.SECRET)
         return self
 

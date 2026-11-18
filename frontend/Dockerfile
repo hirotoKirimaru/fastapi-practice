@@ -3,8 +3,9 @@ FROM node:24-alpine AS dev
 
 WORKDIR /app
 
-COPY package.json .npmrc ./
-RUN npm install
+# package-lock.json のとおりに入れる（以前は lockfile が無く、ビルドのたびに版が変わり得た）
+COPY package.json package-lock.json .npmrc ./
+RUN npm ci
 
 COPY . .
 

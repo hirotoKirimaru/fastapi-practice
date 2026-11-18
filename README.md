@@ -82,7 +82,17 @@ docker buildx bake -f infra/docker-bake.hcl
 compose のプロジェクト名は `name: fastapi-practice` で固定してあるので、
 コンテナ名やボリューム名は以前（直下に compose.yml があったとき）と変わらない。
 
-CI（`.github/workflows/ci.yml`）のテストはイメージを使わず、runner 上で `uv run` する。
+CI（`.github/workflows/ci.yml`）は arm64 の runner（`ubuntu-26.04-arm`）で、次のジョブが並行して走る。
+
+| ジョブ | 内容 |
+|---|---|
+| `test` | マイグレーション → `alembic check` → `scripts/test.sh`（並列で全テスト、失敗したら直列・DEBUG で再実行。遅いテスト上位 10 件を毎回出す） |
+| `lint` | `ruff check` / `ruff format --check` / `pyrefly check`（ty は既存の指摘が残っているので未導入） |
+| `frontend` | `npm install` → `npm run build` |
+| `build` | dev_runtime イメージを arm64 でビルドして push（`uv.lock` が変わったときだけ） |
+| `build-images` | `prod` / `worker` イメージがビルドできることの確認（push しない） |
+
+CI のテストはイメージを使わず、runner 上で `uv run` する。
 Docker を使うのは PostgreSQL と S3 モックの service コンテナだけ（DB は tmpfs・fsync などを切った使い捨て）。
 流れはローカルと同じで、`alembic upgrade head` → `alembic check` → `pytest`。
 dev_runtime イメージは arm64 だけビルドして DockerHub に push する（`backend/uv.lock` のハッシュをタグにし、
@@ -96,6 +106,11 @@ alembic / `migrate_db.py`（同期）の両方が同じ設定 `DATABASE_URL` を
 - コンテナ内の既定: `postgresql+psycopg://postgres@db:5432/demo`（`src/helper/config.py`）
 - ホストから: `postgresql+psycopg://postgres@localhost:35432/demo`（`backend/.env.example`）
 - ローカル / CI の DB はパスワードなし（`POSTGRES_HOST_AUTH_METHOD=trust`）。本番では `DATABASE_URL` を環境変数で渡す
+
+## SECRET
+
+JWT の署名鍵。**全プロセスで同じ値**でないと、あるプロセスが発行したトークンを別のプロセスが受け付けない。
+`ENV` が `local` 以外で未設定なら起動時にエラーになる。`local` では未設定でも乱数で起動する（警告が出る）。
 - テストも PostgreSQL で動かす（上の「テスト」を参照）
 
 ## バックグラウンド処理 (Celery)

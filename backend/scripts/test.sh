@@ -11,7 +11,11 @@ set -u
 
 workers="${PYTEST_WORKERS:-auto}"
 
-SQL_ECHO=false uv run pytest -n "$workers" -q --log-level=CRITICAL "$@"
+# --durations: 遅いテスト上位 10 件を毎回出す（どこに時間がかかっているかを見えるようにする）
+# --dist loadfile: 同じファイルのテストを同じワーカーに寄せる。Celery の worker を使うテスト
+# （tests/unit/worker/test_tasks.py）が散らばると、worker の停止（約 4 秒）をワーカーごとに払うため。
+# （--dist loadgroup + xdist_group の方が細かく選べるが、pytest 9.2 + pytest-xdist 3.8 では効かなかった）
+SQL_ECHO=false uv run pytest -n "$workers" --dist loadfile -q --log-level=CRITICAL --durations=10 "$@"
 status=$?
 
 # 1 = テストの失敗。それ以外（収集エラーや中断など）は再実行しても意味がない
