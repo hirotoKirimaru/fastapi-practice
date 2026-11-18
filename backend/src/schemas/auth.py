@@ -1,24 +1,28 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+"""fastapi-users の入出力スキーマに、このアプリの項目（name）を足したもの"""
+
+from fastapi_users import schemas
+from pydantic import BaseModel, Field
 
 
-class Token(BaseModel):
-    """OAuth2 のパスワードフローで返すアクセストークン"""
-
-    access_token: str
-    token_type: str = "bearer"
+class UserRead(schemas.BaseUser[int]):
+    name: str | None = None
 
 
-class UserSignup(BaseModel):
+class UserCreate(schemas.BaseUserCreate):
     name: str = Field(min_length=1, max_length=255)
-    email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
 
 
-class UserPublic(BaseModel):
-    """外に返してよいユーザの項目（パスワードのハッシュは含めない）"""
+class UserUpdate(schemas.BaseUserUpdate):
+    name: str | None = Field(default=None, min_length=1, max_length=255)
 
-    model_config = ConfigDict(from_attributes=True)
 
-    id: int
-    name: str
-    email: str
+class UpdatePassword(BaseModel):
+    """PATCH /users/me/password。今のパスワードを確かめてから変える"""
+
+    current_password: str
+    new_password: str
+
+
+class UsersPage(BaseModel):
+    data: list[UserRead]
+    count: int

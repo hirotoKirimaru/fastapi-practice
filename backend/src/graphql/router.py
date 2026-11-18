@@ -1,24 +1,23 @@
 from typing import Any
 
 from fastapi import Depends
-from fastapi.security.utils import get_authorization_scheme_param
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.requests import Request
 from strawberry.fastapi import GraphQLRouter
 
-from src.api.deps import get_db, get_user_from_token
+from src.api.deps import get_writer_db
+from src.auth.backend import fastapi_users
 from src.graphql.schema import schema
+from src.models.user import User
+
+# REST と同じ Authorization: Bearer <token>。無い・不正・ログアウト済みなら None（ログイン不要の
+# フィールドはそのまま使え、要ログインのフィールドだけが IsAuthenticated で弾かれる）
+optional_active_user = fastapi_users.current_user(active=True, optional=True)
 
 
 async def get_context(
-    request: Request, session: AsyncSession = Depends(get_db)
+    session: AsyncSession = Depends(get_writer_db),
+    user: User | None = Depends(optional_active_user),
 ) -> dict[str, Any]:
-    # REST と同じ Authorization: Bearer <JWT>。無い・不正なら user は None（ログイン不要の
-    # フィールドはそのまま使え、要ログインのフィールドだけが IsAuthenticated で弾かれる）
-    scheme, token = get_authorization_scheme_param(request.headers.get("Authorization"))
-    user = await get_user_from_token(
-        session, token if scheme.lower() == "bearer" else None
-    )
     return {"session": session, "user": user}
 
 

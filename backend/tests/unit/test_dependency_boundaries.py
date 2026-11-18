@@ -28,6 +28,9 @@ API_ONLY_MODULES = (
     "tenacity",
     "google.genai",
     "sentry_sdk",
+    # auth グループ（worker のイメージには入らない）
+    "fastapi_users",
+    "jwt",
 )
 
 

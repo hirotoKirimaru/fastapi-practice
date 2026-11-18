@@ -4,19 +4,45 @@
  */
 
 export type Token = { access_token: string; token_type: string };
-export type UserPublic = { id: number; name: string; email: string };
-export type SignupInput = { name: string; email: string; password: string };
 
-/** HTTP のエラー。detail はバックエンドの {"detail": ...} */
+/** fastapi-users の UserRead（backend/src/schemas/auth.py） */
+export type User = {
+  id: number;
+  name: string | null;
+  email: string;
+  is_active: boolean;
+  is_superuser: boolean;
+  is_verified: boolean;
+};
+export type RegisterInput = { name: string; email: string; password: string };
+export type UserUpdate = Partial<Pick<User, "name" | "email">> & { password?: string };
+/** 管理者だけが変えられる項目も含む（PATCH /users/{id}） */
+export type AdminUserUpdate = UserUpdate & Partial<Pick<User, "is_active" | "is_superuser" | "is_verified">>;
+export type UsersPage = { data: User[]; count: number };
+export type Post = { id: number; title: string; user_id: number };
+export type Task = { id: number; title: string; done: boolean };
+export type Page = { skip?: number; limit?: number };
+
+/**
+ * HTTP のエラー。detail はバックエンドの {"detail": ...}。
+ * fastapi-users は "LOGIN_BAD_CREDENTIALS" のようなコードか {code, reason} を返すので、code に揃える
+ */
 export class ApiError extends Error {
   readonly status: number;
   readonly detail: unknown;
+  /** detail が文字列ならそれ、{code} ならその code */
+  readonly code: string | undefined;
+  /** {reason} があればそれ（パスワードの規則違反の理由など） */
+  readonly reason: string | undefined;
 
   constructor(status: number, detail: unknown) {
     super(`HTTP ${status}: ${typeof detail === "string" ? detail : JSON.stringify(detail)}`);
     this.name = "ApiError";
     this.status = status;
     this.detail = detail;
+    const obj = typeof detail === "object" && detail !== null ? (detail as Record<string, unknown>) : {};
+    this.code = typeof detail === "string" ? detail : typeof obj.code === "string" ? obj.code : undefined;
+    this.reason = typeof obj.reason === "string" ? obj.reason : undefined;
   }
 }
 
@@ -57,7 +83,16 @@ export function createApiClient(options: ApiClientOptions) {
       signal: init.signal ?? options.signal,
     });
     const text = await res.text();
-    const body: unknown = text ? JSON.parse(text) : null;
+    let body: unknown = null;
+    if (text) {
+      try {
+        body = JSON.parse(text);
+      } catch {
+        // JSON でない本文（プロキシの HTML のエラーページなど）は文字列のまま detail にする
+        if (res.ok) throw new ApiError(res.status, `JSON ではない応答: ${text.slice(0, 200)}`);
+        body = text;
+      }
+    }
     if (!res.ok) {
       const detail =
         body !== null && typeof body === "object" && "detail" in body ? body.detail : body;
@@ -74,26 +109,70 @@ export function createApiClient(options: ApiClientOptions) {
     };
   }
 
+  const query = (page: Page = {}) => {
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries(page)) if (v !== undefined) params.set(k, String(v));
+    const qs = params.toString();
+    return qs ? `?${qs}` : "";
+  };
+
   return {
     health: () => request<{ Hello: string }>("/health/"),
     healthCheck: () => request<boolean>("/health-check/"),
 
-    signup: (input: SignupInput) => request<UserPublic>("/signup", json("POST", input)),
+    // ---- 認証（fastapi-users）
+    auth: {
+      register: (input: RegisterInput) => request<User>("/auth/register", json("POST", input)),
+      /** OAuth2 のパスワードフロー。username にメールアドレスを入れ、フォーム形式で送る */
+      login: (email: string, password: string) =>
+        request<Token>("/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ username: email, password }).toString(),
+        }),
+      /** このトークンだけを無効にする（他の端末はログインしたまま） */
+      logout: () => request<null>("/auth/logout", { method: "POST" }),
+      /** 登録の有無に関わらず 202（メールでトークンが届く） */
+      forgotPassword: (email: string) => request<null>("/auth/forgot-password", json("POST", { email })),
+      resetPassword: (token: string, password: string) =>
+        request<null>("/auth/reset-password", json("POST", { token, password })),
+      requestVerifyToken: (email: string) =>
+        request<null>("/auth/request-verify-token", json("POST", { email })),
+      verify: (token: string) => request<User>("/auth/verify", json("POST", { token })),
+    },
 
-    /** OAuth2 のパスワードフロー。username にメールアドレスを入れ、フォーム形式で送る */
-    login: (email: string, password: string) =>
-      request<Token>("/login/access-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ username: email, password }).toString(),
-      }),
+    // ---- 自分
+    me: () => request<User>("/users/me"),
+    updateMe: (patch: UserUpdate) => request<User>("/users/me", json("PATCH", patch)),
+    /** 変えると全端末のトークンが無効になる（このトークンも） */
+    changePassword: (currentPassword: string, newPassword: string) =>
+      request<null>(
+        "/users/me/password",
+        json("PATCH", { current_password: currentPassword, new_password: newPassword }),
+      ),
+    /** 退会（論理削除） */
+    deleteMe: () => request<null>("/users/me", { method: "DELETE" }),
 
-    me: () => request<UserPublic>("/users/me"),
+    // ---- 管理者
+    users: {
+      list: (page?: Page) => request<UsersPage>(`/users${query(page)}`),
+      get: (id: number) => request<User>(`/users/${id}`),
+      update: (id: number, patch: AdminUserUpdate) => request<User>(`/users/${id}`, json("PATCH", patch)),
+      remove: (id: number) => request<null>(`/users/${id}`, { method: "DELETE" }),
+    },
+
+    // ---- 投稿（自分のものだけ。管理者は全部）
+    posts: {
+      list: (page?: Page) => request<Post[]>(`/posts${query(page)}`),
+      create: (title: string) => request<Post>("/posts", json("POST", { title })),
+      get: (id: number) => request<Post>(`/posts/${id}`),
+      update: (id: number, title: string) => request<Post>(`/posts/${id}`, json("PATCH", { title })),
+      remove: (id: number) => request<null>(`/posts/${id}`, { method: "DELETE" }),
+    },
 
     tasks: {
-      list: () => request<{ id: number; title: string; done: boolean }[]>("/tasks"),
-      create: (title: string) =>
-        request<{ id: number; title: string }>("/tasks", json("POST", { title })),
+      list: () => request<Task[]>("/tasks"),
+      create: (title: string) => request<{ id: number; title: string }>("/tasks", json("POST", { title })),
       remove: (id: number) => request<null>(`/tasks/${id}`, { method: "DELETE" }),
     },
 

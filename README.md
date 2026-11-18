@@ -32,6 +32,9 @@ compose で動かすときは `cp infra/.env.example infra/.env` を使う（com
 ```bash
 cd backend
 
+# DB を待つ -> マイグレーション -> 最初の管理者（FIRST_SUPERUSER）を作る
+uv run poe prestart
+
 # 開発サーバ
 uv run poe start
 
@@ -39,6 +42,32 @@ uv run poe start
 uv run poe check
 uv run poe lint
 ```
+
+## 認証・ユーザ管理
+
+OSS の [fastapi-users](https://github.com/fastapi-users/fastapi-users) に乗せている（`backend/src/auth/`）。
+DB とのやり取りだけを自前のアダプタ（`src/auth/db.py`）で書き、既存の SQLModel の `User` をそのまま使う
+（公式の SQLAlchemy アダプタは SQLAlchemy < 2.1 に固定されていて使えない）。
+
+| エンドポイント | 中身 |
+|---|---|
+| `POST /auth/register` | 登録 |
+| `POST /auth/login` / `POST /auth/logout` | ログイン（OAuth2 のパスワードフロー。フォームで `username` にメールアドレス）／その端末のトークンを無効化 |
+| `POST /auth/forgot-password` / `POST /auth/reset-password` | パスワード再設定（トークンはメールで届く） |
+| `POST /auth/request-verify-token` / `POST /auth/verify` | メールアドレスの確認 |
+| `GET` / `PATCH` / `DELETE /users/me` | 自分の取得・更新（名前・メールアドレス）・退会（論理削除） |
+| `PATCH /users/me/password` | 今のパスワードを確かめてから変更 |
+| `GET /users`、`GET` / `PATCH` / `DELETE /users/{id}` | 管理者だけ。一覧（ページング）・取得・更新（停止・昇格・パスワード）・削除 |
+| `GET` / `POST /posts`、`GET` / `PATCH` / `DELETE /posts/{id}` | 投稿。自分のものだけ触れる（管理者は全部） |
+| GraphQL の `me` / `createPost` | 要ログイン（同じ `Authorization: Bearer`） |
+
+- トークンは JWT ではなく DB（`access_tokens`）に持つ。ログアウトはその端末だけ、パスワードの変更・再設定と
+  退会・停止は全端末を即座に無効にする
+- パスワードは Argon2（passlib 時代の bcrypt のハッシュもログイン時に Argon2 へ置き換わる）。8 文字以上で、
+  メールアドレスの `@` より前を含めない
+- 最初の管理者は `FIRST_SUPERUSER` / `FIRST_SUPERUSER_PASSWORD`（既定値のままだと `ENV=local` 以外では起動しない）
+- メールは SMTP の設定が無ければ送らずにログだけ出す。`infra/compose.yml` の mailpit に送るなら
+  `SMTP_HOST=localhost SMTP_PORT=1025 SMTP_TLS=false EMAILS_FROM_EMAIL=info@example.com`（UI は 8025）
 
 ## テスト
 
@@ -89,7 +118,8 @@ CI（`.github/workflows/ci.yml`）は arm64 の runner（`ubuntu-26.04-arm`）�
 |---|---|
 | `test` | マイグレーション → `alembic check` → `scripts/test.sh`（並列で全テスト、失敗したら直列・DEBUG で再実行。遅いテスト上位 10 件を毎回出す） |
 | `lint` | `ruff check` / `ruff format --check` / `pyrefly check` / `ty check src` |
-| `frontend` | `npm install` → `npm run build` |
+| `frontend` | `bun install --frozen-lockfile` → `bun run build`（型検査込み）→ unit テスト（Vitest・カバレッジ付き） |
+| `e2e` | PostgreSQL → `poe prestart` → uvicorn を起動し、frontend の API クライアントで REST / GraphQL / 認証を叩く（Vitest の e2e） |
 | `build` | dev_runtime イメージを arm64 でビルドして push（`uv.lock` が変わったときだけ） |
 | `build-images` | `prod` / `worker` イメージがビルドできることの確認（push しない） |
 
@@ -193,14 +223,14 @@ uv run poe pre-start
 
 ## フロントエンドサンプル
 
-`frontend/` に最小構成の Vite + React + TypeScript サンプルを置いてある。
-`/health/` を fetch して結果を表示するだけのデモ。
+`frontend/` に Vite + React + TypeScript のサンプルを置いてある（パッケージ管理は bun）。
+登録・ログインからユーザ管理までを REST と GraphQL で叩くデモで、テストは Vitest（詳しくは `frontend/README.md`）。
 
 ```bash
 cd frontend
-npm install
+bun install
 cp .env.example .env
-npm run dev   # http://localhost:5173
+bun run dev   # http://localhost:5173
 ```
 
 `frontend` は compose の profile に入れてある。`infra/.env.example` に

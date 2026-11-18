@@ -16,7 +16,7 @@ export default async function waitForBackend() {
   }
   throw new Error(
     `バックエンド（${E2E_API_BASE_URL}）につながりません。backend で ` +
-      "`uv run alembic upgrade head && uv run poe start` を起動してから流してください" +
+      "`uv run poe prestart && uv run poe start` を起動してから流してください" +
       `（接続先は E2E_API_BASE_URL で変えられます）: ${String(lastError)}`,
   );
 }

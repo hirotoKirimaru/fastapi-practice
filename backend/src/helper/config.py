@@ -50,6 +50,10 @@ class Settings(BaseSettings):
 
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
+
+    # 起動時（src/initial_data.py）に作る最初の管理者。既定値のままだと local 以外では起動しない
+    FIRST_SUPERUSER: EmailStr = "admin@example.com"
+    FIRST_SUPERUSER_PASSWORD: str = "changethis"
     FRONTEND_HOST: str = "http://localhost:5173"
 
     BACKEND_CORS_ORIGINS: Annotated[
@@ -112,6 +116,9 @@ class Settings(BaseSettings):
             )
             self.SECRET = secrets.token_urlsafe(32)
         self._check_default_secret("SECRET", self.SECRET)
+        self._check_default_secret(
+            "FIRST_SUPERUSER_PASSWORD", self.FIRST_SUPERUSER_PASSWORD
+        )
         return self
 
 

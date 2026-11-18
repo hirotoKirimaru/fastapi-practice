@@ -23,6 +23,7 @@ target_metadata = SQLModel.metadata
 
 # autogenerate / alembic check がモデルと DB を比べられるよう、全モデルを読み込んで
 # SQLModel.metadata に登録する（読み込まないと「全テーブルを消す」差分に見えてしまう）
+import src.models.access_token
 import src.models.minors
 import src.models.organization
 import src.models.post
