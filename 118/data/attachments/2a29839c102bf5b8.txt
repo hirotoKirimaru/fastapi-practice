@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "/home/runner/work/fastapi-practice/fastapi-practice/backend/tests/unit/test_raise_error.py", line 8, in test_01
+    1 / 0
+    ~~^~~
+ZeroDivisionError: division by zero
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/fastapi-practice/fastapi-practice/backend/tests/unit/test_raise_error.py", line 10, in test_01
+    raise ValueError("ERROR")
+ValueError: ERROR
+
+Traceback (most recent call last):
+  File "/home/runner/work/fastapi-practice/fastapi-practice/backend/tests/unit/test_raise_error.py", line 18, in test_01
+    1 / 0
+    ~~^~~
+ZeroDivisionError: division by zero
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/fastapi-practice/fastapi-practice/backend/tests/unit/test_raise_error.py", line 21, in test_01
+    raise ValueError("ERROR") from e
+ValueError: ERROR
+
+Traceback (most recent call last):
+  File "/home/runner/work/fastapi-practice/fastapi-practice/backend/tests/unit/test_raise_error.py", line 32, in test_01
+    raise ValueError("ERROR") from None
+ValueError: ERROR
+

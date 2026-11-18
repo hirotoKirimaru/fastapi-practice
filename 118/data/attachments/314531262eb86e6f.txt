@@ -1,0 +1,4 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 1874673658a2, description of changes
+INFO  [alembic.runtime.migration] Running upgrade 1874673658a2 -> dec24641e2ca, sync schema with models
