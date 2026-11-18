@@ -52,6 +52,7 @@ dev = [
     # 以前は analyze グループの matplotlib 経由で入っていたが、明示的に宣言する
     "numpy>=2.5.4",
     "pyrefly>=1.4.1",
+    "pytest-xdist>=3.8.0",
 ]
 analyze = [
     "jupyter>=1.1.1",
@@ -132,6 +133,9 @@ extend-immutable-calls = [
 
 [tool.poe.tasks]
 hello = "echo 'hello, poe!'"
+# 並列（ログは CRITICAL だけ）で全テスト -> 失敗したものだけ直列・DEBUG で再実行。
+# PYTEST_WORKERS で並列数を変えられる（既定 auto、0 で直列）。詳しくは scripts/test.sh
+test = { shell = "bash scripts/test.sh" }
 # import の並べ替え(I)も整形も ruff が持っているので、black / isort は使わない。
 # 併用すると同じ行を互いに書き換え合って poe lint のたびに差分が出る。
 lint = { sequence = ["lint:ruff", "lint:format", "lint:pyrefly", "lint:ty" ] }

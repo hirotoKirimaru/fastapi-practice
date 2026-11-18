@@ -21,6 +21,7 @@ import pytest
 import pytest_asyncio
 from alembic.config import Config
 from celery.contrib.testing.worker import start_worker
+from celery.worker import state as worker_state
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import URL, create_engine, make_url, text
 from sqlalchemy.exc import OperationalError
@@ -39,9 +40,15 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 def _test_database_url() -> URL:
     if url := os.environ.get("TEST_DATABASE_URL"):
-        return make_url(url)
-    url = make_url(settings.DATABASE_URL)
-    return url.set(database=f"{url.database}_test")
+        url = make_url(url)
+    else:
+        url = make_url(settings.DATABASE_URL)
+        url = url.set(database=f"{url.database}_test")
+    # pytest-xdist で並列に動かすと、ワーカーごとに別の DB を使う（demo_test_gw0, demo_test_gw1 ...）。
+    # 同じ DB を各ワーカーが作り直し合うと壊れるため
+    if worker := os.environ.get("PYTEST_XDIST_WORKER"):
+        url = url.set(database=f"{url.database}_{worker}")
+    return url
 
 
 def _recreate_database(url: URL) -> None:
@@ -128,14 +135,36 @@ async def async_client(db: AsyncSession) -> AsyncGenerator[AsyncClient]:
     app.dependency_overrides.clear()
 
 
+@celery_app.task(name="tests.wakeup", ignore_result=True)
+def _wakeup() -> None:
+    """worker を止めるときに、受信待ちから起こすためだけのタスク（テスト専用）"""
+
+
+def _wake_worker_for_shutdown() -> None:
+    """worker の停止を待たずに済ませる（約 4 秒 -> 0.03 秒）。
+
+    Celery の worker は停止フラグをメッセージの受信待ち（drain_events(timeout=2.0) で固定）の
+    合間にしか見ない。しかも停止を検知したあと finally でもう 1 回受信待ちをするので、
+    何も来なければ 2 秒 x 2 回待たされる。先に停止フラグを立て、メッセージを 2 通送って
+    両方の受信待ちをすぐに終わらせる（フラグ自体は start_worker を抜けるときにも立てられる）
+    """
+    worker_state.should_terminate = 0
+    for _ in range(2):
+        _wakeup.delay()
+
+
 @pytest.fixture(scope="session")
 def _celery_worker_thread(migrated_database_url: URL) -> Iterator[None]:
     """本物の Celery worker をスレッドで 1 つ起動する（ブローカーはメモリ）。起動・停止に数秒かかるのでセッションで共有"""
     engine = create_engine(migrated_database_url, poolclass=NullPool)
     original = tasks.engine_factory
     tasks.engine_factory = lambda: engine
+    # メモリのブローカーは既定で 1 秒おきにキューを見に行くので、タスク 1 件ごとに約 1 秒、
+    # worker の停止に数秒待たされる。テストでは間隔を詰める
+    celery_app.conf.broker_transport_options = {"polling_interval": 0.01}
     with start_worker(celery_app, pool="solo", perform_ping_check=False):
         yield
+        _wake_worker_for_shutdown()
     tasks.engine_factory = original
     engine.dispose()
 

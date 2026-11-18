@@ -29,7 +29,10 @@ class Settings(BaseSettings):
     ENV: Literal["local", "staging", "prod"] = "local"
     PROJECT_NAME: str = "fastapi-practice"
     API_V1_STR: str = ""
-    SECRET: str = secrets.token_urlsafe(32)
+    # JWT の署名鍵。全プロセスで同じ値でないと、あるプロセスが発行したトークンを別のプロセスが
+    # 受け付けない（--workers 4 や再起動で壊れる）。以前は既定値がプロセスごとの乱数だったので、
+    # ENV が local 以外で未設定ならエラーにする。local だけは未設定でも乱数で起動する（警告あり）
+    SECRET: str = ""
     GOOGLE_API_KEY: str = ""
 
     # SQLAlchemy の接続先。ドライバは psycopg 3 で、同期・非同期のどちらの engine にも同じ URL を渡せる。
@@ -37,6 +40,9 @@ class Settings(BaseSettings):
     # ホストから直接つなぐときは postgresql+psycopg://postgres@localhost:35432/demo
     # （ローカル / CI の DB はパスワードなし。本番では環境変数で上書きする）
     DATABASE_URL: str = "postgresql+psycopg://postgres@db:5432/demo"
+    # 発行した SQL をすべて標準出力に出す（学習用に既定で有効）。
+    # ログレベルとは無関係に出るので、並列テストなど出力を絞りたいときは SQL_ECHO=false にする
+    SQL_ECHO: bool = True
 
     # Celery のブローカーと結果の保存先。既定値は infra/compose.yml の kvs（Valkey。Redis 互換なので redis://）
     CELERY_BROKER_URL: str = "redis://kvs:6379/0"
@@ -94,8 +100,19 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:
+        if not self.SECRET:
+            if self.ENV != "local":
+                raise ValueError(
+                    "SECRET が設定されていません。全プロセスで同じ値を環境変数で渡してください"
+                )
+            warnings.warn(
+                "SECRET が未設定なので乱数を使います。プロセスごとに値が変わるため、"
+                "複数プロセスや再起動をまたいでトークンは使えません",
+                stacklevel=1,
+            )
+            self.SECRET = secrets.token_urlsafe(32)
         self._check_default_secret("SECRET", self.SECRET)
         return self
 
 
-settings = Settings()  # type: ignore
+settings = Settings()

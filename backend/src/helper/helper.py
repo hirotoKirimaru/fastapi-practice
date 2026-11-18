@@ -39,10 +39,3 @@ async def timeit(operation_name: str = "Operation") -> AsyncGenerator[None]:
         end_time = time.time()
         elapsed_time = end_time - start_time
         logger.info(f"[{operation_name}] 処理完了 - 実行時間: {elapsed_time:.4f}秒")
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):  # type: ignore
-        """
-        呼出元にエラーが発生したときに伝播させたいので、Falseを常に返却する。
-        発生しないと、全てのエラーがcontext_managerの行で発生したことになる。
-        """
-        return False

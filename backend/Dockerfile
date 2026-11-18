@@ -47,14 +47,7 @@ FROM dev_runtime AS dev
 
 CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
 
-## 3. test 用
-ARG RUNTIME_TAG
-FROM kirimaru/fastapi-practice_dev-runtime:${RUNTIME_TAG} AS test
-
-COPY src /app/src
-COPY tests /app/tests
-
-CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--reload"]
+## 3. （以前の test ステージは削除。CI のテストはイメージを使わず runner 上で uv run する）
 
 
 # 4. 本番用ランタイムのビルド
@@ -74,8 +67,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen ${UV_GROUPS}
 
 # 5. 本番用ランタイム
-ARG RUNTIME_TAG
-FROM kirimaru/fastapi-practice_prod-runtime:${RUNTIME_TAG} AS prod
+# 以前は kirimaru/fastapi-practice_prod-runtime:${RUNTIME_TAG} から作っていたが、その image を
+# ビルドして push している所がどこにも無く、このステージはビルドできなかった。同じ Dockerfile の
+# prod_runtime ステージから作る
+FROM prod_runtime AS prod
 
 COPY src /app/src
 

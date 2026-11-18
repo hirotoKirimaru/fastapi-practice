@@ -41,3 +41,10 @@ async def test_done_flag(async_client):
     # 既に完了フラグが外れているので404を返却
     response = await async_client.delete(f"/tasks/{task_id}/done")
     assert response.status_code == starlette.status.HTTP_404_NOT_FOUND
+
+
+async def test_done_for_missing_task_is_404(async_client):
+    """存在しないタスクに完了を付けようとしたら 404（以前は外部キー違反で 500）"""
+    response = await async_client.put("/tasks/999999/done")
+    assert response.status_code == starlette.status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Task not found"}

@@ -2,7 +2,6 @@
 from typing import Any
 
 from fastapi import APIRouter
-from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -193,7 +192,9 @@ async def pydantic_only() -> UserResponse:
     return UserResponse(**generate_deep_response())
 
 
+# 以前は ORJSONResponse を返していたが、orjson が依存に無いため常に 500 になっていた。
+# FastAPI は ORJSONResponse を非推奨にし、戻り値の型 / response_model があれば Pydantic で
+# 直接 JSON バイト列にする（その方が速い）ので、比較用のパスだけ残してモデルを返す
 @router.get("/pydantic_with_orjson", response_model=UserResponseB)
-async def with_orjson() -> ORJSONResponse:
-    # return UserResponseB(**generate_deep_response())
-    return ORJSONResponse(generate_deep_response())
+async def with_orjson() -> UserResponseB:
+    return UserResponseB(**generate_deep_response())

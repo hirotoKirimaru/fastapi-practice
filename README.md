@@ -8,7 +8,7 @@ FastAPI / SQLModel / Strawberry GraphQL を題材にした学習用リポジト�
 |---|---|
 | `backend/` | FastAPI アプリ（`src/`）、テスト、alembic、`pyproject.toml` / `uv.lock`、Dockerfile |
 | `frontend/` | Vite + React + TypeScript のサンプルと、その Dockerfile |
-| `infra/` | compose（ローカル開発用 `compose.yml` / CI 専用 `compose.ci.yml`）と `docker-bake.hcl` |
+| `infra/` | ローカル開発用の `compose.yml` と `docker-bake.hcl` |
 
 Python のコマンド（uv / poe / pytest / alembic）は `backend/` で、compose と bake はリポジトリ直下から実行する。
 
@@ -50,8 +50,21 @@ uv run poe lint
 docker compose -f infra/compose.yml up -d --wait db
 cd backend
 cp .env.example .env   # DATABASE_URL をホスト（localhost:35432）向けにする
-uv run pytest
+uv run poe test        # 並列で全テスト -> 失敗したものだけ直列・DEBUG で再実行
+uv run pytest          # 直列でそのまま流す場合
 ```
+
+`poe test`（`scripts/test.sh`）は 2 段階で動く。
+
+1. 全テスト。捕捉するログは CRITICAL だけ、SQL の echo（`SQL_ECHO`）も切ってメモリと出力を抑える。
+   並列数は `PYTEST_WORKERS`（既定 `0` = 直列、`auto` で CPU コア数）
+2. 失敗があれば、失敗したテストだけを直列で再実行し、DEBUG ログまで表示する
+
+並列のときはワーカーごとに別のテスト用 DB（`demo_test_gw0` など）を作る。
+手元の 4 コアでの目安は、直列 約 8.6 秒・316MB、並列（auto）約 9.5 秒・1.1GB で、今は直列の方が速い。
+Celery の worker の停止待ち（約 4 秒）と結果のポーリング待ちを無くしたので、残りの大半は
+アプリの import（約 1.3 秒）で、並列にするとこれをワーカーの数だけ払うことになる。
+テストが増えて 1 件ずつの時間が効いてきたら `PYTEST_WORKERS=auto` にする。
 
 モデルを変えたら `uv run alembic revision --autogenerate -m "..."` でマイグレーションを作る。
 ずれていると CI の `alembic check` で落ちる。
@@ -70,11 +83,21 @@ docker buildx bake -f infra/docker-bake.hcl
 compose のプロジェクト名は `name: fastapi-practice` で固定してあるので、
 コンテナ名やボリューム名は以前（直下に compose.yml があったとき）と変わらない。
 
-CI は `backend/uv.lock` のハッシュをタグにして dev_runtime イメージを DockerHub に push し、test ジョブはそのイメージを再利用する。
-CI では `infra/compose.yml` を使わず、CI 専用の `infra/compose.ci.yml` を単体で使う（`COMPOSE_FILE=infra/compose.ci.yml`）。
-テストに要る api / db / storage / relay だけを起動し、永続化はしない（名前付きボリューム無し・DB は tmpfs・
-binlog 無効・healthcheck あり）。ポート公開とソースのバインドマウントもしない。
-ローカルの `docker compose up` の挙動は変えていない。
+CI（`.github/workflows/ci.yml`）は arm64 の runner（`ubuntu-26.04-arm`）で、次のジョブが並行して走る。
+
+| ジョブ | 内容 |
+|---|---|
+| `test` | マイグレーション → `alembic check` → `scripts/test.sh`（並列で全テスト、失敗したら直列・DEBUG で再実行。遅いテスト上位 10 件を毎回出す） |
+| `lint` | `ruff check` / `ruff format --check` / `pyrefly check` / `ty check src` |
+| `frontend` | `npm install` → `npm run build` |
+| `build` | dev_runtime イメージを arm64 でビルドして push（`uv.lock` が変わったときだけ） |
+| `build-images` | `prod` / `worker` イメージがビルドできることの確認（push しない） |
+
+CI のテストはイメージを使わず、runner 上で `uv run` する。
+Docker を使うのは PostgreSQL と S3 モックの service コンテナだけ（DB は tmpfs・fsync などを切った使い捨て）。
+流れはローカルと同じで、`alembic upgrade head` → `alembic check` → `pytest`。
+dev_runtime イメージは arm64 だけビルドして DockerHub に push する（`backend/uv.lock` のハッシュをタグにし、
+既にあればスキップ）。テストはこのビルドを待たない。
 
 ## DB (PostgreSQL)
 
@@ -84,6 +107,11 @@ alembic / `migrate_db.py`（同期）の両方が同じ設定 `DATABASE_URL` を
 - コンテナ内の既定: `postgresql+psycopg://postgres@db:5432/demo`（`src/helper/config.py`）
 - ホストから: `postgresql+psycopg://postgres@localhost:35432/demo`（`backend/.env.example`）
 - ローカル / CI の DB はパスワードなし（`POSTGRES_HOST_AUTH_METHOD=trust`）。本番では `DATABASE_URL` を環境変数で渡す
+
+## SECRET
+
+JWT の署名鍵。**全プロセスで同じ値**でないと、あるプロセスが発行したトークンを別のプロセスが受け付けない。
+`ENV` が `local` 以外で未設定なら起動時にエラーになる。`local` では未設定でも乱数で起動する（警告が出る）。
 - テストも PostgreSQL で動かす（上の「テスト」を参照）
 
 ## バックグラウンド処理 (Celery)

@@ -2,18 +2,19 @@ from collections.abc import Sequence
 from typing import Any
 
 from pydantic import EmailStr, NameEmail
-from sqlalchemy import and_, select
+from sqlalchemy import and_
 from sqlalchemy.engine import Result
 from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
+from sqlmodel import col, select
 
 import src.models.task as task_model
 from src.models.user import User
 
 
 async def base_query(task_id: int) -> ColumnElement[Any]:
-    return and_(task_model.Done.id == task_id)  # type: ignore[arg-type]
+    return and_(col(task_model.Done.id) == task_id)
 
 
 async def get_done(db: AsyncSession, task_id: int) -> task_model.Done | None:

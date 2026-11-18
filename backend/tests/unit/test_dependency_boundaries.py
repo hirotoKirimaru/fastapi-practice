@@ -13,8 +13,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 # pyproject.toml の api グループにしか無いパッケージ（import 名）。
@@ -51,9 +49,10 @@ def test_worker_does_not_import_api_only_dependencies() -> None:
     assert leaked == [], f"worker のコードが API 専用の依存を読み込んでいる: {leaked}"
 
 
-@pytest.mark.parametrize("module", ["src.main", "src.api.routers.job"])
-def test_api_does_not_import_task_implementations(module: str) -> None:
-    loaded = _loaded_modules(f"import {module}")
+# src.main はタスクを投入する src.api.routers.job も含めて全ルーターを読み込むので、
+# これ 1 つで足りる（以前は job 単体でも別プロセスを起こしていたが、src.main の部分集合で冗長だった）
+def test_api_does_not_import_task_implementations() -> None:
+    loaded = _loaded_modules("import src.main")
     assert "src.worker.tasks" not in loaded, (
         "API がタスクの実装を import している。send_task で名前を使って投入すること"
     )
