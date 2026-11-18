@@ -195,8 +195,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 1
 
-  # 静的チェック。test とは並行して走る（以前は手元の poe lint でしか動いておらず、CI では見ていなかった）。
-  # ty は既存の指摘が 15 件残っているので、ここではまだ入れない
+  # 静的チェック。test とは並行して走る（以前は手元の poe lint でしか動いておらず、CI では見ていなかった）
   lint:
     runs-on: ubuntu-26.04-arm
     timeout-minutes: 10
@@ -223,6 +222,11 @@ jobs:
 
       - name: pyrefly
         run: uv run pyrefly check
+
+      # ty はアプリのコード（src）だけを見る。tests には SQLModel の型付けの都合による指摘が
+      # 100 件ほど残っていて、直すとテストの読みやすさが落ちるので対象にしていない
+      - name: ty
+        run: uv run ty check src
 
   # frontend がビルドできること（以前は CI で一度もビルドしていなかった）
   frontend:
@@ -261,8 +265,18 @@ jobs:
 
       - uses: docker/setup-buildx-action@v4
 
+      # レイヤーを GitHub Actions のキャッシュに残す。`docker buildx build` を run で叩くと
+      # キャッシュ API のトークンが渡らないので、type=gha が使える build-push-action にしている。
+      # prod と worker は依存の入れ方が違う別のレイヤーになるので、scope を分ける
       - name: Build ${{ matrix.target }}
-        run: docker buildx build --platform linux/arm64 --target "${{ matrix.target }}" backend
+        uses: docker/build-push-action@v7
+        with:
+          context: backend
+          platforms: linux/arm64
+          target: ${{ matrix.target }}
+          push: false
+          cache-from: type=gha,scope=${{ matrix.target }}
+          cache-to: type=gha,scope=${{ matrix.target }},mode=max
 
   # Allure レポートの生成と公開。
   #
@@ -271,7 +285,7 @@ jobs:
   # 毎回 27 秒かかっていた。公開するのは main のときだけなので、PR ではこの 27 秒が
   # まるごと無駄になる。ジョブを分けて main でだけ動かす。
   #
-  # レポート生成はテストの合否判定ではない（判定は test ジョブの "Fail if pytest failed"）。
+  # レポート生成はテストの合否判定ではない（判定は test ジョブの "Run tests"）。
   # アクションのコンテナ内に xargs が無くレポート生成が落ちる事象があったため、
   # ここは CI を落とさない。
   report:

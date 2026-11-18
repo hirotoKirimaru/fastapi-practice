@@ -52,7 +52,7 @@ class CsvFileValidator:
     """
 
     def __init__(
-        self, validator: Callable[[AsyncSession, UploadFile, Any], Awaitable[bool]]
+        self, validator: Callable[[AsyncSession, UploadFile, Any], Awaitable[None]]
     ) -> None:
         self.validator = validator
 

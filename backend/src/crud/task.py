@@ -1,12 +1,11 @@
 from collections.abc import AsyncGenerator, Sequence
 from typing import Any
 
-from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import Select
 from sqlalchemy.sql.elements import ColumnElement
+from sqlmodel import col, select
 
 import src.models.task as task_model
 import src.schemas.task as task_schema
@@ -23,34 +22,34 @@ async def create_task(
     return task
 
 
-async def get_tasks_with_done(db: AsyncSession) -> Sequence[Row[Any]]:
-    result: Result[Any] = await db.execute(
-        select(  # type: ignore[call-overload]
+async def get_tasks_with_done(db: AsyncSession) -> Sequence[Row[int, str, bool]]:
+    result = await db.execute(
+        select(
             task_model.Task.id,
             task_model.Task.title,
-            task_model.Done.id.is_not(None).label("done"),  # type: ignore[attr-defined]
+            col(task_model.Done.id).is_not(None).label("done"),
         )
         .outerjoin(task_model.Done)
         # ORDER BY が無いと PostgreSQL は返す順番を保証しない（SQLite はたまたま挿入順だった）
-        .order_by(task_model.Task.id)
+        .order_by(col(task_model.Task.id))
     )
     return result.all()
 
 
 async def get_tasks_with_done_inner_join(
     db: AsyncSession,
-) -> Sequence[Row[Any]]:
-    query: Select[Any] = (
-        select(  # type: ignore[call-overload]
+) -> Sequence[Row[int, str, bool]]:
+    query = (
+        select(
             task_model.Task.id,
             task_model.Task.title,
-            task_model.Done.id.is_not(None).label("done"),  # type: ignore[attr-defined]
+            col(task_model.Done.id).is_not(None).label("done"),
         )
-        .join(task_model.Task, task_model.Done.task)
-        .order_by(task_model.Task.id)
+        .join(task_model.Done, col(task_model.Done.id) == col(task_model.Task.id))
+        .order_by(col(task_model.Task.id))
     )
 
-    result: Result[Any] = await db.execute(query)
+    result = await db.execute(query)
     return result.all()
 
 
@@ -60,7 +59,7 @@ async def get_task(
     db: AsyncSession, task_id: int, criteria: ColumnElement[Any] | None = None
 ) -> task_model.Task | None:
     result: Result[Any] = await db.execute(
-        select(task_model.Task).filter(task_model.Task.id == task_id)  # type: ignore[arg-type]
+        select(task_model.Task).where(col(task_model.Task.id) == task_id)
     )
     # SQLAlchemy 2.1 で Row は PEP 646 の可変長ジェネリック
     # (Row[Unpack[_Ts]]) になったため、列の型を直に並べる。

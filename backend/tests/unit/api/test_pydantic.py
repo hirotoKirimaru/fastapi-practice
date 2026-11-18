@@ -30,3 +30,12 @@ class TestSpeedPydantic:
         )
         print(result)
         print(f"ORJSONResponse: {result:.4f}秒 (1000回のリクエスト)")
+
+
+# 速度比較（上）はスキップしているので、2 つのパスが同じ JSON を 200 で返すことだけは毎回見る。
+# 以前 /pydantic_with_orjson は orjson が依存に無いのに ORJSONResponse を返していて、常に 500 だった
+@pytest.mark.parametrize("path", ["pydantic_only", "pydantic_with_orjson"])
+def test_responses_are_ok(path: str) -> None:
+    response = client.get(f"/pydantic/{path}")
+    assert response.status_code == 200
+    assert response.json()["login"] == "octocat"

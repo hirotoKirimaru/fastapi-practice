@@ -11,6 +11,8 @@ from src.models.user import UserProfile
 from src.worker import tasks
 
 USER_ID = 9101
+# AsyncResult.get は既定で 0.5 秒おきに結果を見に行くので、1 件ごとに最大 0.5 秒待たされる
+RESULT_POLL_INTERVAL = 0.01
 
 
 @pytest.fixture
@@ -36,7 +38,7 @@ def _profile_count(user_id: int) -> int:
 
 def test_task_runs_on_worker(user: int) -> None:
     result = tasks.create_user_profile.delay(user)
-    profile_id = result.get(timeout=10)
+    profile_id = result.get(timeout=10, interval=RESULT_POLL_INTERVAL)
 
     assert result.status == "SUCCESS"
     assert isinstance(profile_id, int)
@@ -45,8 +47,12 @@ def test_task_runs_on_worker(user: int) -> None:
 
 def test_task_is_safe_to_run_twice(user: int) -> None:
     """acks_late で再配送されることがあるので、2 回実行しても二重にならないこと"""
-    first = tasks.create_user_profile.delay(user).get(timeout=10)
-    second = tasks.create_user_profile.delay(user).get(timeout=10)
+    first = tasks.create_user_profile.delay(user).get(
+        timeout=10, interval=RESULT_POLL_INTERVAL
+    )
+    second = tasks.create_user_profile.delay(user).get(
+        timeout=10, interval=RESULT_POLL_INTERVAL
+    )
 
     assert first == second
     assert _profile_count(user) == 1

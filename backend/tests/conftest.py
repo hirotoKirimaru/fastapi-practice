@@ -21,6 +21,7 @@ import pytest
 import pytest_asyncio
 from alembic.config import Config
 from celery.contrib.testing.worker import start_worker
+from celery.worker import state as worker_state
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import URL, create_engine, make_url, text
 from sqlalchemy.exc import OperationalError
@@ -134,6 +135,24 @@ async def async_client(db: AsyncSession) -> AsyncGenerator[AsyncClient]:
     app.dependency_overrides.clear()
 
 
+@celery_app.task(name="tests.wakeup", ignore_result=True)
+def _wakeup() -> None:
+    """worker を止めるときに、受信待ちから起こすためだけのタスク（テスト専用）"""
+
+
+def _wake_worker_for_shutdown() -> None:
+    """worker の停止を待たずに済ませる（約 4 秒 -> 0.03 秒）。
+
+    Celery の worker は停止フラグをメッセージの受信待ち（drain_events(timeout=2.0) で固定）の
+    合間にしか見ない。しかも停止を検知したあと finally でもう 1 回受信待ちをするので、
+    何も来なければ 2 秒 x 2 回待たされる。先に停止フラグを立て、メッセージを 2 通送って
+    両方の受信待ちをすぐに終わらせる（フラグ自体は start_worker を抜けるときにも立てられる）
+    """
+    worker_state.should_terminate = 0
+    for _ in range(2):
+        _wakeup.delay()
+
+
 @pytest.fixture(scope="session")
 def _celery_worker_thread(migrated_database_url: URL) -> Iterator[None]:
     """本物の Celery worker をスレッドで 1 つ起動する（ブローカーはメモリ）。起動・停止に数秒かかるのでセッションで共有"""
@@ -145,6 +164,7 @@ def _celery_worker_thread(migrated_database_url: URL) -> Iterator[None]:
     celery_app.conf.broker_transport_options = {"polling_interval": 0.01}
     with start_worker(celery_app, pool="solo", perform_ping_check=False):
         yield
+        _wake_worker_for_shutdown()
     tasks.engine_factory = original
     engine.dispose()
 

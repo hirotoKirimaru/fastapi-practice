@@ -1,16 +1,16 @@
 from typing import Any
 
-from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import col, select
 
 import src.models.task as task_model
 
 
 async def get_done(db: AsyncSession, task_id: int) -> task_model.Done | None:
     result: Result[Any] = await db.execute(
-        select(task_model.Done).filter(task_model.Done.id == task_id)  # type: ignore[arg-type]
+        select(task_model.Done).where(col(task_model.Done.id) == task_id)
     )
     done: Row[Any] | None = result.first()
     return (
