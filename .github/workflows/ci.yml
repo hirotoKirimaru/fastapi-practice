@@ -12,16 +12,15 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
+  # report ジョブが gh-pages へ push するため
   contents: write
-  pull-requests: write
-  issues: write
 
 env:
   IMAGE: kirimaru/fastapi-practice_dev-runtime
 
 jobs:
   # uv.lock の内容から決まるタグを算出し、そのタグが既に registry にあるかを判定する。
-  # 既にあればビルド系のジョブごとスキップされる
+  # 既にあれば build ジョブはスキップされる（test はこのジョブを待たない）
   meta:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 5
@@ -69,25 +68,15 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-  # amd64 / arm64 をそれぞれネイティブ runner でビルドする。
-  # 以前は amd64 runner 上で QEMU エミュレーションして arm64 を作っていたため、
-  # 200 パッケージ超の uv sync がエミュレーション下で走って非常に遅かった
+  # dev_runtime イメージ（依存入り）を arm64 だけビルドして push する。
+  # テストはこのイメージを使わない（下の test ジョブは runner 上で uv run する）ので、
+  # ここは「イメージがビルドできること」の確認と、ローカル / 将来のデプロイ向けの配布だけ。
+  # 以前は amd64 もネイティブ runner でビルドして manifest list にまとめていたが、使っていないのでやめた
   build:
     needs: meta
     if: needs.meta.outputs.exists != 'true'
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # amd64 イメージは amd64 ネイティブでビルドする（QEMU を避ける）ため、ここだけは x64 runner のまま
-          - platform: linux/amd64
-            runner: ubuntu-latest
-            arch: amd64
-          - platform: linux/arm64
-            runner: ubuntu-24.04-arm
-            arch: arm64
-    runs-on: ${{ matrix.runner }}
     env:
       RUNTIME_TAG: ${{ needs.meta.outputs.runtime_tag }}
     steps:
@@ -101,214 +90,107 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & push dev_runtime by digest
-        id: build
+      - name: Build & push dev_runtime (arm64)
         run: |
           set -euxo pipefail
           set +e
           docker buildx build \
             --progress=plain \
-            --platform "${{ matrix.platform }}" \
+            --platform linux/arm64 \
             --target dev_runtime \
-            --metadata-file /tmp/metadata.json \
-            --output "type=image,name=${IMAGE},oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push-by-digest=true,name-canonical=true,push=true" \
+            --output "type=image,name=${IMAGE}:${RUNTIME_TAG},oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true,push=true" \
             backend 2>&1 | tee /tmp/buildx.log
           STATUS=${PIPESTATUS[0]}
           set -e
           if [ "${STATUS}" -ne 0 ]; then
             {
-              echo "### ${{ matrix.platform }} buildx build failed (status ${STATUS})"
+              echo "### buildx build failed (status ${STATUS})"
               echo '```'
               tail -120 /tmp/buildx.log
               echo '```'
             } >> "$GITHUB_STEP_SUMMARY"
             exit "${STATUS}"
           fi
-          DIGEST=$(jq -r '."containerimage.digest"' /tmp/metadata.json)
-          mkdir -p /tmp/digests
-          touch "/tmp/digests/${DIGEST#sha256:}"
 
-      - name: Upload digest
-        uses: actions/upload-artifact@v7
-        with:
-          name: digest-${{ matrix.arch }}
-          path: /tmp/digests/*
-          if-no-files-found: error
-          retention-days: 1
-
-  # 各アーキテクチャの digest を 1 つの manifest list にまとめて、
-  # 従来どおり :${RUNTIME_TAG} で multi-arch イメージとして引けるようにする
-  merge:
-    needs: [meta, build]
-    if: needs.meta.outputs.exists != 'true'
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 10
-    env:
-      RUNTIME_TAG: ${{ needs.meta.outputs.runtime_tag }}
-    steps:
-      - name: Download digests
-        uses: actions/download-artifact@v8
-        with:
-          path: /tmp/digests
-          pattern: digest-*
-          merge-multiple: true
-
-      # imagetools は registry の API を叩くだけで builder を必要としない。
-      # runner に最初から入っている buildx で足りるので setup-buildx は省く
-      - name: Login to DockerHub
-        uses: docker/login-action@v4
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Create manifest list & push
-        run: |
-          set -euxo pipefail
-          docker buildx imagetools create -t "${IMAGE}:${RUNTIME_TAG}" \
-            $(printf "${IMAGE}@sha256:%s " $(ls /tmp/digests))
-          docker buildx imagetools inspect "${IMAGE}:${RUNTIME_TAG}"
-
+  # テストはイメージを使わず、runner 上で直接 uv run する（イメージのビルド・pull を待たない）。
+  # Docker を使うのは PostgreSQL と S3 モックの service コンテナだけ。
   test:
-    needs: [meta, build, merge]
-    # build / merge は「イメージが既にある」ときは skip される。
-    # その場合も test は走らせたいので success と skipped の両方を許可する
-    if: |
-      always() &&
-      needs.meta.result == 'success' &&
-      contains(fromJSON('["success", "skipped"]'), needs.build.result) &&
-      contains(fromJSON('["success", "skipped"]'), needs.merge.result)
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 30
+    timeout-minutes: 15
+    services:
+      db:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: demo
+        ports:
+          - 5432:5432
+        # データはメモリ（tmpfs）に置く。使い捨てなので永続化しない
+        options: >-
+          --tmpfs /var/lib/postgresql
+          --health-cmd "pg_isready -U postgres -d demo"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+      storage:
+        image: adobe/s3mock:5.2.3
+        env:
+          COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: data-exchange.local,tmp.local
+          COM_ADOBE_TESTING_S3MOCK_STORE_RETAIN_FILES_ON_EXIT: "false"
+        # アプリは S3_URL（既定 localhost:9000）を見るので、S3Mock の 9090 を 9000 で公開する
+        ports:
+          - 9000:9090
+    defaults:
+      run:
+        working-directory: backend
     env:
-      BUILD_TARGET: test
-      RUNTIME_TAG: ${{ needs.meta.outputs.runtime_tag }}
-      # この先の docker compose 呼び出し全てで CI 専用の compose を使う。
-      # infra/compose.yml には重ねず単体で使う（永続化なし・ポート公開なし・テストに要るサービスだけ）。
-      # ステップごとに -f を並べると付け忘れで設定が効かない事故が起きるため、
-      # 環境変数で一度だけ指定する
-      COMPOSE_FILE: infra/compose.ci.yml
+      DATABASE_URL: postgresql+psycopg://postgres@localhost:5432/demo
+      S3_URL: localhost:9000
+      AWS_S3_ACCESS_KEY: minio
+      AWS_S3_SECRET_KEY: minio1234
+      S3_BUCKET: tmp.local
+      ENV: local
+      SECRET: dev-secret-change-me
+      GOOGLE_API_KEY: dummy-for-local-ci
     steps:
       - uses: actions/checkout@v7
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v4
+      - uses: astral-sh/setup-uv@v10.3.3
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          python-version: "3.15"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
 
-      - name: Pull dev_runtime image
-        run: docker pull "${IMAGE}:${RUNTIME_TAG}"
+      # analyze（jupyter / matplotlib）はテストに使わないので入れない
+      - name: Install dependencies
+        run: uv sync --frozen --no-default-groups --group api --group auth --group worker --group dev
 
-      # infra/compose.ci.yml には api / db / storage / relay しか無い。
-      # frontend・kvs・mail はテストから触らないので最初から定義していない
-      - name: Compose up
-        run: docker compose up -d --wait
+      # ジョブごとに捨てる DB なので、クラッシュへの備えを切って書き込みを速くする
+      # （service コンテナは起動コマンドを渡せないので、起動後に ALTER SYSTEM で入れて設定を読み直させる）
+      - name: Tune PostgreSQL for throwaway use
+        run: |
+          docker exec "${{ job.services.db.id }}" psql -U postgres -c "ALTER SYSTEM SET fsync = off" \
+            -c "ALTER SYSTEM SET synchronous_commit = off" -c "ALTER SYSTEM SET full_page_writes = off" \
+            -c "SELECT pg_reload_conf()"
 
       - name: DB migration
-        uses: nick-fields/retry@v4
-        with:
-          timeout_minutes: 5
-          max_attempts: 3
-          retry_wait_seconds: 10
-          command: docker compose exec -T api uv run alembic upgrade head
+        run: uv run alembic upgrade head
 
       # モデルとマイグレーションのずれを検出する。モデルを変えたのにマイグレーションを
       # 足し忘れると、ここで「New upgrade operations detected」として落ちる
       - name: Check models match migrations
-        run: docker compose exec -T api uv run alembic check
+        run: uv run alembic check
 
       - name: Run tests
-        id: pytest
-        run: |
-          set +e
-          docker compose exec -T api uv run pytest --alluredir=/app/allure-results 2>&1 | tee /tmp/pytest.log
-          echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
-
-      - name: Dump diagnostics on failure
-        if: always()
-        run: |
-          {
-            echo "## pytest status: ${{ steps.pytest.outputs.status }}"
-            echo
-            echo "### pytest log (tail)"
-            echo '```'
-            tail -200 /tmp/pytest.log 2>/dev/null || echo "(no pytest log)"
-            echo '```'
-            echo
-            echo "### docker compose ps"
-            echo '```'
-            docker compose ps
-            echo '```'
-            echo
-            echo "### api container logs (tail)"
-            echo '```'
-            docker compose logs --tail=120 api 2>&1 || true
-            echo '```'
-            echo
-            echo "### db container logs (tail)"
-            echo '```'
-            docker compose logs --tail=60 db 2>&1 || true
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Fail if pytest failed
-        if: steps.pytest.outputs.status != '0'
-        run: exit 1
-
-      - name: Post pytest log to PR on failure (diagnostic)
-        if: failure() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          REPO: ${{ github.repository }}
-        run: |
-          BODY_FILE=/tmp/pr-comment.md
-          {
-            echo "### :rotating_light: CI diagnostic dump (\`${{ github.sha }}\`)"
-            echo
-            echo "pytest status: \`${{ steps.pytest.outputs.status }}\`"
-            echo
-            echo "<details><summary>pytest log (tail 200)</summary>"
-            echo
-            echo '```'
-            tail -200 /tmp/pytest.log 2>/dev/null || echo "(no pytest log)"
-            echo '```'
-            echo
-            echo "</details>"
-            echo
-            echo "<details><summary>docker compose ps</summary>"
-            echo
-            echo '```'
-            docker compose ps || true
-            echo '```'
-            echo
-            echo "</details>"
-            echo
-            echo "<details><summary>api container logs (tail 120)</summary>"
-            echo
-            echo '```'
-            docker compose logs --tail=120 api 2>&1 || true
-            echo '```'
-            echo
-            echo "</details>"
-          } > "$BODY_FILE"
-          curl -sS -X POST \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/comments" \
-            --data @<(jq -Rs '{body: .}' < "$BODY_FILE") \
-            || true
-
-      - name: Copy Allure results from container
-        if: always()
-        run: docker cp "$(docker compose ps -q api)":/app/allure-results ./allure-results
+        run: uv run pytest --alluredir=allure-results
 
       - name: Upload Allure results
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: allure-results
-          path: allure-results
+          path: backend/allure-results
           if-no-files-found: warn
           retention-days: 1
 

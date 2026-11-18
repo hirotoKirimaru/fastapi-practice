@@ -8,7 +8,7 @@ FastAPI / SQLModel / Strawberry GraphQL を題材にした学習用リポジト�
 |---|---|
 | `backend/` | FastAPI アプリ（`src/`）、テスト、alembic、`pyproject.toml` / `uv.lock`、Dockerfile |
 | `frontend/` | Vite + React + TypeScript のサンプルと、その Dockerfile |
-| `infra/` | compose（ローカル開発用 `compose.yml` / CI 専用 `compose.ci.yml`）と `docker-bake.hcl` |
+| `infra/` | ローカル開発用の `compose.yml` と `docker-bake.hcl` |
 
 Python のコマンド（uv / poe / pytest / alembic）は `backend/` で、compose と bake はリポジトリ直下から実行する。
 
@@ -70,11 +70,11 @@ docker buildx bake -f infra/docker-bake.hcl
 compose のプロジェクト名は `name: fastapi-practice` で固定してあるので、
 コンテナ名やボリューム名は以前（直下に compose.yml があったとき）と変わらない。
 
-CI は `backend/uv.lock` のハッシュをタグにして dev_runtime イメージを DockerHub に push し、test ジョブはそのイメージを再利用する。
-CI では `infra/compose.yml` を使わず、CI 専用の `infra/compose.ci.yml` を単体で使う（`COMPOSE_FILE=infra/compose.ci.yml`）。
-テストに要る api / db / storage / relay だけを起動し、永続化はしない（名前付きボリューム無し・DB は tmpfs・
-binlog 無効・healthcheck あり）。ポート公開とソースのバインドマウントもしない。
-ローカルの `docker compose up` の挙動は変えていない。
+CI（`.github/workflows/ci.yml`）のテストはイメージを使わず、runner 上で `uv run` する。
+Docker を使うのは PostgreSQL と S3 モックの service コンテナだけ（DB は tmpfs・fsync などを切った使い捨て）。
+流れはローカルと同じで、`alembic upgrade head` → `alembic check` → `pytest`。
+dev_runtime イメージは arm64 だけビルドして DockerHub に push する（`backend/uv.lock` のハッシュをタグにし、
+既にあればスキップ）。テストはこのビルドを待たない。
 
 ## DB (PostgreSQL)
 

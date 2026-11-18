@@ -134,6 +134,9 @@ def _celery_worker_thread(migrated_database_url: URL) -> Iterator[None]:
     engine = create_engine(migrated_database_url, poolclass=NullPool)
     original = tasks.engine_factory
     tasks.engine_factory = lambda: engine
+    # メモリのブローカーは既定で 1 秒おきにキューを見に行くので、タスク 1 件ごとに約 1 秒、
+    # worker の停止に数秒待たされる。テストでは間隔を詰める
+    celery_app.conf.broker_transport_options = {"polling_interval": 0.01}
     with start_worker(celery_app, pool="solo", perform_ping_check=False):
         yield
     tasks.engine_factory = original
