@@ -38,18 +38,12 @@ services:
       - storage
       - kvs
 
-  # Celery の worker。イメージは api と同じで、起動コマンドだけ違う。
-  # 並列数は既定で CPU コア数。WORKER_CONCURRENCY で変えられる（I/O 待ちが多いなら多めに）
+  # Celery の worker。Dockerfile の worker ステージ（共通の依存 + worker グループだけ。FastAPI は入らない）。
+  # 起動コマンドはイメージの CMD。並列数は既定で CPU コア数、WORKER_CONCURRENCY で変えられる
   worker:
     build:
       context: ../backend
-      target: ${BUILD_TARGET:-dev}
-      args:
-        - RUNTIME_TAG=${RUNTIME_TAG:-latest}
-    # $$ は compose の展開を避けてコンテナ内のシェルに渡すため（空なら --concurrency を付けない）
-    command: >
-      sh -c 'exec uv run celery -A src.worker.celery_app worker
-      --loglevel=INFO -O fair $${WORKER_CONCURRENCY:+--concurrency=$$WORKER_CONCURRENCY}'
+      target: worker
     volumes:
       - ../backend/src:/app/src
     environment:

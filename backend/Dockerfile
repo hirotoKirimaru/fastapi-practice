@@ -27,7 +27,7 @@ FROM base AS dev_runtime
 # analyze グループ(jupyter/matplotlib 系 80 パッケージ)は src/tests から一切
 # 使っていないので、このイメージには入れない。ローカルで notebook を触るときは
 # ホスト側で `uv sync --group analyze` する
-ARG UV_GROUPS="--no-default-groups --group api --group auth --group dev"
+ARG UV_GROUPS="--no-default-groups --group api --group auth --group worker --group dev"
 
 # 依存の解決だけを先に済ませてレイヤを分ける。
 # src/tests を触っただけでは 200 パッケージの再インストールが走らなくなる
@@ -90,3 +90,24 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/docs', timeout=3).status==200 else 1)" || exit 1
 
 CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+# 6. Celery worker 用。API の依存（FastAPI など）は入れず、共通の依存と worker グループだけ
+FROM base AS worker
+
+ARG UV_GROUPS="--no-default-groups --group worker"
+
+COPY pyproject.toml .python-version uv.lock ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project ${UV_GROUPS}
+
+COPY src /app/src
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen ${UV_GROUPS}
+
+RUN groupadd --system app && useradd --system --gid app --home /app app \
+    && chown -R app:app /app
+USER app
+
+# 並列数は既定で CPU コア数。WORKER_CONCURRENCY で変えられる
+CMD ["sh", "-c", "exec uv run celery -A src.worker.celery_app worker --loglevel=INFO -O fair ${WORKER_CONCURRENCY:+--concurrency=$WORKER_CONCURRENCY}"]
