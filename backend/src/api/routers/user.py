@@ -6,10 +6,20 @@ from fastapi.responses import StreamingResponse
 # PEP 810 の遅延 import。CSV を読むエンドポイントが呼ばれるまで polars を読み込まない
 lazy import polars
 
-from src.api.deps import SessionWriterDep
+from src.api.deps import CurrentUser, SessionWriterDep
 from src.helper.helper import session_context
+from src.schemas.auth import UserPublic
 
 router = APIRouter()
+
+
+@router.get(
+    "/me",
+    response_model=UserPublic,
+    description="ログイン中のユーザ（Authorization: Bearer <token> が必要）",
+)
+async def read_me(current_user: CurrentUser) -> Any:
+    return current_user
 
 
 @router.get("/files", description="ファイルをダウンロードする")

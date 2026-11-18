@@ -24,7 +24,7 @@ API_ONLY_MODULES = (
     "strawberry",
     "polars",
     "boto3",
-    "passlib",
+    "pwdlib",
     "tenacity",
     "google.genai",
     "sentry_sdk",

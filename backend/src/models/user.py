@@ -42,6 +42,9 @@ class User(Base, table=True):
     )
     birth_day: datetime | None = Field(default=None, sa_column=Column(DateTime))
     salt: str | None = Field(default=None, sa_column=Column(VARCHAR(255)))
+    # ログイン用のパスワードのハッシュ（Argon2。src/helper/security.py）。
+    # パスワードを持たない（ログインできない）ユーザもいるので NULL を許す
+    hashed_password: str | None = Field(default=None, sa_column=Column(VARCHAR(255)))
 
     posts: list["Post"] = Relationship()
 
