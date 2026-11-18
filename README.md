@@ -118,7 +118,7 @@ CI（`.github/workflows/ci.yml`）は arm64 の runner（`ubuntu-26.04-arm`）�
 |---|---|
 | `test` | マイグレーション → `alembic check` → `scripts/test.sh`（並列で全テスト、失敗したら直列・DEBUG で再実行。遅いテスト上位 10 件を毎回出す） |
 | `lint` | `ruff check` / `ruff format --check` / `pyrefly check` / `ty check src` |
-| `frontend` | `bun install --frozen-lockfile` → `bun run build`（型検査込み）→ unit テスト（Vitest・カバレッジ付き） |
+| `frontend` | `bun install --frozen-lockfile` → `bun run lint`（Oxlint + tsrs の型あり lint）→ `bun run build`（型検査込み）→ unit テスト（Vitest・カバレッジ付き） |
 | `e2e` | PostgreSQL → `poe prestart` → uvicorn を起動し、frontend の API クライアントで REST / GraphQL / 認証を叩く（Vitest の e2e） |
 | `build` | dev_runtime イメージを arm64 でビルドして push（`uv.lock` が変わったときだけ） |
 | `build-images` | `prod` / `worker` イメージがビルドできることの確認（push しない） |

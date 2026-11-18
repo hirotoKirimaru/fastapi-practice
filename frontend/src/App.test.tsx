@@ -2,6 +2,8 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
+import { bodyText, urlOf } from "./test/fetch";
+
 import App, { TOKEN_KEY } from "./App";
 import type { User } from "./api/client";
 
@@ -17,22 +19,23 @@ const MEMBER: User = {
 };
 const ADMIN: User = { ...MEMBER, id: 1, name: "admin", email: "admin@example.com", is_superuser: true };
 
+const json = (body: unknown, status = 200) => Response.json(body, { status });
+const unauthorized = () => json({ detail: "Unauthorized" }, 401);
+
 /** バックエンドの代わり。パスワードが合えばトークンを返し、有効なトークンにだけ答える */
 function fakeBackend(users: User[] = [MEMBER]) {
   const tokens = new Map<string, User>();
   return vi.fn<typeof fetch>(async (input, init) => {
-    const url = new URL(String(input));
+    const url = new URL(urlOf(input));
     const method = init?.method ?? "GET";
     const token = new Headers(init?.headers).get("Authorization")?.replace("Bearer ", "");
     const me = token ? tokens.get(token) : undefined;
-    const json = (body: unknown, status = 200) => Response.json(body, { status });
-    const unauthorized = () => json({ detail: "Unauthorized" }, 401);
 
     switch (`${method} ${url.pathname}`) {
       case "GET /health/":
         return json({ Hello: "World" });
       case "POST /auth/login": {
-        const form = new URLSearchParams(String(init?.body));
+        const form = new URLSearchParams(bodyText(init));
         const user = users.find((u) => u.email === form.get("username"));
         if (!user || form.get("password") !== PASSWORD) return json({ detail: "LOGIN_BAD_CREDENTIALS" }, 400);
         const issued = `token-${user.id}-${tokens.size}`;
@@ -47,11 +50,11 @@ function fakeBackend(users: User[] = [MEMBER]) {
         return me ? json(me) : unauthorized();
       case "PATCH /users/me":
         if (!me) return unauthorized();
-        Object.assign(me, JSON.parse(String(init?.body)));
+        Object.assign(me, JSON.parse(bodyText(init)));
         return json(me);
       case "PATCH /users/me/password": {
         if (!me) return unauthorized();
-        const body = JSON.parse(String(init?.body));
+        const body = JSON.parse(bodyText(init));
         if (body.current_password !== PASSWORD) return json({ detail: "今のパスワードが違います" }, 400);
         tokens.clear();
         return new Response(null, { status: 204 });
@@ -94,7 +97,7 @@ describe("App", () => {
     await login(MEMBER.email);
 
     expect(await screen.findByRole("heading", { name: `ようこそ、${MEMBER.name} さん` })).toBeInTheDocument();
-    const calls = fetchMock.mock.calls.map(([input]) => new URL(String(input)).pathname);
+    const calls = fetchMock.mock.calls.map(([input]) => new URL(urlOf(input)).pathname);
     expect(calls).toEqual(expect.arrayContaining(["/users/me", "/graphql"]));
     expect(localStorage.getItem(TOKEN_KEY)).toMatch(/^token-7-/);
   });
@@ -120,7 +123,7 @@ describe("App", () => {
 
     expect(await screen.findByRole("form", { name: "ログイン" })).toBeInTheDocument();
     expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
-    expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith("/auth/logout"))).toBe(true);
+    expect(fetchMock.mock.calls.some(([input]) => urlOf(input).endsWith("/auth/logout"))).toBe(true);
   });
 
   it("サーバ側のログアウトに失敗しても、手元ではログアウトする", async () => {
@@ -129,7 +132,7 @@ describe("App", () => {
     await screen.findByRole("button", { name: "ログアウト" });
     const original = fetchMock.getMockImplementation()!;
     fetchMock.mockImplementation(async (input, init) =>
-      String(input).endsWith("/auth/logout") ? Response.json({ detail: "Unauthorized" }, { status: 401 }) : original(input, init),
+      urlOf(input).endsWith("/auth/logout") ? Response.json({ detail: "Unauthorized" }, { status: 401 }) : original(input, init),
     );
 
     await user.click(screen.getByRole("button", { name: "ログアウト" }));

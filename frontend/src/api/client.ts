@@ -40,7 +40,8 @@ export class ApiError extends Error {
     this.name = "ApiError";
     this.status = status;
     this.detail = detail;
-    const obj = typeof detail === "object" && detail !== null ? (detail as Record<string, unknown>) : {};
+    const obj: Record<string, unknown> =
+      typeof detail === "object" && detail !== null ? Object.fromEntries(Object.entries(detail)) : {};
     this.code = typeof detail === "string" ? detail : typeof obj.code === "string" ? obj.code : undefined;
     this.reason = typeof obj.reason === "string" ? obj.reason : undefined;
   }
@@ -66,6 +67,22 @@ export type ApiClientOptions = {
   fetch?: typeof fetch;
   signal?: AbortSignal;
 };
+
+function json(method: string, body: unknown): RequestInit {
+  return {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  };
+}
+
+/** 一覧の skip / limit をクエリ文字列にする（未指定のものは付けない） */
+function pageQuery(page: Page = {}): string {
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(page)) if (v !== undefined) params.set(k, String(v));
+  const qs = params.toString();
+  return qs ? `?${qs}` : "";
+}
 
 export function createApiClient(options: ApiClientOptions) {
   const baseUrl = options.baseUrl.replace(/\/+$/, "");
@@ -98,23 +115,10 @@ export function createApiClient(options: ApiClientOptions) {
         body !== null && typeof body === "object" && "detail" in body ? body.detail : body;
       throw new ApiError(res.status, detail);
     }
+    // 本文の形はバックエンドの OpenAPI に合わせた呼び出し側の型を信じる（実行時の検証はしない）
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return body as T;
   }
-
-  function json(method: string, body: unknown): RequestInit {
-    return {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    };
-  }
-
-  const query = (page: Page = {}) => {
-    const params = new URLSearchParams();
-    for (const [k, v] of Object.entries(page)) if (v !== undefined) params.set(k, String(v));
-    const qs = params.toString();
-    return qs ? `?${qs}` : "";
-  };
 
   return {
     health: () => request<{ Hello: string }>("/health/"),
@@ -155,7 +159,7 @@ export function createApiClient(options: ApiClientOptions) {
 
     // ---- 管理者
     users: {
-      list: (page?: Page) => request<UsersPage>(`/users${query(page)}`),
+      list: (page?: Page) => request<UsersPage>(`/users${pageQuery(page)}`),
       get: (id: number) => request<User>(`/users/${id}`),
       update: (id: number, patch: AdminUserUpdate) => request<User>(`/users/${id}`, json("PATCH", patch)),
       remove: (id: number) => request<null>(`/users/${id}`, { method: "DELETE" }),
@@ -163,7 +167,7 @@ export function createApiClient(options: ApiClientOptions) {
 
     // ---- 投稿（自分のものだけ。管理者は全部）
     posts: {
-      list: (page?: Page) => request<Post[]>(`/posts${query(page)}`),
+      list: (page?: Page) => request<Post[]>(`/posts${pageQuery(page)}`),
       create: (title: string) => request<Post>("/posts", json("POST", { title })),
       get: (id: number) => request<Post>(`/posts/${id}`),
       update: (id: number, title: string) => request<Post>(`/posts/${id}`, json("PATCH", { title })),
@@ -177,15 +181,14 @@ export function createApiClient(options: ApiClientOptions) {
     },
 
     /** errors があれば GraphQLRequestError を投げ、無ければ data を返す */
-    async graphql<TData, TVariables extends Record<string, unknown> = Record<string, never>>(
-      query: string,
-      variables?: TVariables,
-    ): Promise<TData> {
+    async graphql<TData>(query: string, variables?: Record<string, unknown>): Promise<TData> {
       const body = await request<{ data?: TData | null; errors?: GraphQLErrorItem[] }>(
         "/graphql",
         json("POST", { query, variables: variables ?? {} }),
       );
       if (body.errors?.length) throw new GraphQLRequestError(body.errors);
+      // errors が無ければ data がある（GraphQL の仕様）
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
       return body.data as TData;
     },
   };

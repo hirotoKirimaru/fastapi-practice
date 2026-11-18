@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { createApiClient, type ApiClient, type User } from "./api/client";
 import { API_BASE_URL } from "./api/config";
@@ -24,7 +24,11 @@ function writeToken(token: string | null) {
   }
 }
 
-const field = (form: FormData, name: string) => String(form.get(name) ?? "");
+/** フォームの文字列の値。ファイル（File）や未入力は空文字にする */
+function field(form: FormData, name: string): string {
+  const value = form.get(name);
+  return typeof value === "string" ? value : "";
+}
 
 export default function App({ baseUrl = API_BASE_URL }: { baseUrl?: string }) {
   const [token, setTokenState] = useState<string | null>(readToken);
@@ -36,10 +40,15 @@ export default function App({ baseUrl = API_BASE_URL }: { baseUrl?: string }) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  function setToken(next: string | null) {
+  // ログアウト時の表示の片付けは effect ではなくここでやる（effect の中で同期的に setState しない）
+  const setToken = useCallback((next: string | null) => {
     writeToken(next);
     setTokenState(next);
-  }
+    if (!next) {
+      setMe(null);
+      setGqlEmail(null);
+    }
+  }, []);
 
   /** 失敗したらエラーを出す。成功時のお知らせは notice */
   async function run(action: () => Promise<unknown>, done?: string) {
@@ -69,28 +78,25 @@ export default function App({ baseUrl = API_BASE_URL }: { baseUrl?: string }) {
 
   // トークンがあれば REST（/users/me）と GraphQL（me）の両方でログイン中のユーザを取る
   useEffect(() => {
-    if (!token) {
-      setMe(null);
-      setGqlEmail(null);
-      return;
-    }
     let cancelled = false;
-    Promise.all([api.me(), api.graphql<MeResult>(ME_QUERY)]).then(
-      ([rest, gql]) => {
-        if (cancelled) return;
-        setMe(rest);
-        setGqlEmail(gql.me.email);
-      },
-      (e: unknown) => {
-        if (cancelled) return;
-        setError(errorMessage(e)); // 期限切れ・ログアウト済み等。ログイン画面に戻す
-        setToken(null);
-      },
-    );
+    if (token) {
+      Promise.all([api.me(), api.graphql<MeResult>(ME_QUERY)]).then(
+        ([rest, gql]) => {
+          if (cancelled) return;
+          setMe(rest);
+          setGqlEmail(gql.me.email);
+        },
+        (e: unknown) => {
+          if (cancelled) return;
+          setError(errorMessage(e)); // 期限切れ・ログアウト済み等。ログイン画面に戻す
+          setToken(null);
+        },
+      );
+    }
     return () => {
       cancelled = true;
     };
-  }, [api, token]);
+  }, [api, token, setToken]);
 
   return (
     <main style={{ fontFamily: "system-ui, sans-serif", padding: "2rem", maxWidth: 720, margin: "0 auto" }}>
@@ -104,7 +110,7 @@ export default function App({ baseUrl = API_BASE_URL }: { baseUrl?: string }) {
           {error}
         </p>
       )}
-      {notice && <p role="status">{notice}</p>}
+      {notice && <output style={{ display: "block" }}>{notice}</output>}
 
       {me ? (
         <SignedIn

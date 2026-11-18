@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  // 型情報を使うルール（typescript/* の型あり版）は tsrs（Rust 版の TypeScript 7）で動く。
+  // node_modules に tsrs があれば oxlint が自動で使う（無ければ oxlint-tsgolint）
+  "options": { "typeAware": true },
+  "plugins": ["typescript", "react", "jsx-a11y", "vitest", "oxc", "unicorn"],
+  "categories": { "correctness": "error", "suspicious": "warn" },
+  "rules": {
+    // await し忘れた Promise（失敗が握りつぶされる。e2e の unhandled rejection もこれで防げた）
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": "error",
+    "typescript/await-thenable": "error",
+    "typescript/no-unnecessary-type-assertion": "warn",
+    "typescript/switch-exhaustiveness-check": "error",
+    // JSX は自動ランタイム（tsconfig の "jsx": "react-jsx"）なので React の import は要らない
+    "react/react-in-jsx-scope": "off",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn"
+  },
+  "ignorePatterns": ["dist", "coverage"]
+}

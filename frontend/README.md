@@ -30,6 +30,19 @@ bun run dev   # http://localhost:5173
 バックエンドは別途 `uv run poe start`、または `docker compose up` で起動する。
 バックエンドの URL を変えたい場合は `frontend/.env` の `VITE_API_BASE_URL` を編集する。
 
+## Lint（Oxlint + tsrs）
+
+```bash
+bun run lint       # 警告も失敗にする（CI と同じ）
+bun run lint:fix   # 直せるものは直す
+```
+
+設定は `.oxlintrc.json`。`options.typeAware` を有効にしてあり、型情報を使うルール
+（`typescript/no-floating-promises` など）は [tsrs](https://github.com/oxc-project/tsrs)
+（Rust に移植した TypeScript 7）で動く。`tsrs` が `node_modules` にあれば oxlint が自動で使う。
+tsrs はまだ beta（`0.x-ts7.1.0-beta`）なので、おかしな指摘が出たら
+`bun remove tsrs && bun add -d oxlint-tsgolint` で Go 版（tsgolint）に戻せる（設定はそのまま使える）。
+
 ## テスト（Vitest）
 
 `vitest.config.ts` で 2 つのプロジェクトに分けている。

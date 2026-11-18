@@ -9,6 +9,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc -b",
+    "lint": "oxlint --deny-warnings",
+    "lint:fix": "oxlint --fix",
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
     "test:coverage": "vitest run --project unit --coverage",
@@ -28,6 +30,8 @@
     "@vitejs/plugin-react": "^6.3.0",
     "@vitest/coverage-v8": "^5.1.0",
     "jsdom": "^31.0.1",
+    "oxlint": "^1.93.0",
+    "tsrs": "^0.25.0-ts7.1.0-beta",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.0"

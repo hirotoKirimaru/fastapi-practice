@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { GraphQLRequestError, type User } from "../src/api/client";
+import { GraphQLRequestError } from "../src/api/client";
 import {
   CREATE_POST_MUTATION,
   ME_QUERY,
@@ -24,7 +24,7 @@ describe("認証: 登録・ログイン", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: "evil", email: uniqueEmail("evil"), password: PASSWORD, is_superuser: true }),
     });
-    expect(((await res.json()) as User).is_superuser).toBe(false);
+    expect(await res.json()).toMatchObject({ is_superuser: false });
   });
 
   it.each([
@@ -139,7 +139,7 @@ describe("認証: GraphQL", () => {
   it("createPost はログイン中のユーザの投稿になり、REST の /posts にも出る", async () => {
     const { user, api } = await signupAndLogin("gql-post");
     const title = `e2e post ${crypto.randomUUID()}`;
-    const { createPost } = await api.graphql<CreatePostResult, { title: string }>(CREATE_POST_MUTATION, { title });
+    const { createPost } = await api.graphql<CreatePostResult>(CREATE_POST_MUTATION, { title });
     expect(createPost).toMatchObject({ title, userId: user.id });
     await expect(api.posts.list()).resolves.toEqual([{ id: createPost.id, title, user_id: user.id }]);
   });
@@ -157,11 +157,11 @@ describe("認証: GraphQL", () => {
     const api = client(token);
     for (const call of [
       () => api.graphql<MeResult>(ME_QUERY),
-      () => api.graphql<CreatePostResult, { title: string }>(CREATE_POST_MUTATION, { title: "x" }),
+      () => api.graphql<CreatePostResult>(CREATE_POST_MUTATION, { title: "x" }),
     ]) {
       const error = await call().catch((e: unknown) => e);
-      expect(error).toBeInstanceOf(GraphQLRequestError);
-      expect((error as GraphQLRequestError).errors[0].message).toBe("User is not authenticated");
+      if (!(error instanceof GraphQLRequestError)) throw error;
+      expect(error.errors[0].message).toBe("User is not authenticated");
     }
   });
 });

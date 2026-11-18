@@ -252,6 +252,10 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # Oxlint。型情報を使うルール（no-floating-promises など）は tsrs（Rust 版の TypeScript 7）で動く
+      - name: Lint
+        run: bun run lint
+
       # src（ブラウザ）と e2e（Node）の型検査は build の tsc -b に含まれる
       - name: Build
         run: bun run build

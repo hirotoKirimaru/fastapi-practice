@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { bodyText, urlOf } from "../test/fetch";
+
 import { ApiError, createApiClient, GraphQLRequestError } from "./client";
 
 function jsonResponse(body: unknown, status = 200) {
@@ -18,7 +20,7 @@ function setup(response: Response, token: string | null = null) {
   });
   const lastCall = () => {
     const [url, init] = fetchMock.mock.calls.at(-1)!;
-    return { url: String(url), init: init!, headers: new Headers(init!.headers) };
+    return { url: urlOf(url), init: init!, headers: new Headers(init!.headers) };
   };
   return { api, fetchMock, lastCall };
 }
@@ -46,7 +48,7 @@ describe("createApiClient", () => {
     expect(url).toBe("http://api.test/auth/login");
     expect(init.method).toBe("POST");
     expect(headers.get("Content-Type")).toBe("application/x-www-form-urlencoded");
-    expect(Object.fromEntries(new URLSearchParams(String(init.body)))).toEqual({
+    expect(Object.fromEntries(new URLSearchParams(bodyText(init)))).toEqual({
       username: "a+b@example.com",
       password: "p@ss word",
     });
@@ -98,7 +100,7 @@ describe("createApiClient", () => {
     });
     const { url, init } = lastCall();
     expect(url).toBe("http://api.test/graphql");
-    expect(JSON.parse(String(init.body))).toEqual({
+    expect(JSON.parse(bodyText(init))).toEqual({
       query: "query ($n: String!) { hello(name: $n) }",
       variables: { n: "x" },
     });
@@ -109,7 +111,7 @@ describe("createApiClient", () => {
       jsonResponse({ data: null, errors: [{ message: "User is not authenticated", path: ["me"] }] }),
     );
     const error = await api.graphql("{ me { id } }").catch((e: unknown) => e);
-    expect(error).toBeInstanceOf(GraphQLRequestError);
-    expect((error as GraphQLRequestError).errors[0].message).toBe("User is not authenticated");
+    if (!(error instanceof GraphQLRequestError)) throw error;
+    expect(error.errors[0].message).toBe("User is not authenticated");
   });
 });
