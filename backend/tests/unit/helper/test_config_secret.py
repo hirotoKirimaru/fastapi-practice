@@ -22,5 +22,15 @@ def test_secret_is_random_with_warning_on_local(
 
 def test_secret_from_environment_is_used(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SECRET", "a-fixed-secret-for-all-processes")
+    monkeypatch.setenv("FIRST_SUPERUSER_PASSWORD", "a-real-admin-password")
     settings = Settings(_env_file=None, ENV="prod")  # type: ignore[call-arg]
     assert settings.SECRET == "a-fixed-secret-for-all-processes"
+
+
+def test_default_superuser_password_rejected_outside_local(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("SECRET", "a-fixed-secret-for-all-processes")
+    monkeypatch.delenv("FIRST_SUPERUSER_PASSWORD", raising=False)
+    with pytest.raises(ValueError, match="FIRST_SUPERUSER_PASSWORD"):
+        Settings(_env_file=None, ENV="prod")  # type: ignore[call-arg]

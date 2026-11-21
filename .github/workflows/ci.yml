@@ -228,7 +228,7 @@ jobs:
       - name: ty
         run: uv run ty check src
 
-  # frontend がビルドできること（以前は CI で一度もビルドしていなかった）
+  # frontend の型検査・ビルド・unit テスト（以前は CI で一度もビルドしていなかった）
   frontend:
     runs-on: ubuntu-26.04-arm
     timeout-minutes: 10
@@ -238,18 +238,106 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # bun の版は package.json の packageManager（bun@x.y.z）から取る
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: frontend/package.json
+
+      # bun はパッケージ管理とスクリプトの起動に使い、Vite / Vitest 自体は Node で動かす
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
 
-      # package-lock.json のとおりに入れる。.npmrc の Takumi Guard 経由で取得する
+      # bun.lock のとおりに入れる。.npmrc の Takumi Guard 経由で、bunfig.toml で公開 3 日未満の版は除く
       - name: Install dependencies
-        run: npm ci --no-audit --no-fund
+        run: bun install --frozen-lockfile
 
+      # Oxlint。型情報を使うルール（no-floating-promises など）は tsrs（Rust 版の TypeScript 7）で動く
+      - name: Lint
+        run: bun run lint
+
+      # src（ブラウザ）と e2e（Node）の型検査は build の tsc -b に含まれる
       - name: Build
-        run: npm run build
+        run: bun run build
+
+      # Vitest の unit プロジェクト（jsdom。fetch を差し替えるのでバックエンドは要らない）
+      - name: Unit tests
+        run: bun run test:coverage
+
+  # 本物のバックエンドを起動し、frontend の API クライアントで REST / GraphQL / 認証を叩く（Vitest の e2e プロジェクト）
+  e2e:
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 15
+    services:
+      db:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: demo
+        ports:
+          - 5432:5432
+        options: >-
+          --tmpfs /var/lib/postgresql
+          --health-cmd "pg_isready -U postgres -d demo"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+    env:
+      DATABASE_URL: postgresql+psycopg://postgres@localhost:5432/demo
+      ENV: local
+      SECRET: e2e-secret-change-me-at-least-32-bytes
+      GOOGLE_API_KEY: dummy-for-local-ci
+      SQL_ECHO: "false"
+      FIRST_SUPERUSER: admin@example.com
+      FIRST_SUPERUSER_PASSWORD: e2e-root-password
+      E2E_API_BASE_URL: http://localhost:8000
+      E2E_SUPERUSER_EMAIL: admin@example.com
+      E2E_SUPERUSER_PASSWORD: e2e-root-password
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.15"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: frontend/package.json
+
+      # bun はパッケージ管理とスクリプトの起動に使い、Vite / Vitest 自体は Node で動かす
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      # alembic が dev グループにあるので dev も入れる
+      - name: Install backend dependencies
+        working-directory: backend
+        run: uv sync --frozen --no-default-groups --group api --group auth --group dev
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: bun install --frozen-lockfile
+
+      # DB を待つ -> マイグレーション -> 最初の管理者（FIRST_SUPERUSER）の作成。管理者の e2e がこの管理者で入る
+      - name: Prestart (migration and initial data)
+        working-directory: backend
+        run: uv run poe prestart
+
+      # 起動待ちは e2e/global-setup.ts が /health-check/ を見て行う（最大 30 秒）
+      - name: Start backend
+        working-directory: backend
+        run: nohup uv run uvicorn src.main:app --port 8000 > "${RUNNER_TEMP}/api.log" 2>&1 &
+
+      - name: E2E tests
+        working-directory: frontend
+        run: bun run test:e2e
+
+      - name: Backend log
+        if: failure()
+        run: tail -200 "${RUNNER_TEMP}/api.log"
 
   # prod / worker イメージがビルドできることだけを確かめる（push しない）。
   # 以前 prod ステージは存在しない image を FROM にしていて、誰も気づかないままビルドできなかった

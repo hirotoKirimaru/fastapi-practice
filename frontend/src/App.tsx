@@ -1,61 +1,300 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+import { createApiClient, type ApiClient, type User } from "./api/client";
+import { API_BASE_URL } from "./api/config";
+import { ME_QUERY, type MeResult } from "./api/graphql";
+import { errorMessage } from "./api/messages";
 
-type FetchState =
-  | { status: "loading" }
-  | { status: "ok"; data: unknown }
-  | { status: "error"; message: string };
+export const TOKEN_KEY = "fastapi-practice.token";
 
-export default function App() {
-  const [state, setState] = useState<FetchState>({ status: "loading" });
+function readToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function writeToken(token: string | null) {
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // プライベートウィンドウ等で使えないときはメモリ上だけで持つ
+  }
+}
+
+/** フォームの文字列の値。ファイル（File）や未入力は空文字にする */
+function field(form: FormData, name: string): string {
+  const value = form.get(name);
+  return typeof value === "string" ? value : "";
+}
+
+export default function App({ baseUrl = API_BASE_URL }: { baseUrl?: string }) {
+  const [token, setTokenState] = useState<string | null>(readToken);
+  const api = useMemo(() => createApiClient({ baseUrl, getToken: () => token }), [baseUrl, token]);
+
+  const [health, setHealth] = useState("loading...");
+  const [me, setMe] = useState<User | null>(null);
+  const [gqlEmail, setGqlEmail] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  // ログアウト時の表示の片付けは effect ではなくここでやる（effect の中で同期的に setState しない）
+  const setToken = useCallback((next: string | null) => {
+    writeToken(next);
+    setTokenState(next);
+    if (!next) {
+      setMe(null);
+      setGqlEmail(null);
+    }
+  }, []);
+
+  /** 失敗したらエラーを出す。成功時のお知らせは notice */
+  async function run(action: () => Promise<unknown>, done?: string) {
+    setError(null);
+    setNotice(null);
+    try {
+      await action();
+      if (done) setNotice(done);
+    } catch (e) {
+      setError(errorMessage(e));
+    }
+  }
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`${API_BASE_URL}/health/`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-        const data = await res.json();
-        setState({ status: "ok", data });
-      })
-      .catch((e: unknown) => {
-        if (e instanceof DOMException && e.name === "AbortError") return;
-        setState({
-          status: "error",
-          message: e instanceof Error ? e.message : String(e),
-        });
-      });
+    createApiClient({ baseUrl, signal: controller.signal })
+      .health()
+      .then(
+        (data) => setHealth(JSON.stringify(data)),
+        (e: unknown) => {
+          if (e instanceof DOMException && e.name === "AbortError") return;
+          setHealth(`error: ${errorMessage(e)}`);
+        },
+      );
     return () => controller.abort();
-  }, []);
+  }, [baseUrl]);
+
+  // トークンがあれば REST（/users/me）と GraphQL（me）の両方でログイン中のユーザを取る
+  useEffect(() => {
+    let cancelled = false;
+    if (token) {
+      Promise.all([api.me(), api.graphql<MeResult>(ME_QUERY)]).then(
+        ([rest, gql]) => {
+          if (cancelled) return;
+          setMe(rest);
+          setGqlEmail(gql.me.email);
+        },
+        (e: unknown) => {
+          if (cancelled) return;
+          setError(errorMessage(e)); // 期限切れ・ログアウト済み等。ログイン画面に戻す
+          setToken(null);
+        },
+      );
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [api, token, setToken]);
 
   return (
-    <main
-      style={{
-        fontFamily: "system-ui, sans-serif",
-        padding: "2rem",
-        maxWidth: 720,
-        margin: "0 auto",
-      }}
-    >
+    <main style={{ fontFamily: "system-ui, sans-serif", padding: "2rem", maxWidth: 720, margin: "0 auto" }}>
       <h1>fastapi-practice frontend sample</h1>
       <p>
-        Backend: <code>{API_BASE_URL}</code>
+        Backend: <code>{baseUrl}</code> / GET <code>/health/</code>: <code data-testid="health">{health}</code>
       </p>
-      <h2>
-        GET <code>/health/</code>
-      </h2>
-      {state.status === "loading" && <p>loading...</p>}
-      {state.status === "ok" && (
-        <pre style={{ background: "#f4f4f4", padding: "1rem" }}>
-          {JSON.stringify(state.data, null, 2)}
-        </pre>
+
+      {error && (
+        <p role="alert" style={{ color: "crimson" }}>
+          {error}
+        </p>
       )}
-      {state.status === "error" && (
-        <p style={{ color: "crimson" }}>error: {state.message}</p>
+      {notice && <output style={{ display: "block" }}>{notice}</output>}
+
+      {me ? (
+        <SignedIn
+          api={api}
+          me={me}
+          gqlEmail={gqlEmail}
+          run={run}
+          onUpdated={setMe}
+          onSignedOut={() => setToken(null)}
+        />
+      ) : (
+        <SignedOut api={api} run={run} onSignedIn={setToken} />
       )}
     </main>
+  );
+}
+
+type Run = (action: () => Promise<unknown>, done?: string) => Promise<void>;
+
+function SignedOut({ api, run, onSignedIn }: { api: ApiClient; run: Run; onSignedIn: (token: string) => void }) {
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
+  const title = { login: "ログイン", register: "新規登録", forgot: "パスワードを忘れた" }[mode];
+
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const email = field(form, "email");
+    const password = field(form, "password");
+    if (mode === "forgot") {
+      void run(() => api.auth.forgotPassword(email), "登録済みなら、再設定のメールを送りました");
+      return;
+    }
+    void run(async () => {
+      if (mode === "register") await api.auth.register({ name: field(form, "name"), email, password });
+      onSignedIn((await api.auth.login(email, password)).access_token);
+    });
+  }
+
+  return (
+    <form onSubmit={onSubmit} aria-label={title}>
+      <h2>{title}</h2>
+      {mode === "register" && (
+        <label>
+          名前 <input name="name" required />
+        </label>
+      )}
+      <label>
+        メールアドレス <input name="email" type="email" required />
+      </label>
+      {mode !== "forgot" && (
+        <label>
+          パスワード <input name="password" type="password" minLength={8} required />
+        </label>
+      )}
+      <button type="submit">{{ login: "ログイン", register: "登録してログイン", forgot: "再設定メールを送る" }[mode]}</button>
+      <nav>
+        {mode !== "login" && (
+          <button type="button" onClick={() => setMode("login")}>
+            ログインへ
+          </button>
+        )}
+        {mode !== "register" && (
+          <button type="button" onClick={() => setMode("register")}>
+            新規登録へ
+          </button>
+        )}
+        {mode !== "forgot" && (
+          <button type="button" onClick={() => setMode("forgot")}>
+            パスワードを忘れた
+          </button>
+        )}
+      </nav>
+    </form>
+  );
+}
+
+function SignedIn(props: {
+  api: ApiClient;
+  me: User;
+  gqlEmail: string | null;
+  run: Run;
+  onUpdated: (user: User) => void;
+  onSignedOut: () => void;
+}) {
+  const { api, me, gqlEmail, run, onUpdated, onSignedOut } = props;
+
+  function onRename(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const name = field(new FormData(e.currentTarget), "name");
+    void run(async () => onUpdated(await api.updateMe({ name })), "名前を変えました");
+  }
+
+  function onChangePassword(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    void run(async () => {
+      await api.changePassword(field(form, "current"), field(form, "next"));
+      onSignedOut(); // 全端末のトークンが無効になるので、ログインし直してもらう
+    }, "パスワードを変えました。新しいパスワードでログインしてください");
+  }
+
+  return (
+    <section aria-label="ログイン中">
+      <h2>ようこそ、{me.name ?? me.email} さん</h2>
+      <p>
+        REST <code>GET /users/me</code>: <code>{me.email}</code> / GraphQL <code>{"{ me { email } }"}</code>:{" "}
+        <code>{gqlEmail}</code>
+        {me.is_superuser && <strong>（管理者）</strong>}
+      </p>
+      <button
+        type="button"
+        onClick={() =>
+          // サーバ側の無効化に失敗しても（期限切れ等）、手元のトークンは必ず捨てる
+          void run(() => api.auth.logout().finally(onSignedOut))
+        }
+      >
+        ログアウト
+      </button>
+
+      <form onSubmit={onRename} aria-label="名前の変更">
+        <label>
+          名前 <input name="name" defaultValue={me.name ?? ""} required />
+        </label>
+        <button type="submit">名前を変える</button>
+      </form>
+
+      <form onSubmit={onChangePassword} aria-label="パスワードの変更">
+        <label>
+          今のパスワード <input name="current" type="password" required />
+        </label>
+        <label>
+          新しいパスワード <input name="next" type="password" minLength={8} required />
+        </label>
+        <button type="submit">パスワードを変える</button>
+      </form>
+
+      {me.is_superuser ? (
+        <AdminUsers api={api} run={run} />
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            if (!confirm("退会しますか？")) return;
+            void run(async () => (await api.deleteMe(), onSignedOut()), "退会しました");
+          }}
+        >
+          退会する
+        </button>
+      )}
+    </section>
+  );
+}
+
+function AdminUsers({ api, run }: { api: ApiClient; run: Run }) {
+  const [users, setUsers] = useState<User[] | null>(null);
+  const load = () => run(async () => setUsers((await api.users.list()).data));
+
+  return (
+    <section aria-label="ユーザ管理">
+      <h3>ユーザ管理</h3>
+      <button type="button" onClick={() => void load()}>
+        一覧を読む
+      </button>
+      {users && (
+        <table>
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.id}>
+                <td>{u.id}</td>
+                <td>{u.email}</td>
+                <td>{u.is_active ? "有効" : "停止中"}</td>
+                <td>
+                  <button
+                    type="button"
+                    onClick={() => void run(async () => (await api.users.update(u.id, { is_active: !u.is_active }), load()))}
+                  >
+                    {u.is_active ? "停止" : "再開"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
   );
 }

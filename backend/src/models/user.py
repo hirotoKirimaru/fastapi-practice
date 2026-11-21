@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Optional
 
-from sqlalchemy import VARCHAR, Column, DateTime
+from sqlalchemy import VARCHAR, Boolean, Column, DateTime, false, true
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlmodel import Field, Relationship
 from sqlmodel._compat import SQLModelConfig
@@ -42,6 +42,22 @@ class User(Base, table=True):
     )
     birth_day: datetime | None = Field(default=None, sa_column=Column(DateTime))
     salt: str | None = Field(default=None, sa_column=Column(VARCHAR(255)))
+    # 認証（fastapi-users。src/auth/）が使う項目。
+    # パスワードのハッシュは Argon2（bcrypt も読める）。fastapi-users の UserProtocol に合わせて
+    # NOT NULL にし、空文字を「パスワードを持たない（ログインできない）」の意味にする
+    hashed_password: str = Field(
+        default="",
+        sa_column=Column(VARCHAR(255), nullable=False, server_default=""),
+    )
+    is_active: bool = Field(
+        default=True, sa_column=Column(Boolean, nullable=False, server_default=true())
+    )
+    is_superuser: bool = Field(
+        default=False, sa_column=Column(Boolean, nullable=False, server_default=false())
+    )
+    is_verified: bool = Field(
+        default=False, sa_column=Column(Boolean, nullable=False, server_default=false())
+    )
 
     posts: list["Post"] = Relationship()
 

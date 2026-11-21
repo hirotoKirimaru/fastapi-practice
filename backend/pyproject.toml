@@ -24,7 +24,8 @@ api = [
     "greenlet>=3.5.6",
     "polars>=2.1.0",
     "boto3>=1.44.3",
-    "passlib>=1.7.4",
+    # パスワードのハッシュ化。passlib は保守が止まっていて bcrypt 4.1 以降と組み合わせられず
+    # （MissingBackendError）、ハッシュを作れなかったので置き換えた。方式は Argon2
     "tenacity>=9.1.4",
     "google-genai>=3.3.0",
     "sentry-sdk>=2.75.0",
@@ -32,6 +33,7 @@ api = [
 # Celery の worker だけが使うもの（今は共通の依存だけで足りている）
 worker = []
 auth = [
+    "fastapi-users>=15.0.5",
     "pyjwt>=2.15.1",
     "pyotp>=2.11.2",
 ]
@@ -44,7 +46,6 @@ dev = [
     "pytest-check>=3.0.3",
     "alembic>=1.20.1",
     "allure-pytest>=2.16.2",
-    "types-passlib>=1.7.7.20260211",
     "ty>=0.0.104",
     "tuna>=0.5.15",
     "poethepoet>=0.49.0",
@@ -153,6 +154,10 @@ check = { sequence = ["check:ruff", "check:format", "check:ty"] }
 start = "uvicorn src.main:app --host 0.0.0.0 --reload"
 production = "uvicorn src.main:app --workers 4"
 pre-start = "python -m src.backend_pre_start"
+# full-stack-fastapi-template の prestart.sh に相当: DB を待つ -> マイグレーション -> 最初の管理者を作る
+prestart = { sequence = ["pre-start", "migrate", "initial-data"] }
+migrate = "alembic upgrade head"
+initial-data = "python -m src.initial_data"
 
 
 [tool.pyrefly]
