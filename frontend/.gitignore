@@ -2,3 +2,5 @@ node_modules/
 dist/
 .env
 .env.local
+# tsc -b のビルド情報（npm run build で生成される）
+*.tsbuildinfo
