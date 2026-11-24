@@ -18,7 +18,7 @@ requires-python = ">= 3.15"
 [dependency-groups]
 # API（FastAPI）のプロセスだけが使うもの。worker のイメージには入れない
 api = [
-    "fastapi[standard]>=0.164.0",
+    "fastapi[standard]>=0.165.0",
     "strawberry-graphql[fastapi]>=0.341.2",
     # SQLAlchemy の asyncio 拡張が使う。worker は同期で DB を触るので不要
     "greenlet>=3.5.6",
